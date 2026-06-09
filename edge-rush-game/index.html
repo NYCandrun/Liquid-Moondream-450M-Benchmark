@@ -120,6 +120,12 @@
     background:rgba(240,84,74,.12);color:var(--danger);border:1px solid rgba(240,84,74,.4);
     padding:6px 14px;border-radius:var(--radius-pill);font-family:var(--font-display);font-size:11px;
     font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+  #chiptip{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:80%;z-index:42;
+    font-family:var(--font-body);font-size:11.5px;line-height:1.45;color:var(--mist-300);text-align:center;
+    background:rgba(18,19,22,.9);border:1px solid var(--ink-700);border-radius:var(--radius-md);
+    padding:7px 14px;opacity:0;pointer-events:none;transition:opacity var(--dur) var(--ease-fluid)}
+  #chiptip.show{opacity:1}
+  #chiptip b{color:var(--white);font-weight:600}
 
   /* ---------- routing blocks ---------- */
   .blockrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
@@ -145,6 +151,8 @@
       background-color var(--dur-slow) var(--ease-fluid),color var(--dur-slow) var(--ease-fluid),
       border-color var(--dur-slow) var(--ease-fluid)}
   .keys .kbd{color:var(--mist-300)}
+  .keys-sub{display:block;margin-top:5px;font-size:.85em;color:var(--graphite-500)}
+  .keys.hero .keys-sub{color:var(--mist-300)}
   /* prominent first-time prompt, gracefully shrinks to the line above on first move */
   .keys.hero{font-size:15px;color:var(--white);padding:11px 24px;
     background:rgba(47,182,242,.12);border-color:rgba(47,182,242,.45);
@@ -157,11 +165,11 @@
   .overlay{position:absolute;inset:0;z-index:60;background:rgba(10,11,13,.94);display:flex;
     align-items:center;justify-content:flex-start;flex-direction:column;text-align:left;
     padding:40px 38px 32px;border-radius:var(--radius-md);overflow:auto}
-  .overlay > *{max-width:600px;width:100%;animation:fadeUp var(--dur-slow) var(--ease-fluid) both}
-  .overlay > *:nth-child(2){animation-delay:60ms}
-  .overlay > *:nth-child(3){animation-delay:120ms}
-  .overlay > *:nth-child(4){animation-delay:180ms}
-  .overlay > *:nth-child(n+5){animation-delay:240ms}
+  .overlay > *{max-width:600px;width:100%;flex-shrink:0;animation:fadeUp 420ms var(--ease-fluid) both}
+  .overlay > *:nth-child(2){animation-delay:40ms}
+  .overlay > *:nth-child(3){animation-delay:80ms}
+  .overlay > *:nth-child(4){animation-delay:120ms}
+  .overlay > *:nth-child(n+5){animation-delay:160ms}
   @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
   @keyframes liquid-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
   .overlay h2{font-family:var(--font-display);font-weight:600;font-size:24px;letter-spacing:-.015em;
@@ -200,7 +208,7 @@
   .learn b{color:var(--white);font-weight:600}
 
   /* ---------- payoff mix bar ---------- */
-  .mixbar{display:flex;height:30px;border-radius:var(--radius-sm);overflow:hidden;margin:14px 0 8px;
+  .mixbar{display:flex;height:30px;min-height:30px;flex-shrink:0;border-radius:var(--radius-sm);overflow:hidden;margin:14px 0 8px;
     border:1px solid var(--ink-700);width:100%}
   .mixbar > span{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
     font-size:11px;font-weight:600;color:#06101f;min-width:0;overflow:hidden;white-space:nowrap;
@@ -259,6 +267,7 @@
     <div id="stage">
       <div id="queueline"></div>
       <div id="floats"></div>
+      <div id="chiptip"></div>
       <button id="help" title="Pause and explain this lesson">?</button>
       <div class="overlay" id="overlay"></div>
     </div>
@@ -447,18 +456,19 @@ function newReq(){
 
 function pushReq(){
   const r = newReq();
-  const isSpec = G.nanoType && STAGES[G.stageIdx].flags.nano && r.t.name===G.nanoType.name;
+  const nanoStage = STAGES[G.stageIdx].flags.nano;
+  const isSpec = nanoStage && G.nanoType && r.t.name===G.nanoType.name;
   const el = document.createElement('div');
   el.className='req';
   el.innerHTML = `
-    <div class="top"><span class="type">${r.t.name}</span><span class="id">#${G.served+G.queue.length+1}</span></div>
+    <div class="top"><span class="type" title="Request type: the kind of task arriving">${r.t.name}</span><span class="id">#${G.served+G.queue.length+1}</span></div>
     <div class="tags">
-      <span class="chip ${r.long?'long':''}">${r.long?'LONG':'short'}</span>
-      <span class="chip ${r.complex?'complex':''}">${r.complex?'COMPLEX':'simple'}</span>
-      ${isSpec?'<span class="chip spec">specialist</span>':''}
+      <span class="chip ${r.long?'long':''}" title="${r.long?'LONG: thousands of tokens to read, which fills the KV-cache':'short: little to read'}">${r.long?'LONG':'short'}</span>
+      <span class="chip ${r.complex?'complex':''}" title="${r.complex?'COMPLEX: needs real reasoning, so FAST gets it wrong':'simple: pattern-matching is enough'}">${r.complex?'COMPLEX':'simple'}</span>
+      ${nanoStage?`<span class="chip spec" title="A NANO specialist is loaded for this exact task" style="${isSpec?'':'display:none'}">specialist</span>`:''}
     </div>
     <div class="timer"><i></i></div>`;
-  r.el = el; r.bar = el.querySelector('.timer > i');
+  r.el = el; r.bar = el.querySelector('.timer > i'); r.specEl = el.querySelector('.chip.spec');
   stageEl.appendChild(el);
   G.queue.push(r);
 }
@@ -479,6 +489,48 @@ function float(txt,color){
   floats.appendChild(f); setTimeout(()=>f.remove(),1000);
 }
 function srSay(t){ const e=$('sr'); if(e) e.textContent=t; }   // announce to screen readers
+
+/* one-line chip explainers: surface a definition the first couple times a chip type appears, then drop */
+const CHIP_DEFS = {
+  LONG:'<b>LONG</b> = thousands of tokens to read, which fills the KV-cache.',
+  COMPLEX:'<b>COMPLEX</b> = needs real reasoning, so FAST gets it wrong.',
+  SPEC:'<b>Specialist</b> = a NANO is loaded for this exact task. NANO nails it.',
+};
+const chipSeen = {LONG:0, COMPLEX:0, SPEC:0};   // session-wide, so tips drop once learned
+const EXPLAIN_LIMIT = 2;
+let chiptipTimer = 0;
+function explainFront(){
+  const r = G.queue[0]; if(!r) return;
+  const isSpec = STAGES[G.stageIdx].flags.nano && G.nanoType && r.t.name===G.nanoType.name;
+  let key = null;
+  if(isSpec && chipSeen.SPEC<EXPLAIN_LIMIT) key='SPEC';
+  else if(r.long && chipSeen.LONG<EXPLAIN_LIMIT) key='LONG';
+  else if(r.complex && chipSeen.COMPLEX<EXPLAIN_LIMIT) key='COMPLEX';
+  if(!key) return;
+  chipSeen[key]++;
+  const t=$('chiptip'); if(!t) return;
+  t.innerHTML=CHIP_DEFS[key]; t.classList.add('show');
+  clearTimeout(chiptipTimer); chiptipTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function setSpecialistBanner(){
+  const sp=$('specialist');
+  if(STAGES[G.stageIdx].flags.nano && G.nanoType){
+    sp.classList.add('show');
+    sp.innerHTML=`Specialist loaded: <b>${G.nanoType.name}</b>. NANO is exact for these, useless for the rest.`;
+  } else sp.classList.remove('show');
+}
+function updateSpecChips(){
+  G.queue.forEach(r=>{ if(r.specEl) r.specEl.style.display = (G.nanoType && r.t.name===G.nanoType.name)?'':'none'; });
+}
+function rotateSpecialist(){
+  if(!STAGES[G.stageIdx].flags.nano) return;
+  let next=G.nanoType;
+  for(let i=0;i<8 && (!next || (G.nanoType && next.name===G.nanoType.name)); i++) next=TYPES[Math.floor(Math.random()*TYPES.length)];
+  G.nanoType=next;
+  setSpecialistBanner(); updateSpecChips();
+  float('specialist now '+next.name,'var(--nano)'); srSay('Specialist swapped to '+next.name);
+}
 
 function pulseRam(){
   const m=$('ramMeter'); m.classList.remove('pulse'); void m.offsetWidth; m.classList.add('pulse');
@@ -533,6 +585,8 @@ function route(kind){
   float(msg,col);
   r.el.remove(); G.queue.shift(); G.served++; G.servedInStage++;
   pushReq(); layout();
+  if(f.nano && G.servedInStage < st.goal){ const iv=Math.max(3,Math.floor(st.goal/3)); if(G.servedInStage % iv===0) rotateSpecialist(); }
+  explainFront();
 
   if(f.ram && G.ram>=cap)
     end('Out of memory','KV-cache overflow','Attention\'s memory filled the RAM. A pure transformer hits this wall on small hardware, because its memory grows with every token. Lean on the FAST block.');
@@ -564,7 +618,7 @@ function tick(now){
     if(r.life<=0){
       G.acc = clamp(G.acc-12,0,100);
       float('too slow','var(--danger)');
-      r.el.remove(); G.queue.shift(); G.served++; pushReq(); layout();
+      r.el.remove(); G.queue.shift(); G.served++; pushReq(); layout(); explainFront();
     }
   }
 
@@ -605,12 +659,10 @@ function applyStageUI(){
   $('batMeter').classList.toggle('hide', !f.battery);
   $('bAttn').classList.toggle('hide', !f.attn);
   $('bNano').classList.toggle('hide', !f.nano);
-  $('keys').innerHTML = st.keys;
+  $('keys').innerHTML = st.keys + '<span class="keys-sub">Press the number keys or click to route each request.</span>';
   $('keys').classList.toggle('hero', !firstActionDone);
   $('bCloud').disabled = false;
-  const sp=$('specialist');
-  if(f.nano && G.nanoType){ sp.classList.add('show'); sp.innerHTML=`Specialist loaded: <b>${G.nanoType.name}</b>. NANO is exact for these, useless for the rest.`; }
-  else sp.classList.remove('show');
+  setSpecialistBanner();
 }
 
 function startStage(){
@@ -622,6 +674,8 @@ function startStage(){
   applyStageUI();
   for(let i=0;i<4;i++) pushReq();
   layout(); draw();
+  const ct=$('chiptip'); if(ct) ct.classList.remove('show');
+  explainFront();
   G.running=true; G.last=performance.now();
   overlay.style.display='none';
   $('help').style.display='flex';
@@ -642,6 +696,7 @@ function openHelp(){
 function checkStageDone(){
   const st=STAGES[G.stageIdx];
   if(G.servedInStage < st.goal) return;
+  draw();                              // sync the lesson counter before the overlay
   G.running=false; banner(false);
   if(G.stageIdx >= STAGES.length-1){ return victory(); }
   show(st.done + `<div class="opts"><button class="btn btn-liquid" id="next">Next lesson</button></div>`);
@@ -649,6 +704,7 @@ function checkStageDone(){
 }
 
 function end(eyebrowTxt,title,lesson){
+  draw();                              // sync the counter before the overlay
   G.running=false; banner(false); recordProgress();
   show(`${eyebrow(eyebrowTxt)}<h2>${title}</h2>
     <div class="stat">Lesson ${G.stageIdx+1} · ${G.servedInStage} served · score ${G.score}</div>
