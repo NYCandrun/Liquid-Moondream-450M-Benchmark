@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EDGE RUSH — an on-device AI game</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#121a2e; --ink:#e6ecff; --muted:#7e8bb0;
+    --conv:#3ddc97; --attn:#ffb454; --cloud:#5aa9ff;
+    --bad:#ff5d6c; --good:#3ddc97; --line:#23304f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(1200px 700px at 50% -10%, #15203a 0%, var(--bg) 60%);
+    color:var(--ink); font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    display:flex; align-items:center; justify-content:center; min-height:100%;
+    -webkit-font-smoothing:antialiased; padding:16px;
+  }
+  #app{width:min(880px,100%)}
+  h1{font-size:24px;margin:0;letter-spacing:1px}
+  h1 small{color:var(--muted);font-weight:400;font-size:13px;letter-spacing:0}
+  .card{position:relative;background:linear-gradient(180deg,#141d33,#0f1626);border:1px solid var(--line);
+    border-radius:16px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  #help{position:absolute;top:16px;right:16px;width:30px;height:30px;padding:0;border-radius:50%;
+    background:#0c1424;border:1px solid var(--line);color:var(--muted);font-weight:700;font-size:15px;
+    display:none;align-items:center;justify-content:center;z-index:60}
+  #help:hover{color:var(--ink);border-color:var(--cloud)}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:12px;color:#06101f;
+    font-weight:700;padding:14px 16px;font-size:15px;transition:transform .05s ease,filter .15s}
+  button:active{transform:translateY(1px)}
+  button:disabled{filter:grayscale(.7) brightness(.6);cursor:not-allowed}
+  .btn-conv{background:var(--conv)} .btn-attn{background:var(--attn)} .btn-cloud{background:var(--cloud)}
+
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
+  .stagetag{font-size:12px;color:var(--muted)}
+
+  .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+  .meter{background:#0c1424;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .meter.hide{display:none}
+  .meter .lab{font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+  .bar{height:9px;border-radius:6px;background:#1b2742;margin-top:8px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:50%;border-radius:6px;transition:width .25s}
+
+  #stage{position:relative;height:330px;background:#0b1322;border:1px solid var(--line);
+    border-radius:14px;overflow:hidden;margin:6px 0 14px}
+  #queueline{position:absolute;left:0;right:0;top:0;height:100%}
+  .req{position:absolute;left:50%;transform:translateX(-50%);width:80%;border-radius:12px;
+    padding:12px 14px;border:1px solid var(--line);background:#13203a;
+    box-shadow:0 10px 25px rgba(0,0,0,.4)}
+  .req .top{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .req .type{font-weight:700;letter-spacing:.5px}
+  .req .tags{display:flex;gap:6px;margin-top:8px;font-size:11px;color:var(--muted)}
+  .chip{padding:2px 8px;border-radius:20px;border:1px solid var(--line);background:#0d1830}
+  .chip.long{color:#ffd9a0;border-color:#5a4628}
+  .chip.complex{color:#ffb0b8;border-color:#5a2c33}
+  .timer{height:6px;border-radius:6px;background:#23304f;margin-top:10px;overflow:hidden}
+  .timer > i{display:block;height:100%;background:var(--cloud)}
+  #floats{position:absolute;inset:0;pointer-events:none}
+  .float{position:absolute;font-weight:700;font-size:14px;animation:rise 1s ease-out forwards}
+  @keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-40px)}}
+  .banner{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:#3a1620;
+    color:#ffb0b8;border:1px solid #5a2c33;padding:6px 12px;border-radius:20px;font-size:12px;
+    font-weight:700;letter-spacing:.5px}
+
+  .keys{font-size:12px;color:var(--muted);margin-top:8px;text-align:center;min-height:16px}
+  .btn-attn.hide{display:none}
+
+  .overlay{position:absolute;inset:0;background:rgba(7,11,22,.95);display:flex;
+    align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:26px;border-radius:14px}
+  .overlay h2{margin:0 0 10px;font-size:20px}
+  .overlay .body{max-width:560px;font-size:13.5px;line-height:1.75;text-align:left}
+  .overlay .body p{margin:6px 0}
+  .overlay .body .lead{font-size:14px}
+  .kbd{display:inline-block;padding:1px 7px;border-radius:6px;font-weight:700;color:#06101f;font-size:12px}
+  .stat{font-size:13px;color:var(--muted);margin:3px 0}
+  .progress{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="card">
+    <button id="help" title="Explain this lesson">?</button>
+    <div class="topbar">
+      <h1>EDGE RUSH <small>— you are the AI chip</small></h1>
+      <div style="text-align:right">
+        <div id="device" class="stagetag">📱 Phone</div>
+        <div id="stageInfo" class="stagetag"></div>
+      </div>
+    </div>
+
+    <div class="meters">
+      <div class="meter hide" id="batMeter">
+        <div class="lab"><span>🔋 BATTERY</span><span id="batTxt">100%</span></div>
+        <div class="bar"><i id="batBar" style="background:var(--good)"></i></div>
+      </div>
+      <div class="meter hide" id="ramMeter">
+        <div class="lab"><span>🧠 RAM (KV-cache)</span><span id="ramTxt">0%</span></div>
+        <div class="bar"><i id="ramBar" style="background:var(--attn)"></i></div>
+      </div>
+      <div class="meter" id="accMeter">
+        <div class="lab"><span>🎯 ACCURACY</span><span id="accTxt">100%</span></div>
+        <div class="bar"><i id="accBar" style="background:var(--cloud)"></i></div>
+      </div>
+    </div>
+
+    <div id="stage">
+      <div id="queueline"></div>
+      <div id="floats"></div>
+      <div class="overlay" id="overlay"></div>
+    </div>
+
+    <div class="row" style="justify-content:center">
+      <button class="btn-conv"  id="bConv">[1] CONV ⚡<br><small style="font-weight:400">on-device · cheap</small></button>
+      <button class="btn-attn hide" id="bAttn">[2] ATTENTION 🧠<br><small style="font-weight:400">smart · eats RAM</small></button>
+      <button class="btn-cloud" id="bCloud">[3] CLOUD ☁️<br><small style="font-weight:400">perfect · needs signal</small></button>
+    </div>
+    <div class="keys" id="keys">Press the keys or click to route each request.</div>
+  </div>
+</div>
+
+<script>
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const stageEl = $('queueline'), floats = $('floats'), overlay = $('overlay');
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+const TYPES = [
+  {name:'CHAT',icon:'💬'},{name:'TRANSLATE',icon:'🌐'},{name:'MATH',icon:'🧮'},
+  {name:'VISION',icon:'👁️'},{name:'VOICE',icon:'🎙️'},
+];
+
+/* ================= stages (the curriculum) ================= */
+const STAGES = [
+  {
+    device:'📱 Phone',
+    flags:{conv:true, attn:false, cloud:true, ram:false, battery:false, tunnel:false},
+    goal:6, baseDecay:0.045, pLong:0, pComplex:0,
+    keys:'Press <span class="kbd" style="background:var(--conv)">1</span> for on-device · <span class="kbd" style="background:var(--cloud)">3</span> for cloud',
+    intro:`<h2>Lesson 1 — Where does AI run?</h2>
+      <div class="body">
+      <p class="lead">Every AI request has to be computed <i>somewhere</i>. There are two places:</p>
+      <p>☁️ <b>CLOUD</b> — a giant computer far away. Very smart, but slow, and it needs an internet connection.</p>
+      <p>⚡ <b>ON-DEVICE (CONV)</b> — a tiny AI brain right inside your gadget. Instant, and your data never leaves.</p>
+      <p>Requests will appear at the bottom. Send each one to <b>CONV</b> or <b>CLOUD</b>.</p>
+      <p class="muted">💡 For easy requests, the tiny on-device block is the smart, fast choice — no need to bother the cloud.</p>
+      </div>`,
+    done:`<h2>✅ Lesson 1 complete</h2>
+      <div class="body"><p>Easy requests don't need the cloud at all — a tiny block on your device handles them instantly and privately.</p>
+      <p class="muted">This is Liquid AI's whole bet: do the everyday work right on the device. But… what about <b>hard</b> requests?</p></div>`
+  },
+  {
+    device:'📱 Phone',
+    flags:{conv:true, attn:true, cloud:true, ram:true, battery:false, tunnel:false},
+    goal:8, baseDecay:0.065, pLong:0.4, pComplex:0.35,
+    keys:'<span class="kbd" style="background:var(--conv)">1</span> CONV · <span class="kbd" style="background:var(--attn)">2</span> ATTENTION · <span class="kbd" style="background:var(--cloud)">3</span> CLOUD',
+    intro:`<h2>Lesson 2 — Some requests are hard</h2>
+      <div class="body">
+      <p>Now watch the tags on each request:</p>
+      <p>• <b style="color:#ffd9a0">LONG</b> = lots of text to read &nbsp;&nbsp; • <b style="color:#ffb0b8">COMPLEX</b> = needs real reasoning</p>
+      <p>The tiny <b style="color:var(--conv)">CONV</b> block is fast, but it only gets <b>short + simple</b> requests right. Use it on a hard one and you get a wrong answer ✗.</p>
+      <p>For hard requests, use the new <b style="color:var(--attn)">ATTENTION 🧠</b> block — it can handle anything.</p>
+      <p><b>New meter → 🧠 RAM.</b> Each time ATTENTION runs, it must remember everything it read (this memory is called the <b>"KV-cache"</b>). That fills up RAM. Keep an eye on it.</p>
+      </div>`,
+    done:`<h2>✅ Lesson 2 complete</h2>
+      <div class="body"><p>See the catch? ATTENTION is powerful, but its memory (RAM) piles up fast. Real transformer AIs — like the ones behind ChatGPT — hit this exact wall on small devices.</p>
+      <p class="muted">The trick that makes Liquid AI fast: use cheap <b>CONV</b> for most requests, and save <b>ATTENTION</b> only for the hard ones.</p></div>`
+  },
+  {
+    device:'💻 Laptop',
+    flags:{conv:true, attn:true, cloud:true, ram:true, battery:true, tunnel:false},
+    goal:10, baseDecay:0.08, pLong:0.45, pComplex:0.4,
+    keys:'<span class="kbd" style="background:var(--conv)">1</span> CONV · <span class="kbd" style="background:var(--attn)">2</span> ATTENTION · <span class="kbd" style="background:var(--cloud)">3</span> CLOUD',
+    intro:`<h2>Lesson 3 — Power isn't free</h2>
+      <div class="body">
+      <p>Real devices run on a battery. <b>New meter → 🔋 BATTERY.</b> Every choice costs energy:</p>
+      <p>• <b style="color:var(--conv)">CONV ⚡</b> = almost nothing<br>
+         • <b style="color:var(--attn)">ATTENTION 🧠</b> = a lot<br>
+         • <b style="color:var(--cloud)">CLOUD ☁️</b> = a lot (sending your data far away is expensive)</p>
+      <p>If the battery hits 0%, the device dies. So pick the <b>cheapest block that still gets it right.</b></p>
+      <p class="muted">💡 This is what Liquid means by "efficiency by design" — the most work for the least power.</p>
+      </div>`,
+    done:`<h2>✅ Lesson 3 complete</h2>
+      <div class="body"><p>That's the real job of an AI chip: the best answer, using the least memory and the least battery.</p>
+      <p class="muted">One last twist — what happens when the cloud isn't even reachable?</p></div>`
+  },
+  {
+    device:'🚗 Car (MBUX)',
+    flags:{conv:true, attn:true, cloud:true, ram:true, battery:true, tunnel:true},
+    goal:15, baseDecay:0.095, pLong:0.5, pComplex:0.45,
+    keys:'<span class="kbd" style="background:var(--conv)">1</span> CONV · <span class="kbd" style="background:var(--attn)">2</span> ATTENTION · <span class="kbd" style="background:var(--cloud)">3</span> CLOUD',
+    intro:`<h2>Lesson 4 — You're now the AI in a car 🚗</h2>
+      <div class="body">
+      <p>Sometimes the car drives into a <b style="color:#ffb0b8">TUNNEL</b> and loses signal. When that happens, the <b style="color:var(--cloud)">CLOUD ☁️</b> stops working completely — the button goes dark.</p>
+      <p>If your AI lived <i>only</i> in the cloud, it would go silent mid-drive. Not good for a car!</p>
+      <p>Your on-device blocks (<b style="color:var(--conv)">CONV</b> and <b style="color:var(--attn)">ATTENTION</b>) keep working no matter what.</p>
+      <p class="muted">💡 This is the real reason Mercedes-Benz is putting Liquid's models <i>inside</i> the car: a safety feature can't depend on the cloud.</p>
+      <p>Serve <b>15</b> requests to finish. Good luck.</p>
+      </div>`,
+    done:null // victory handled separately
+  }
+];
+
+/* ================= state ================= */
+let G;
+
+function newReq(){
+  const st = STAGES[G.stageIdx];
+  const ramp = clamp(G.servedInStage/st.goal,0,1);
+  const t = TYPES[Math.floor(Math.random()*TYPES.length)];
+  const long    = Math.random() < st.pLong;
+  const complex = Math.random() < st.pComplex;
+  return { t, long, complex, life:1,
+    decay: st.baseDecay + ramp*0.04 + Math.random()*0.02, el:null };
+}
+
+function pushReq(){
+  const r = newReq();
+  const el = document.createElement('div');
+  el.className='req';
+  el.innerHTML = `
+    <div class="top"><span class="type">${r.t.icon} ${r.t.name}</span><span class="muted">#${G.served+G.queue.length+1}</span></div>
+    <div class="tags">
+      <span class="chip ${r.long?'long':''}">${r.long?'LONG context':'short'}</span>
+      <span class="chip ${r.complex?'complex':''}">${r.complex?'COMPLEX':'simple'}</span>
+    </div>
+    <div class="timer"><i></i></div>`;
+  r.el = el; r.bar = el.querySelector('.timer > i');
+  stageEl.appendChild(el);
+  G.queue.push(r);
+}
+
+function layout(){
+  G.queue.forEach((r,i)=>{
+    r.el.style.top = (235 - i*64)+'px';
+    r.el.style.opacity = i===0?1:(i<3?0.5-(i-1)*0.12:0);
+    r.el.style.filter = i===0?'none':'blur(.4px)';
+    r.el.style.zIndex = 50-i;
+  });
+}
+
+function float(txt,color){
+  const f=document.createElement('div'); f.className='float';
+  f.textContent=txt; f.style.color=color;
+  f.style.left=(30+Math.random()*40)+'%'; f.style.bottom='90px';
+  floats.appendChild(f); setTimeout(()=>f.remove(),1000);
+}
+
+/* ================= routing ================= */
+function route(kind){
+  if(!G.running) return;
+  const st = STAGES[G.stageIdx], f = st.flags, r = G.queue[0];
+  if(!r) return;
+  if(kind==='attn' && !f.attn) return;
+
+  let ok=true, dBat=0, dRam=0, msg='', col='';
+
+  if(kind==='conv'){
+    dBat=0.6;
+    ok = (!r.long && !r.complex);
+    if(ok){ G.score+=15; msg='+15 efficient!'; col='var(--conv)'; }
+    else { msg='conv too weak ✗'; col='var(--bad)'; }
+  }
+  else if(kind==='attn'){
+    dBat=2.2; dRam = r.long?22:12;
+    const wasteful = (!r.long && !r.complex);
+    G.score += wasteful?5:18;
+    msg = wasteful?'+5 overkill (wasted RAM)':'+18 handled it';
+    col = wasteful?'var(--attn)':'var(--conv)';
+  }
+  else if(kind==='cloud'){
+    if(f.tunnel && G.offline>0){ float('NO SIGNAL ✗','var(--bad)'); return; }
+    dBat=1.4; G.cloudCooldown=0.9;
+    G.score+=8; msg='+8 cloud (slow)'; col='var(--cloud)';
+  }
+
+  if(f.battery) G.battery = clamp(G.battery-dBat,0,100);
+  if(f.ram)     G.ram     = clamp(G.ram+dRam,0,100);
+  G.acc = clamp(G.acc + (ok?1.2:-9), 0, 100);
+
+  float(msg,col);
+  r.el.remove(); G.queue.shift(); G.served++; G.servedInStage++;
+  pushReq(); layout();
+
+  if(f.ram && G.ram>=100)
+    end('💥 RAM OVERFLOW','The KV-cache filled all the memory. This is the wall a pure transformer hits on a small device — its memory grows with every token it holds. Lean on CONV more.');
+  else
+    checkStageDone();
+}
+
+/* ================= loop ================= */
+function tick(now){
+  if(!G.running) return;
+  const dt = Math.min(0.05,(now-G.last)/1000); G.last=now;
+  const st = STAGES[G.stageIdx], f = st.flags;
+
+  if(f.tunnel){
+    G.offTimer -= dt;
+    if(G.offline>0){ G.offline-=dt; if(G.offline<=0) banner(false); }
+    else if(G.offTimer<=0){ G.offline=2.4+Math.random()*2; G.offTimer=8+Math.random()*7; banner(true); }
+  }
+  if(G.cloudCooldown>0) G.cloudCooldown-=dt;
+  if(f.ram)     G.ram     = clamp(G.ram-6*dt,0,100);
+  if(f.battery) G.battery = clamp(G.battery-0.3*dt,0,100);
+
+  const r = G.queue[0];
+  if(r){
+    r.life -= r.decay*dt;
+    r.bar.style.width = clamp(r.life*100,0,100)+'%';
+    r.bar.style.background = r.life<0.3?'var(--bad)':'var(--cloud)';
+    if(r.life<=0){
+      G.acc = clamp(G.acc-12,0,100);
+      float('too slow ✗','var(--bad)');
+      r.el.remove(); G.queue.shift(); G.served++; pushReq(); layout();
+    }
+  }
+
+  if(f.battery && G.battery<=0) return end('🔋 BATTERY DEAD','You spent the whole power budget. Cloud trips and heavy attention both drain it fast — being efficient on-device is the entire point.');
+  if(G.acc<=0) return end('🎯 ACCURACY COLLAPSED','Too many wrong or late answers. The skill is matching the right block to each request: CONV for easy, ATTENTION for hard.');
+
+  draw();
+  requestAnimationFrame(tick);
+}
+
+function banner(on){
+  let b=$('tunnelBanner');
+  if(on){ if(!b){ b=document.createElement('div'); b.id='tunnelBanner'; b.className='banner';
+    b.textContent='⚠ OFFLINE — no cloud (tunnel)'; $('stage').appendChild(b);} }
+  else if(b) b.remove();
+  $('bCloud').disabled = on;
+}
+
+function draw(){
+  $('batBar').style.width=G.battery+'%'; $('batTxt').textContent=Math.round(G.battery)+'%';
+  $('ramBar').style.width=G.ram+'%';     $('ramTxt').textContent=Math.round(G.ram)+'%';
+  $('accBar').style.width=G.acc+'%';     $('accTxt').textContent=Math.round(G.acc)+'%';
+  $('batBar').style.background = G.battery<25?'var(--bad)':'var(--good)';
+  const st=STAGES[G.stageIdx];
+  $('stageInfo').textContent = `Lesson ${G.stageIdx+1}/${STAGES.length} · ${G.servedInStage}/${st.goal}`;
+}
+
+/* ================= stage flow ================= */
+function applyStageUI(){
+  const st=STAGES[G.stageIdx], f=st.flags;
+  $('device').textContent = st.device;
+  $('ramMeter').classList.toggle('hide', !f.ram);
+  $('batMeter').classList.toggle('hide', !f.battery);
+  $('bAttn').classList.toggle('hide', !f.attn);
+  $('keys').innerHTML = st.keys;
+  $('bCloud').disabled = false;
+}
+
+function startStage(){
+  const st=STAGES[G.stageIdx];
+  G.battery=100; G.ram=0; G.acc=100;
+  G.servedInStage=0; G.queue=[]; G.offline=0; G.offTimer=7+Math.random()*5; G.cloudCooldown=0;
+  stageEl.innerHTML=''; floats.innerHTML=''; banner(false);
+  applyStageUI();
+  for(let i=0;i<4;i++) pushReq();
+  layout(); draw();
+  G.running=true; G.last=performance.now();
+  overlay.style.display='none';
+  $('help').style.display='flex';
+  requestAnimationFrame(tick);
+}
+
+function openHelp(){
+  if(!G.running) return;
+  G.running=false;
+  const st=STAGES[G.stageIdx];
+  show(st.intro + `<div class="row" style="justify-content:center;margin-top:14px">
+    <button class="btn-conv" id="resume">Resume ▶</button></div>`);
+  $('resume').onclick = ()=>{
+    overlay.style.display='none'; $('help').style.display='flex';
+    G.running=true; G.last=performance.now(); requestAnimationFrame(tick);
+  };
+}
+
+function checkStageDone(){
+  const st=STAGES[G.stageIdx];
+  if(G.servedInStage < st.goal) return;
+  G.running=false; banner(false);
+  if(G.stageIdx >= STAGES.length-1){ return victory(); }
+  show(st.done + `<div class="row" style="justify-content:center;margin-top:14px">
+    <button class="btn-conv" id="next">Next lesson ▶</button></div>`);
+  $('next').onclick = ()=>{ G.stageIdx++; startStage(); };
+}
+
+function end(title,lesson){
+  G.running=false; banner(false);
+  show(`<h2>${title}</h2>
+    <div class="stat">Lesson ${G.stageIdx+1} · served ${G.servedInStage} · total score ${G.score}</div>
+    <div class="body"><p class="muted">${lesson}</p></div>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn-conv" id="retry">Retry this lesson</button>
+      <button class="btn-cloud" id="restart">Restart from Lesson 1</button>
+    </div>`);
+  $('retry').onclick = ()=> startStage();
+  $('restart').onclick = ()=>{ G.stageIdx=0; G.score=0; startStage(); };
+}
+
+function victory(){
+  show(`<h2>🏆 You shipped on-device AI!</h2>
+    <div class="body" style="max-width:580px">
+      <p class="lead">Final score: <b>${G.score}</b></p>
+      <p>What you just learned is the real Liquid AI playbook:</p>
+      <p>⚡ <b>Run on the device</b>, not the cloud — instant &amp; private (Lesson 1)</p>
+      <p>🧠 <b>Attention is powerful but memory-hungry</b> — its KV-cache is the wall transformers hit (Lesson 2)</p>
+      <p>🔋 <b>Efficiency by design</b> — cheapest block that still gets it right (Lesson 3)</p>
+      <p>🚗 <b>The cloud isn't always there</b> — why a car's AI must live on-device (Lesson 4)</p>
+      <p class="muted">Real chips do ~80% of work in cheap conv blocks and only ~20% in attention — staying fast and tiny right on your phone, car, or glasses.</p>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn-conv" id="play2">Play again</button></div>`);
+  $('play2').onclick = ()=>{ G.stageIdx=0; G.score=0; startStage(); };
+}
+
+function show(html){ overlay.innerHTML=html; overlay.style.display='flex'; $('help').style.display='none'; }
+
+/* ================= boot ================= */
+function intro(){
+  const st=STAGES[G.stageIdx];
+  applyStageUI();
+  show(st.intro + `<div class="row" style="justify-content:center;margin-top:14px">
+    <button class="btn-conv" id="begin">Begin ▶</button></div>`);
+  $('begin').onclick = startStage;
+}
+
+function boot(){
+  G = { stageIdx:0, score:0, served:0, servedInStage:0, queue:[], running:false,
+        battery:100, ram:0, acc:100, offline:0, offTimer:7, cloudCooldown:0, last:0 };
+  // pre-game title
+  show(`<h2>EDGE RUSH</h2>
+    <div class="body" style="max-width:520px">
+      <p class="lead">A tiny game about how AI runs on your phone, car, and glasses — no experience needed.</p>
+      <p class="muted">You'll play as the AI chip. We'll teach one idea at a time across 4 short lessons. Use the number keys <span class="kbd" style="background:var(--ink)">1</span> <span class="kbd" style="background:var(--ink)">2</span> <span class="kbd" style="background:var(--ink)">3</span> or click the buttons.</p>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn-conv" id="start">Start Lesson 1 ▶</button></div>`);
+  $('start').onclick = intro;
+}
+
+$('help').onclick = openHelp;
+$('bConv').onclick = ()=>route('conv');
+$('bAttn').onclick = ()=>route('attn');
+$('bCloud').onclick= ()=>route('cloud');
+addEventListener('keydown',e=>{
+  if(e.key==='1') route('conv');
+  else if(e.key==='2') route('attn');
+  else if(e.key==='3') route('cloud');
+});
+
+boot();
+</script>
+</body>
+</html>
