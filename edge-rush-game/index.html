@@ -10,7 +10,7 @@
   :root{
     /* Base */
     --ink-900:#0A0B0D; --ink-800:#121316; --ink-700:#1C1E22;
-    --graphite-500:#5B5F66; --mist-300:#A8ADB5; --white:#FFFFFF;
+    --graphite-500:#8A8F97; --mist-300:#A8ADB5; --white:#FFFFFF;
 
     /* Liquid gradient + stops */
     --liquid-gradient:linear-gradient(100deg,#1E3AE0 0%,#2FB6F2 30%,#7C5CFF 58%,#C45CF0 78%,#2FB6F2 100%);
@@ -61,11 +61,12 @@
     border:1px solid var(--ink-700);border-radius:var(--radius-pill);padding:3px 11px}
   .meta-sub{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500)}
 
-  #help{position:absolute;top:24px;right:28px;width:30px;height:30px;padding:0;border-radius:var(--radius-pill);
-    background:transparent;border:1px solid var(--ink-700);color:var(--mist-300);font-family:var(--font-mono);
-    font-weight:600;font-size:14px;display:none;align-items:center;justify-content:center;z-index:60;
-    cursor:pointer;transition:border-color var(--dur) var(--ease-fluid),color var(--dur) var(--ease-fluid)}
-  #help:hover{color:var(--white);border-color:var(--white)}
+  #help{position:absolute;top:14px;right:14px;width:46px;height:46px;padding:0;border-radius:var(--radius-pill);
+    background:rgba(10,11,13,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    border:1px solid var(--ink-700);color:var(--mist-300);font-family:var(--font-mono);
+    font-weight:600;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;z-index:55;
+    cursor:pointer;transition:border-color var(--dur) var(--ease-fluid),color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid)}
+  #help:hover{color:var(--white);border-color:var(--accent);transform:translateY(-1px)}
 
   /* ---------- eyebrow ---------- */
   .eyebrow{font-family:var(--font-display);font-size:11px;font-weight:600;letter-spacing:.14em;
@@ -127,21 +128,23 @@
     display:flex;flex-direction:column;gap:3px;align-items:flex-start;position:relative;overflow:hidden;
     transition:border-color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid),opacity var(--dur) var(--ease-fluid)}
   .blk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
-  .blk .k{font-family:var(--font-mono);font-size:11px;color:var(--c)}
+  .blk .k{font-family:var(--font-mono);font-size:11px;color:var(--mist-300)}
   .blk .bn{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--white)}
   .blk .bs{font-family:var(--font-body);font-size:11px;color:var(--mist-300)}
   .blk:hover:not(:disabled){border-color:var(--c);transform:translateY(-1px)}
-  .blk:disabled{opacity:.4;cursor:not-allowed}
+  .blk:disabled{opacity:.5;cursor:not-allowed;border-style:dashed}
   .blk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+  .btn:focus-visible,.build:focus-visible,#help:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .btn-conv{--c:var(--conv)} .btn-attn{--c:var(--attn)} .btn-nano{--c:var(--nano)} .btn-cloud{--c:var(--cloud)}
   .blk.hide{display:none}
 
   .keys{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500);margin-top:12px;
     text-align:center;min-height:16px}
   .keys .kbd{color:var(--mist-300)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
   /* ---------- overlay + buttons ---------- */
-  .overlay{position:absolute;inset:0;background:rgba(10,11,13,.94);display:flex;
+  .overlay{position:absolute;inset:0;z-index:60;background:rgba(10,11,13,.94);display:flex;
     align-items:center;justify-content:flex-start;flex-direction:column;text-align:left;
     padding:40px 38px 32px;border-radius:var(--radius-md);overflow:auto}
   .overlay > *{max-width:600px;width:100%;animation:fadeUp var(--dur-slow) var(--ease-fluid) both}
@@ -150,6 +153,7 @@
   .overlay > *:nth-child(4){animation-delay:180ms}
   .overlay > *:nth-child(n+5){animation-delay:240ms}
   @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes liquid-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
   .overlay h2{font-family:var(--font-display);font-weight:600;font-size:24px;letter-spacing:-.015em;
     line-height:1.15;margin:0 0 14px}
   .wordmark{font-family:var(--font-display);font-weight:700;font-size:46px;letter-spacing:-.025em;
@@ -176,7 +180,7 @@
     border-radius:var(--radius-pill);padding:12px 24px;border:1px solid transparent;
     transition:transform var(--dur) var(--ease-fluid),opacity var(--dur) var(--ease-fluid),border-color var(--dur) var(--ease-fluid)}
   .btn-liquid{background:var(--liquid-gradient);background-size:200% 200%;color:#fff;
-    animation:liquid-shift 8s var(--ease-fluid) infinite}
+    text-shadow:0 1px 2px rgba(0,0,0,.55);animation:liquid-shift 8s var(--ease-fluid) infinite}
   .btn-liquid:hover{transform:translateY(-1px);opacity:.95}
   .btn-ghost{background:transparent;color:var(--white);border-color:var(--ink-700)}
   .btn-ghost:hover{border-color:var(--white);transform:translateY(-1px)}
@@ -199,9 +203,10 @@
   /* ---------- build cards (STAR) ---------- */
   .builds{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 0;width:100%}
   .build{background:var(--ink-900);border:1px solid var(--ink-700);border-radius:var(--radius-md);
-    padding:16px;cursor:pointer;text-align:left;transition:border-color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid)}
+    padding:16px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;display:block;
+    transition:border-color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid)}
   .build:hover{border-color:var(--accent);transform:translateY(-1px)}
-  .build h3{font-family:var(--font-display);margin:0 0 7px;font-size:14px;font-weight:600;letter-spacing:.02em}
+  .build h3{font-family:var(--font-display);margin:0 0 7px;font-size:14px;font-weight:600;letter-spacing:-.015em}
   .build p{font-family:var(--font-body);margin:0;font-size:11.5px;color:var(--mist-300);line-height:1.5}
 
   @media (max-width:640px){
@@ -216,7 +221,6 @@
 <body>
 <div id="app">
   <div class="card">
-    <button id="help" title="Explain this lesson">?</button>
     <div class="topbar">
       <h1 class="brandmark">Edge Rush<small>You are the AI chip</small></h1>
       <div class="meta-right">
@@ -245,6 +249,7 @@
     <div id="stage">
       <div id="queueline"></div>
       <div id="floats"></div>
+      <button id="help" title="Pause and explain this lesson">?</button>
       <div class="overlay" id="overlay"></div>
     </div>
 
@@ -255,6 +260,7 @@
       <button class="blk btn-cloud" id="bCloud"><span class="k">4</span><span class="bn">CLOUD</span><span class="bs">needs signal</span></button>
     </div>
     <div class="keys" id="keys">Press the number keys or click to route each request.</div>
+    <div id="sr" class="sr-only" aria-live="polite"></div>
   </div>
 </div>
 
@@ -266,9 +272,9 @@ const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
 /* ---- saved progress (survives between sessions via localStorage) ---- */
 const SAVE_KEY = 'edgeRush.v3';
-let PROG = { unlocked:0, best:0 };
+let PROG = { unlocked:0, best:0, plays:0 };
 function loadProg(){
-  try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); if(s) PROG={unlocked:s.unlocked|0, best:s.best|0}; }
+  try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); if(s) PROG={unlocked:s.unlocked|0, best:s.best|0, plays:s.plays|0}; }
   catch(e){ /* storage blocked: game still works, just won't remember */ }
 }
 function saveProg(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(PROG)); }catch(e){} }
@@ -276,6 +282,14 @@ function recordProgress(){
   PROG.unlocked = Math.max(PROG.unlocked, G.stageIdx);
   PROG.best = Math.max(PROG.best, G.score);
   saveProg();
+}
+/* difficulty creeps up a little each full replay (capped), so repeat plays differ */
+function difficultyMul(){ return 1 + Math.min(Math.max((PROG.plays||0)-1,0)*0.07, 0.35); }
+/* start a fresh run from a given lesson; counts a replay only when starting at lesson 1 */
+function beginRun(idx){
+  const b=PROG.best; G=makeState(idx); PROG.best=b;
+  if(idx===0){ PROG.plays=(PROG.plays||0)+1; saveProg(); }
+  intro();
 }
 
 const TYPES = [
@@ -299,15 +313,15 @@ const STAGES = [
   {
     device:'Phone',
     flags:{conv:true, attn:false, nano:false, cloud:true, ram:false, battery:false, tunnel:false, archChoice:false},
-    goal:6, baseDecay:0.04, pLong:0, pComplex:0,
+    goal:6, baseDecay:0.04, pLong:0.22, pComplex:0.18,
     keys:'<span class="kbd">1</span> FAST (on-device) · <span class="kbd">4</span> CLOUD',
     intro:`${eyebrow('Lesson 01 · Where AI runs')}<h2>Two places to compute</h2>
       <div class="body">
       <p class="lead">Every AI request runs somewhere. There are two options.</p>
       <p><b>CLOUD</b> is a powerful computer far away. Capable, but slow, and it needs a connection.</p>
       <p><b>FAST</b> is a small model on the device itself. Instant, and your data never leaves. <span class="mono" style="color:var(--graphite-500)">(Engineers call this block a convolution; the term returns at the end.)</span></p>
-      <p>Route each request at the bottom to <b>FAST</b> or <b>CLOUD</b>.</p>
-      ${note('Tip','Easy requests don\'t need the cloud. The on-device block is faster and private.')}
+      <p>Most requests are easy: send them to <b>FAST</b>. Some are bigger, tagged <b>LONG</b> or <b>COMPLEX</b>. FAST can't manage those yet, so route them to <b>CLOUD</b>.</p>
+      ${note('Tip','Easy to FAST, hard to CLOUD. You will need both buttons.')}
       </div>`,
     done:`${eyebrow('Lesson 01 · Complete')}<h2>On-device handles the everyday</h2>
       <div class="body"><p>A small block on the device answers routine requests instantly and privately, with no round-trip to the cloud.</p>
@@ -320,10 +334,11 @@ const STAGES = [
     keys:'<span class="kbd">1</span> FAST · <span class="kbd">2</span> ATTENTION · <span class="kbd">4</span> CLOUD',
     intro:`${eyebrow('Lesson 02 · Attention')}<h2>Hard requests, and the memory they cost</h2>
       <div class="body">
-      <p>Two tags describe each request. <b>LONG</b> means a lot to read. <b>COMPLEX</b> means real reasoning.</p>
+      <p>The tags are back. <b>LONG</b> means a lot to read, <b>COMPLEX</b> means real reasoning.</p>
       <p><b>FAST</b> is quick but only handles short, simple requests. On a hard one it answers wrong.</p>
       <p><b>ATTENTION</b> handles anything. But it must remember every token it reads, and that running memory is the <b>KV-cache</b>.</p>
       <p>The catch: the more it already holds, the more each new call costs. Lean on it and RAM balloons.</p>
+      <p><b>CLOUD</b> still works, but it is slow: after each call it needs a moment to sync, so you cannot route everything to it.</p>
       ${note('Why it matters','FAST keeps no such memory. That is why LFM2 is mostly fast blocks, about 10 to every 6 attention.')}
       </div>`,
     done:`${eyebrow('Lesson 02 · Complete')}<h2>The KV-cache is the wall</h2>
@@ -404,11 +419,19 @@ function makeState(idx){
 function newReq(){
   const st = STAGES[G.stageIdx];
   const ramp = clamp(G.servedInStage/st.goal,0,1);
-  const t = TYPES[Math.floor(Math.random()*TYPES.length)];
-  const long    = Math.random() < st.pLong;
-  const complex = Math.random() < st.pComplex;
+  const dm = difficultyMul();
+  // difficulty rises through the stage (easier first), jitters per run, and creeps up on replays
+  const lp = clamp(st.pLong    * (0.55 + 0.7*ramp) * dm + (Math.random()*0.06-0.03), 0, 0.9);
+  const cp = clamp(st.pComplex * (0.55 + 0.7*ramp) * dm + (Math.random()*0.06-0.03), 0, 0.9);
+  let t = TYPES[Math.floor(Math.random()*TYPES.length)];
+  // the loaded specialist shows up more often, so NANO is worth using
+  if(st.flags.nano && G.nanoType && Math.random()<0.35) t = G.nanoType;
+  const isSpec = st.flags.nano && G.nanoType && t.name===G.nanoType.name;
+  let long    = Math.random() < lp;
+  let complex = Math.random() < cp;
+  if(isSpec && Math.random()<0.6) complex = true;   // specialist work is hard enough to want a NANO
   return { t, long, complex, life:1,
-    decay: st.baseDecay + ramp*0.04 + Math.random()*0.02, el:null };
+    decay: (st.baseDecay + ramp*0.035 + Math.random()*0.02) * dm, el:null };
 }
 
 function pushReq(){
@@ -444,6 +467,7 @@ function float(txt,color){
   f.style.left=(30+Math.random()*40)+'%'; f.style.bottom='90px';
   floats.appendChild(f); setTimeout(()=>f.remove(),1000);
 }
+function srSay(t){ const e=$('sr'); if(e) e.textContent=t; }   // announce to screen readers
 
 function pulseRam(){
   const m=$('ramMeter'); m.classList.remove('pulse'); void m.offsetWidth; m.classList.add('pulse');
@@ -485,7 +509,8 @@ function route(kind){
   }
   else if(kind==='cloud'){
     if(f.tunnel && G.offline>0){ float('no signal','var(--danger)'); return; }
-    dBat=1.4; G.cloudCooldown=0.9;
+    if(f.attn && G.cloudCooldown>0){ float('cloud busy, syncing','var(--warning)'); return; }
+    dBat=1.4; G.cloudCooldown=1.5;
     G.score+=8; msg='+8 cloud, slow'; col='var(--accent)';
   }
 
@@ -511,8 +536,8 @@ function tick(now){
 
   if(f.tunnel){
     G.offTimer -= dt;
-    if(G.offline>0){ G.offline-=dt; if(G.offline<=0) banner(false); }
-    else if(G.offTimer<=0){ G.offline=2.4+Math.random()*2; G.offTimer=8+Math.random()*7; banner(true); }
+    if(G.offline>0){ G.offline-=dt; if(G.offline<=0){ banner(false); srSay('Cloud available again'); } }
+    else if(G.offTimer<=0){ G.offline=2.4+Math.random()*2; G.offTimer=8+Math.random()*7; banner(true); srSay('Cloud offline, no signal'); }
   }
   if(G.cloudCooldown>0) G.cloudCooldown-=dt;
   if(f.ram){ G.ram = clamp(G.ram - 5.5*G.arch.decayMul*dt, 0, G.arch.ramCap);
@@ -533,6 +558,9 @@ function tick(now){
 
   if(f.battery && G.battery<=0) return end('Out of power','Battery dead','Cloud trips and heavy attention drain the battery fast. Efficiency on-device is the whole point.');
   if(G.acc<=0) return end('Quality dropped','Accuracy collapsed','Too many wrong or late answers. Match the block to the request: FAST for easy, ATTENTION for hard, NANO for its specialty.');
+
+  // cloud is unavailable in a tunnel, and briefly after each call (latency) once you have an on-device alternative
+  $('bCloud').disabled = (f.tunnel && G.offline>0) || (f.attn && G.cloudCooldown>0);
 
   draw();
   requestAnimationFrame(tick);
@@ -617,7 +645,7 @@ function end(eyebrowTxt,title,lesson){
       <button class="btn btn-ghost" id="restart">Restart from Lesson 1</button>
     </div>`);
   $('retry').onclick = ()=> STAGES[G.stageIdx].flags.archChoice ? buildScreen() : startStage();
-  $('restart').onclick = ()=>{ const b=PROG.best; G=makeState(0); PROG.best=b; intro(); };
+  $('restart').onclick = ()=> beginRun(0);
 }
 
 /* ================= architecture-mix payoff ================= */
@@ -640,12 +668,12 @@ function victory(){
       <p>Mostly FAST, ATTENTION for the genuinely hard cases, specialists where they fit. Those fast blocks are convolutions. Liquid's models run about <span class="mono">10 to every 6</span> attention, so attention does only <span class="mono">20 to 40%</span> of the work and the model fits in under <span class="mono">900 MB</span>.</p>`;
   }
 
-  const seg=(p,c)=> p>0?`<span style="flex:${p};background:${c}">${p>=8?p+'%':''}</span>`:'';
+  const seg=(p,c,light)=> p>0?`<span style="flex:${p};background:${c};color:${light?'#fff':'#06101f'}">${p>=8?p+'%':''}</span>`:'';
   show(`${eyebrow('Result')}<h2>You shipped on-device AI</h2>
     <div class="stat">Score <b>${G.score}</b>${PROG.best>G.score?` · best ${PROG.best}`:''}</div>
     <p class="eyebrow" style="margin:18px 0 6px;color:var(--graphite-500)">How you routed every request</p>
     <div class="mixbar">
-      ${seg(cP,'var(--conv)')}${seg(aP,'var(--attn)')}${seg(nP,'var(--nano)')}${seg(clP,'var(--cloud)')}
+      ${seg(cP,'var(--conv)')}${seg(aP,'var(--attn)')}${seg(nP,'var(--nano)')}${seg(clP,'var(--cloud)',true)}
     </div>
     <div class="mixleg">
       <span><i class="dot" style="background:var(--conv)"></i>FAST <b>${cP}%</b></span>
@@ -659,7 +687,7 @@ function victory(){
       <p>The playbook in one screen: run on-device, keep the KV-cache in check, use the cheapest block that works, and call the cloud only for the rare hard case. That is why the future is many small specialized models, not one large one.</p>
     </div>
     <div class="opts"><button class="btn btn-liquid" id="play2">Play again</button></div>`);
-  $('play2').onclick = ()=>{ const b=PROG.best; G=makeState(0); PROG.best=b; intro(); };
+  $('play2').onclick = ()=> beginRun(0);
 }
 
 function show(html){ overlay.innerHTML=html; overlay.style.display='flex'; overlay.scrollTop=0; $('help').style.display='none'; }
@@ -677,12 +705,12 @@ function buildScreen(){
   show(`${eyebrow('STAR · Architecture synthesis')}<h2>Synthesize your architecture</h2>
     <div class="body"><p>Pick a design, then play the final round. Notice how the trade-offs feel.</p></div>
     <div class="builds">
-      <div class="build" data-a="conv"><h3 style="color:var(--conv)">Mostly FAST</h3>
-        <p>Lots of fast blocks. Sips battery, clears memory quickly. Little headroom, so heavy attention overflows.</p></div>
-      <div class="build" data-a="bal"><h3>Balanced (LFM2)</h3>
-        <p>About 10 fast blocks to 6 attention. Roomy memory, steady power. The all-rounder.</p></div>
-      <div class="build" data-a="attn"><h3 style="color:var(--attn)">Mostly ATTENTION</h3>
-        <p>Huge cache, handles anything. Drains battery and clears slowly. The transformer way.</p></div>
+      <button class="build" data-a="conv"><h3 style="color:var(--conv)">Mostly FAST</h3>
+        <p>Lots of fast blocks. Sips battery, clears memory quickly. Little headroom, so heavy attention overflows.</p></button>
+      <button class="build" data-a="bal"><h3>Balanced (LFM2)</h3>
+        <p>About 10 fast blocks to 6 attention. Roomy memory, steady power. The all-rounder.</p></button>
+      <button class="build" data-a="attn"><h3 style="color:var(--attn)">Mostly ATTENTION</h3>
+        <p>Huge cache, handles anything. Drains battery and clears slowly. The transformer way.</p></button>
     </div>
     ${note('Hint','STAR usually evolves toward the balanced hybrid.')}`);
   overlay.querySelectorAll('.build').forEach(b=>{
@@ -721,10 +749,10 @@ function boot(){
     ${bestLine}
     <div class="opts">${primaryStart}</div>
     ${resetLink}`);
-  $('start').onclick = ()=>{ const b=PROG.best; G=makeState(0); PROG.best=b; intro(); };
+  $('start').onclick = ()=> beginRun(0);
   if(canContinue){
-    $('continue').onclick = ()=>{ const b=PROG.best; G=makeState(startIdx); PROG.best=b; intro(); };
-    $('reset').onclick = (e)=>{ e.preventDefault(); PROG={unlocked:0,best:0}; saveProg(); boot(); };
+    $('continue').onclick = ()=> beginRun(startIdx);
+    $('reset').onclick = (e)=>{ e.preventDefault(); PROG={unlocked:0,best:0,plays:0}; saveProg(); boot(); };
   }
 }
 
