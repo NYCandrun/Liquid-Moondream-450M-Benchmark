@@ -228,8 +228,40 @@
   .build p{font-family:var(--font-body);margin:0;font-size:11.5px;color:var(--mist-300);line-height:1.5}
 
   @media (max-width:640px){
-    .builds{grid-template-columns:1fr}.meters{grid-template-columns:1fr}
-    .card{padding:22px 18px}.wordmark{font-size:38px}
+    body{padding:10px}
+    .card{padding:16px 14px;border-radius:16px}
+    .topbar{margin-bottom:10px}
+    .brandmark{font-size:16px} .brandmark small{font-size:10px;margin-top:2px}
+    .tag{font-size:10px;padding:2px 9px} .meta-sub{font-size:10px}
+
+    .meters{grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+    .meter{padding:8px 9px}
+    .meter .lab{flex-direction:column;align-items:flex-start;gap:1px}
+    .meter .lab .k{font-size:10.5px;letter-spacing:.06em} .meter .lab .k .kv{display:none} .meter .lab .val{font-size:12px}
+    .bar{height:5px;margin-top:6px}
+
+    #specialist{font-size:10.5px;margin:10px 0 0}
+    #stage{height:clamp(240px,40vh,360px);margin:8px 0 10px}
+    .req{width:90%;padding:11px 13px}
+    .req .type{font-size:13px} .req .id{font-size:10px}
+    .chip{font-size:10px;padding:2px 8px}
+    #help{width:44px;height:44px;font-size:19px;top:10px;right:10px}
+    #chiptip{font-size:11px;bottom:10px;padding:6px 12px}
+
+    .blockrow{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+    .blk{min-width:0;flex:1 1 calc(50% - 5px);padding:9px 12px}
+    .blk .bn{font-size:13px} .blk .bs{font-size:10px} .blk .k{font-size:10px}
+
+    .keys{font-size:10.5px;margin-top:10px} .keys.hero{font-size:13px;padding:9px 16px}
+
+    .overlay{padding:24px 18px 22px}
+    .overlay h2{font-size:20px;margin-bottom:11px}
+    .wordmark{font-size:34px} .tagline{font-size:17px}
+    .overlay .body{font-size:12.5px} .overlay .body .lead{font-size:13.5px} .learn{font-size:11.5px}
+    .eyebrow{font-size:10px}
+    .builds{grid-template-columns:1fr}
+    .mixbar{height:26px;min-height:26px} .mixleg{gap:10px;font-size:10px}
+    .btn{padding:13px 20px;font-size:13.5px}
   }
   @media (prefers-reduced-motion: reduce){
     *{animation:none!important;transition:none!important}
@@ -253,7 +285,7 @@
         <div class="bar"><i id="batBar" style="background:var(--good)"></i></div>
       </div>
       <div class="meter hide" id="ramMeter">
-        <div class="lab"><span class="k" id="ramLab">RAM · KV-cache</span><span class="val" id="ramTxt">0 tok</span></div>
+        <div class="lab"><span class="k" id="ramLab">RAM<span class="kv"> · KV-cache</span></span><span class="val" id="ramTxt">0 tok</span></div>
         <div class="bar"><i id="ramBar" style="background:var(--attn)"></i></div>
       </div>
       <div class="meter" id="accMeter">
