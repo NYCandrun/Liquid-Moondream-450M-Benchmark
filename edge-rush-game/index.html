@@ -138,9 +138,19 @@
   .btn-conv{--c:var(--conv)} .btn-attn{--c:var(--attn)} .btn-nano{--c:var(--nano)} .btn-cloud{--c:var(--cloud)}
   .blk.hide{display:none}
 
-  .keys{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500);margin-top:12px;
-    text-align:center;min-height:16px}
+  .keys{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500);
+    margin:12px auto 0;text-align:center;min-height:16px;width:fit-content;max-width:100%;
+    padding:0;background:transparent;border:1px solid transparent;border-radius:var(--radius-pill);
+    transition:font-size var(--dur-slow) var(--ease-fluid),padding var(--dur-slow) var(--ease-fluid),
+      background-color var(--dur-slow) var(--ease-fluid),color var(--dur-slow) var(--ease-fluid),
+      border-color var(--dur-slow) var(--ease-fluid)}
   .keys .kbd{color:var(--mist-300)}
+  /* prominent first-time prompt, gracefully shrinks to the line above on first move */
+  .keys.hero{font-size:15px;color:var(--white);padding:11px 24px;
+    background:rgba(47,182,242,.12);border-color:rgba(47,182,242,.45);
+    animation:keysGlow 2.6s var(--ease-fluid) infinite}
+  .keys.hero .kbd{color:var(--accent)}
+  @keyframes keysGlow{0%,100%{box-shadow:0 0 0 0 rgba(47,182,242,0)}50%{box-shadow:0 0 0 5px rgba(47,182,242,.10)}}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
   /* ---------- overlay + buttons ---------- */
@@ -410,6 +420,7 @@ const STAGES = [
 
 /* ================= state ================= */
 let G;
+let firstActionDone = false;   // session-wide: the big "how to play" prompt only shows until the first move
 function makeState(idx){
   return { stageIdx:idx||0, score:0, served:0, servedInStage:0, queue:[], running:false,
     battery:100, ram:0, ctx:0, acc:100, offline:0, offTimer:7, cloudCooldown:0, last:0,
@@ -517,6 +528,7 @@ function route(kind){
   if(f.battery) G.battery = clamp(G.battery - dBat*G.arch.batMul, 0, 100);
   G.acc = clamp(G.acc + (ok?1.2:-9), 0, 100);
   G.mix[kind]++;
+  if(!firstActionDone){ firstActionDone=true; $('keys').classList.remove('hero'); }   // shrink the prompt for good
 
   float(msg,col);
   r.el.remove(); G.queue.shift(); G.served++; G.servedInStage++;
@@ -594,6 +606,7 @@ function applyStageUI(){
   $('bAttn').classList.toggle('hide', !f.attn);
   $('bNano').classList.toggle('hide', !f.nano);
   $('keys').innerHTML = st.keys;
+  $('keys').classList.toggle('hero', !firstActionDone);
   $('bCloud').disabled = false;
   const sp=$('specialist');
   if(f.nano && G.nanoType){ sp.classList.add('show'); sp.innerHTML=`Specialist loaded: <b>${G.nanoType.name}</b>. NANO is exact for these, useless for the rest.`; }
