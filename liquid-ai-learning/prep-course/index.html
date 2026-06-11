@@ -284,6 +284,25 @@
   .mobile-bar button { background:#1c232c; color:#fff; border:1px solid #2a323d; padding:.45rem .7rem; border-radius:6px; font-size:.85rem; min-height:38px;}
   .mobile-bar .ttl { font-size:.9rem; font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 
+  /* ---------- Module page: lesson sections ---------- */
+  .lesson-section {
+    scroll-margin-top: 70px;
+    border-top: 2px solid #e5e3dd;
+    padding-top: 2rem;
+    margin-top: 2rem;
+  }
+  .lesson-section:first-child {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .lesson-section .section-mark-read {
+    background:#fff; border:1px solid #d8d5cb; padding:.35rem .7rem; border-radius:6px;
+    font-size:.82rem; cursor:pointer; color:#2a3344; margin-top:.8rem; display:inline-block;
+  }
+  .lesson-section .section-mark-read:hover { background:#1f5fbb; color:#fff; border-color:#1f5fbb; }
+  .lesson-section .section-mark-read.read-done { background:#5fbb6b; color:#fff; border-color:#5fbb6b; }
+
   /* ---------- Print ---------- */
   @media print {
     .sidebar, .glossary-pane, .mobile-bar, .drill-into, .lesson-actions, .selfcheck { display:none !important; }
@@ -323,7 +342,7 @@
       <code style="background:#1c232c;color:#cbd1da;">j</code>/<code style="background:#1c232c;color:#cbd1da;">k</code> next/prev lesson
     </div>
     <div style="font-size:.7rem; color:#5a606a; margin-top:.7rem;">
-      Notes &amp; progress saved in your browser only. Export via the button below.
+      Progress is saved in your browser only.
     </div>
     <button id="exportBtn" style="margin-top:.6rem; background:#1c232c; color:#cbd1da; border:1px solid #2a323d; padding:.4rem .6rem; border-radius:5px; font-size:.78rem; cursor:pointer; width:100%;">Export notes &amp; progress</button>
     <button id="resetBtn" style="margin-top:.4rem; background:transparent; color:#7e8794; border:1px solid #2a323d; padding:.3rem .6rem; border-radius:5px; font-size:.72rem; cursor:pointer; width:100%;">Reset progress</button>
@@ -491,7 +510,7 @@ const MODULES = [
       <ol>
         <li><strong>Multiple entry paths.</strong> You can read top-to-bottom, drill in by product, by competitor ring, by deployment environment, by vulnerability, or by mental model. Use the buttons in the sidebar.</li>
         <li><strong>Cross-links and glossary, everywhere.</strong> Any underlined term has a definition. Click it to pin the popover or jump to the glossary entry.</li>
-        <li><strong>This is yours to modify.</strong> Notes are saved locally. You can mark lessons read, write personal notes, and use the gaps checklist (lesson 13.5) to identify what you still don't understand.</li>
+        <li><strong>This is yours to modify.</strong> You can mark lessons read and use the gaps checklist (lesson 13.5) to identify what you still don't understand.</li>
       </ol>
       <p>The goal is not to memorize. The goal is to develop <strong>intuition</strong>: when someone says "the LFM2.5-8B-A1B has eighteen linear-conv layers with zero KV cache," you should know <em>why that sentence is doing work</em> and what would change if any word in it changed.</p>
     `, drill:["0.2","0.4","12.1"]},
@@ -1416,7 +1435,7 @@ const MODULES = [
     `, drill:["12.1","12.2","12.3","12.4","12.5","12.6"]},
 
     {id:"13.5", title:"Gaps checklist (yours to edit)", html:`
-      <p>This is your personal gap-tracker. Use the textarea below to record what you still don't understand, and revisit each entry when you've closed the gap. Your notes are saved locally in your browser.</p>
+      <p>This is your personal gap-tracker. Keep a running list of what you still don't understand, and revisit each item when you've closed the gap.</p>
       <p>Starter prompts:</p>
       <ul>
         <li>"I cannot yet explain to a non-technical audience why ___."</li>
@@ -1424,7 +1443,7 @@ const MODULES = [
         <li>"I have not yet read source material about ___."</li>
         <li>"My intuition about Liquid vs ___ is still weak."</li>
       </ul>
-      <p>Update this lesson's notes as you close gaps. When the list is empty, you have hit competence.</p>
+      <p>Revisit this list as you close gaps. When the list is empty, you have hit competence.</p>
     `, drill:["0.4"]}
   ]}
 ];
@@ -1467,10 +1486,13 @@ const PATHS = {
 
 (function(){
   // ----- State -----
+  const SHOW_PERSONAL_NOTES = false; // Personal-notes UI intentionally hidden per course owner request. The feature (state.notes storage, autosave wiring, export/reset support) is kept in the code so it can be re-enabled later by setting this to true.
+
   const STORE_KEY = "liquidai-curriculum-v1";
   const state = loadState();
   let currentPath = "linear";
   let currentLessonId = null;
+  let currentModuleId = null; // track which module is rendered
 
   function loadState() {
     try {
@@ -1611,106 +1633,175 @@ const PATHS = {
   }
 
   // ----- Lesson rendering -----
-  function showLesson(lessonId) {
-    const l = lessonById[lessonId];
-    if (!l) return;
-    currentLessonId = lessonId;
-    state.lastLesson = lessonId;
-    saveState();
-
-    const container = document.getElementById("lessonContainer");
-    const isRead = !!state.read[lessonId];
-
-    // Mental-model tag detection from html
+  // Helper: build the HTML for a single lesson section (used by renderModule)
+  function buildLessonSection(l) {
+    const isRead = !!state.read[l.id];
     const mmCount = (l.html.match(/mm-callout/g) || []).length;
-
-    const crumbs = `${escapeHtml(l.moduleTitle)} › Lesson ${escapeHtml(l.id)}`;
 
     let drillHtml = "";
     if (l.drill && l.drill.length) {
       const items = l.drill.map(id => {
         const t = lessonById[id];
         if (!t) return "";
-        return `<a href="#l-${id}" data-lesson-link="${id}">${escapeHtml(t.id)} · ${escapeHtml(t.title)}</a>`;
+        return `<a href="#l-${id}" data-lesson-link="${id}">${escapeHtml(t.id)} \u00b7 ${escapeHtml(t.title)}</a>`;
       }).join("");
-      drillHtml = `
-        <div class="drill-into">
-          <h4>Drill into</h4>
-          <div class="drill-row">${items}</div>
-        </div>`;
+      drillHtml = `<div class="drill-into"><h4>Drill into</h4><div class="drill-row">${items}</div></div>`;
     }
 
-    const noteValue = state.notes[lessonId] || "";
+    let notesHtml = "";
+    if (SHOW_PERSONAL_NOTES) {
+      const noteValue = state.notes[l.id] || "";
+      notesHtml = `<div class="selfcheck notes">
+        <h4>Personal notes${l.id === '13.5' ? ' &amp; gaps checklist' : ''}</h4>
+        <textarea data-notes-for="${l.id}" placeholder="Write what clicked, what's still murky, what you want to revisit. Saved automatically in your browser.">${escapeHtml(noteValue)}</textarea>
+        <div style="font-size:.75rem; color:#6a6f78; margin-top:.3rem;"><span class="save-state-ind" data-for="${l.id}"></span></div>
+      </div>`;
+    }
 
-    container.innerHTML = `
-      <div class="crumbs">${crumbs}</div>
-      <h1>${escapeHtml(l.title)}</h1>
+    return `<section class="lesson-section" id="sec-${l.id}">
+      <h1>${escapeHtml(l.id)} ${escapeHtml(l.title)}</h1>
       <div class="lesson-meta">
-        ${mmCount ? `<span class="chip">${mmCount} mental-model callout${mmCount>1?'s':''}</span>` : ""}
-        ${isRead ? `<span class="chip" style="background:#d6efd9; color:#2c5a32;">Marked read</span>` : ""}
+        ${mmCount ? `<span class="chip">${mmCount} mental-model callout${mmCount > 1 ? 's' : ''}</span>` : ""}
+        <span class="chip read-chip" id="read-chip-${l.id}" style="${isRead ? 'background:#d6efd9; color:#2c5a32;' : 'display:none;'}">Marked read</span>
       </div>
       <div class="lesson-body">${l.html}</div>
       ${drillHtml}
-      <div class="lesson-actions">
-        <button class="${isRead?'read-done':''}" id="toggleRead">${isRead?'✓ Read':'Mark as read'}</button>
-        <button id="prevLesson">← Previous</button>
-        <button id="nextLesson">Next →</button>
-        <button id="printBtn">Print this lesson</button>
-      </div>
-      <div class="selfcheck notes">
-        <h4>Personal notes${lessonId==='13.5'?' & gaps checklist':''}</h4>
-        <textarea data-notes-for="${lessonId}" placeholder="Write what clicked, what's still murky, what you want to revisit. Saved automatically in your browser.">${escapeHtml(noteValue)}</textarea>
-        <div style="font-size:.75rem; color:#6a6f78; margin-top:.3rem;"><span id="saveState"></span></div>
+      <button class="section-mark-read${isRead ? ' read-done' : ''}" data-mark-read="${l.id}">${isRead ? '\u2713 Read' : 'Mark as read'}</button>
+      ${notesHtml}
+    </section>`;
+  }
+
+  // Helper: render (or re-render) a module into #lessonContainer
+  function renderModule(moduleId) {
+    const mod = MODULES.find(m => m.id === moduleId);
+    if (!mod) return;
+    currentModuleId = moduleId;
+
+    const container = document.getElementById("lessonContainer");
+
+    // Build module index in MODULES
+    const modIdx = MODULES.findIndex(m => m.id === moduleId);
+    const prevMod = modIdx > 0 ? MODULES[modIdx - 1] : null;
+    const nextMod = modIdx < MODULES.length - 1 ? MODULES[modIdx + 1] : null;
+
+    const sectionsHtml = mod.lessons.map(l => buildLessonSection(l)).join("\n");
+
+    container.innerHTML = `
+      <div class="crumbs">${escapeHtml(mod.title)}</div>
+      <div id="module-sections">${sectionsHtml}</div>
+      <div class="lesson-actions" id="moduleActions">
+        <button id="prevModuleBtn" ${!prevMod ? 'disabled style="opacity:.4;"' : ''}>\u2190 Previous module</button>
+        <button id="nextModuleBtn" ${!nextMod ? 'disabled style="opacity:.4;"' : ''}>Next module \u2192</button>
+        <button id="printBtn">Print this module</button>
       </div>
     `;
 
-    numberCiteMarkers(container);
-
-    // Wire up actions
-    document.getElementById("toggleRead").onclick = () => {
-      if (state.read[lessonId]) delete state.read[lessonId];
-      else state.read[lessonId] = Date.now();
-      saveState();
-      showLesson(lessonId);
-      refreshNav();
-      updateProgress();
-    };
-    document.getElementById("prevLesson").onclick = () => navigateLesson(-1);
-    document.getElementById("nextLesson").onclick = () => navigateLesson(+1);
-    document.getElementById("printBtn").onclick = () => window.print();
-
-    const ta = container.querySelector("textarea[data-notes-for]");
-    let saveTimer = null;
-    ta.addEventListener("input", () => {
-      state.notes[lessonId] = ta.value;
-      clearTimeout(saveTimer);
-      const ss = document.getElementById("saveState");
-      ss.textContent = "Saving…";
-      saveTimer = setTimeout(() => {
+    // Wire per-section mark-as-read buttons (no page scroll)
+    container.querySelectorAll("button[data-mark-read]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const lid = btn.dataset.markRead;
+        if (state.read[lid]) delete state.read[lid];
+        else state.read[lid] = Date.now();
         saveState();
-        ss.textContent = "Saved";
-        setTimeout(()=>{ ss.textContent=""; }, 1500);
-      }, 400);
+        // Update button in place
+        const isNowRead = !!state.read[lid];
+        btn.textContent = isNowRead ? '\u2713 Read' : 'Mark as read';
+        btn.classList.toggle('read-done', isNowRead);
+        // Update read chip
+        const chip = document.getElementById(`read-chip-${lid}`);
+        if (chip) {
+          if (isNowRead) {
+            chip.textContent = 'Marked read';
+            chip.style.background = '#d6efd9';
+            chip.style.color = '#2c5a32';
+            chip.style.display = '';
+          } else {
+            chip.style.display = 'none';
+            chip.textContent = '';
+          }
+        }
+        // Update sidebar read marks
+        const navA = document.querySelector(`a[data-lesson-id="${lid}"]`);
+        if (navA) navA.classList.toggle('read', isNowRead);
+        updateProgress();
+      });
     });
 
-    // Wire up inline glossary terms
+    // Wire personal notes autosave (guarded by flag)
+    if (SHOW_PERSONAL_NOTES) {
+      container.querySelectorAll("textarea[data-notes-for]").forEach(ta => {
+        const lid = ta.dataset.notesFor;
+        let saveTimer = null;
+        ta.addEventListener("input", () => {
+          state.notes[lid] = ta.value;
+          clearTimeout(saveTimer);
+          const ss = container.querySelector(`.save-state-ind[data-for="${lid}"]`);
+          if (ss) ss.textContent = "Saving\u2026";
+          saveTimer = setTimeout(() => {
+            saveState();
+            if (ss) ss.textContent = "Saved";
+            setTimeout(() => { if (ss) ss.textContent = ""; }, 1500);
+          }, 400);
+        });
+      });
+    }
+
+    // Wire module nav buttons
+    document.getElementById("prevModuleBtn").onclick = () => {
+      if (prevMod) { showLesson(prevMod.lessons[0].id); window.scrollTo({top: 0, behavior: "instant"}); }
+    };
+    document.getElementById("nextModuleBtn").onclick = () => {
+      if (nextMod) { showLesson(nextMod.lessons[0].id); window.scrollTo({top: 0, behavior: "instant"}); }
+    };
+    document.getElementById("printBtn").onclick = () => window.print();
+
+    // Container-wide wiring
+    numberCiteMarkers(container);
     wireTerms(container);
 
-    // Cross-link drill-into clicks
+    // Wire drill-into and inline #l- links
     container.querySelectorAll("[data-lesson-link]").forEach(a => {
       a.onclick = (e) => { e.preventDefault(); showLesson(a.dataset.lessonLink); };
     });
-    // Also wire any inline <a href="#l-x.y"> to use showLesson
     container.querySelectorAll('a[href^="#l-"]').forEach(a => {
       const targetId = a.getAttribute("href").substring(3);
       a.onclick = (e) => { e.preventDefault(); showLesson(targetId); };
     });
+  }
 
-    // Mobile title
-    document.getElementById("mobileTitle").textContent = `${l.id} · ${l.title}`;
+  // showLesson: public entry point (keeps its name and signature).
+  // If the lesson's module is already rendered: smooth-scroll to the section.
+  // Otherwise: render that module, then scroll to the section (instant).
+  function showLesson(lessonId) {
+    const l = lessonById[lessonId];
+    if (!l) return;
 
-    // Scroll
-    window.scrollTo({top:0, behavior:"instant"});
+    currentLessonId = lessonId;
+    state.lastLesson = lessonId;
+    saveState();
+
+    const sameModule = (l.moduleId === currentModuleId);
+    if (!sameModule) {
+      // Render the new module; scroll to section after render
+      renderModule(l.moduleId);
+      const sec = document.getElementById(`sec-${lessonId}`);
+      if (sec) sec.scrollIntoView({behavior: "instant", block: "start"});
+      else window.scrollTo({top: 0, behavior: "instant"});
+    } else {
+      // Smooth-scroll to section in already-rendered module
+      const sec = document.getElementById(`sec-${lessonId}`);
+      if (sec) sec.scrollIntoView({behavior: "smooth", block: "start"});
+    }
+
+    // Update sidebar .current highlight
+    document.querySelectorAll("a[data-lesson-id]").forEach(a => {
+      a.classList.toggle("current", a.dataset.lessonId === lessonId);
+    });
+
+    // Mobile title: show module title
+    document.getElementById("mobileTitle").textContent = l.moduleTitle || (l.id + " \u00b7 " + l.title);
 
     refreshNav();
     updateProgress();
@@ -1732,7 +1823,6 @@ const PATHS = {
     const next = idx + dir;
     if (next >= 0 && next < sequence.length) showLesson(sequence[next]);
   }
-
   // ----- Inline term wiring -----
   function wireTerms(scope) {
     scope.querySelectorAll("span.term[data-key]").forEach(span => {
