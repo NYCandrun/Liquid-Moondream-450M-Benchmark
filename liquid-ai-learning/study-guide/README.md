@@ -75,7 +75,7 @@ This file is hand-editable end-to-end:
 
 ## Source material
 
-Synthesis of internal briefs and external coverage on Liquid AI's architecture (LFMs, LFM2, STAR), products (LEAP, Apollo, Nanos), market position, competitive landscape (five rings, ten environments), comms strategy, and structural vulnerabilities — all dated to June 2026. The source briefs are referenced, not bundled.
+Synthesis of AI-generated research reports and external coverage on Liquid AI's architecture (LFMs, LFM2, STAR), products (LEAP, Apollo, Nanos), market position, competitive landscape (five rings, ten environments), comms strategy, and structural vulnerabilities, all dated to June 2026. The source reports are referenced, not bundled.
 
 ## Related
 
