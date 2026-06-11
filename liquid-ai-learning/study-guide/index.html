@@ -303,44 +303,7 @@ nav.toc a.read::after{content:' ✓';color:var(--liquid);font-weight:700}
   main{padding:88px 18px 110px}
   .hero .anchor{font-size:18px;padding:18px}
   h2{font-size:25px}
-  h3{font-size:18.5px;margin:36px 0 10px}
   :root{--lexw:100vw}
-  /* shrink topbar so brand + buttons fit on narrow screens */
-  .topbar{padding:0 12px;gap:10px}
-  .brand{font-size:10.5px;letter-spacing:.1em;white-space:normal;line-height:1.15}
-  .tbtn{padding:7px 11px;font-size:11px}
-  /* enlarge tap targets in the side nav */
-  nav.toc{padding:22px 14px 60px 16px}
-  nav.toc a{font-size:13.5px;padding:9px 10px;line-height:1.4}
-  /* drill chips: bigger tap area */
-  .drill a,.pathpick button,#pathbar button{padding:9px 14px;font-size:12.5px}
-  /* hide desktop-only note-taking + reading-paths UI on mobile */
-  .sctl,.snote,.pathpick,.navprog{display:none!important}
-  body.pathon #pathbar{display:none!important}
-  /* tighten cards, tiles, lens callouts */
-  .grid{grid-template-columns:1fr;gap:10px}
-  .tile{padding:16px}
-  .lens,.note{padding:16px 18px;border-radius:0 10px 10px 0}
-  /* glossary popover behaves like a bottom sheet on small screens */
-  #pop{position:fixed;left:8px!important;right:8px;top:auto!important;bottom:12px;max-width:none;width:auto;border-radius:14px;box-shadow:0 -12px 40px rgba(21,34,43,.45)}
-  /* lexicon drawer occupies full viewport */
-  #lex{top:0;height:100vh;z-index:80}
-  /* details/summary tap target */
-  details.deep summary{padding:14px 16px}
-  /* timeline indent */
-  .tl{padding-left:18px;margin-left:4px}
-  .tl .ev::before{left:-25px}
-  /* tables: keep horizontal scroll affordance */
-  .twrap{margin:16px -4px 20px}
-  th,td{padding:10px 12px}
-  /* footer */
-  footer{padding:24px 18px 50px}
-}
-/* coarse-pointer devices (phones/tablets): hide note-taking + path UI even on tablets */
-@media (hover:none) and (pointer:coarse){
-  .sctl,.snote,.pathpick,.navprog{display:none!important}
-  body.pathon #pathbar{display:none!important}
-  /* glossary search placeholder will be rewritten in JS to drop the keyboard hint */
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -360,8 +323,8 @@ nav.toc a.read::after{content:' ✓';color:var(--liquid);font-weight:700}
 </header>
 
 <nav class="toc" id="toc" aria-label="Curriculum">
-  <div class="navprog desktop-only" id="navProg">0 of 0 sections read<br><a id="exportNotes">Export notes &amp; progress</a> · <a id="resetState">reset</a></div>
-  <div class="pathpick desktop-only" id="pathPick" aria-label="Reading paths">
+  <div class="navprog" id="navProg">0 of 0 sections read<br><a id="exportNotes">Export notes &amp; progress</a> · <a id="resetState">reset</a></div>
+  <div class="pathpick" id="pathPick" aria-label="Reading paths">
     <button data-path="linear" class="on">Linear</button>
     <button data-path="product">By product</button>
     <button data-path="competitor">By competitor</button>
@@ -1334,17 +1297,6 @@ addEventListener('scroll',()=>{
   prog.style.width = pct + '%';
 },{passive:true});
 
-/* ================= DESKTOP CAPABILITY DETECTION ================= */
-/* Note-taking, progress tracking, and reading paths are designed for desktop with a keyboard.
-   On touch devices and small viewports we hide them rather than render half-broken controls. */
-const IS_DESKTOP = window.matchMedia('(min-width: 641px) and (hover: hover) and (pointer: fine)').matches;
-if(!IS_DESKTOP){
-  document.body.classList.add('mobile-mode');
-  /* drop the keyboard hint from the lexicon search placeholder */
-  const ls = document.getElementById('lexSearch');
-  if(ls) ls.placeholder = 'Search 80+ terms…';
-}
-
 /* ================= STATE (read-tracking + notes) ================= */
 const STORE_KEY = 'liquid-edge-curriculum-v2';
 let memStore = null;
@@ -1382,8 +1334,8 @@ function updateProgress(){
   });
 }
 
-/* inject per-section controls (mark read + notes) — desktop only */
-if(IS_DESKTOP) SECTIONS.forEach(s=>{
+/* inject per-section controls (mark read + notes) */
+SECTIONS.forEach(s=>{
   let host = s.el;
   if(host.tagName === 'SECTION'){
     host = host.querySelector('.uhead') || host.querySelector('.hero h1') || host.querySelector('h2,h3') || host;
@@ -1411,8 +1363,8 @@ if(IS_DESKTOP) SECTIONS.forEach(s=>{
   s.ctl = {readBtn:rb, noteBtn:nb, ta};
 });
 
-/* export + reset — desktop only */
-if(IS_DESKTOP) document.getElementById('exportNotes').addEventListener('click',()=>{
+/* export + reset */
+document.getElementById('exportNotes').addEventListener('click',()=>{
   const lines = ['# Edge AI Field Curriculum — notes & progress','','_Exported '+new Date().toISOString().slice(0,10)+'_',''];
   const n = SECTIONS.filter(s=>state.read[s.id]).length;
   lines.push('**Progress:** '+n+' of '+SECTIONS.length+' sections read','');
@@ -1429,7 +1381,7 @@ if(IS_DESKTOP) document.getElementById('exportNotes').addEventListener('click',(
   a.click();
   URL.revokeObjectURL(a.href);
 });
-if(IS_DESKTOP) document.getElementById('resetState').addEventListener('click',()=>{
+document.getElementById('resetState').addEventListener('click',()=>{
   if(!confirm('Clear all read-progress and notes?')) return;
   state = {read:{}, notes:{}};
   saveState();
@@ -1471,21 +1423,19 @@ function setPath(p){
   body.classList.remove('navopen');
   gotoStep(0,false);
 }
-if(IS_DESKTOP){
-  document.querySelectorAll('#pathPick button').forEach(b=>b.addEventListener('click',()=>setPath(b.dataset.path)));
-  document.getElementById('pbPrev').addEventListener('click',()=>gotoStep(pathStep-1,false));
-  document.getElementById('pbNext').addEventListener('click',()=>gotoStep(pathStep+1,true));
-  document.getElementById('pbExit').addEventListener('click',()=>setPath('linear'));
+document.querySelectorAll('#pathPick button').forEach(b=>b.addEventListener('click',()=>setPath(b.dataset.path)));
+document.getElementById('pbPrev').addEventListener('click',()=>gotoStep(pathStep-1,false));
+document.getElementById('pbNext').addEventListener('click',()=>gotoStep(pathStep+1,true));
+document.getElementById('pbExit').addEventListener('click',()=>setPath('linear'));
 
-  /* keyboard: j/k step the active sequence; g toggles the Lexicon — desktop only */
-  document.addEventListener('keydown',e=>{
-    if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
-    if(e.key==='j'){ e.preventDefault(); gotoStep(pathStep+1, !!activePath); }
-    if(e.key==='k'){ e.preventDefault(); gotoStep(pathStep-1, false); }
-    if(e.key==='g'){ e.preventDefault(); body.classList.contains('lexopen') ? body.classList.remove('lexopen') : openLex(); }
-    if(e.key==='Escape') closePop();
-  });
-}
+/* keyboard: j/k step the active sequence; g toggles the Lexicon */
+document.addEventListener('keydown',e=>{
+  if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(e.key==='j'){ e.preventDefault(); gotoStep(pathStep+1, !!activePath); }
+  if(e.key==='k'){ e.preventDefault(); gotoStep(pathStep-1, false); }
+  if(e.key==='g'){ e.preventDefault(); body.classList.contains('lexopen') ? body.classList.remove('lexopen') : openLex(); }
+  if(e.key==='Escape') closePop();
+});
 
 /* keep linear j/k position roughly synced to scroll */
 const stepSpy = new IntersectionObserver(entries=>{
