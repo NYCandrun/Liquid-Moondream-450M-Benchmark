@@ -531,8 +531,8 @@ const GLOSSARY = {
   "jamba": {term: "Jamba (AI21)", def: "Hybrid Mamba + Transformer + MoE family from AI21. Targets long-context enterprise workloads — Ring 1 competitor."},
   "granite": {term: "IBM Granite 4.0", def: "IBM's hybrid Mamba/transformer enterprise SLM line. Comes with SOC 2 / ISO certifications Liquid lacks."},
   "nemotron-h": {term: "Nemotron-H", def: "NVIDIA's hybrid SSM-attention model line. Architectural cousin in Ring 1."},
-  "sakana": {term: "Sakana AI", def: "Tokyo-based lab (David Ha, Llion Jones) doing evolutionary/biological model search. Most direct philosophical competitor to STAR."},
-  "cartesia": {term: "Cartesia", def: "Karan Goel / Albert Gu / Tri Dao spinout from the Mamba team. Strong in real-time voice / audio SSMs — contests Liquid's audio story."},
+  "sakana": {term: "Sakana AI", def: "Tokyo-based lab (David Ha, Llion Jones, Ren Ito) doing evolutionary/biological model search. Most direct philosophical competitor to STAR."},
+  "cartesia": {term: "Cartesia", def: "Karan Goel / Albert Gu spinout from the Mamba team. Strong in real-time voice / audio SSMs — contests Liquid's audio story."},
   "moe": {term: "MoE (Mixture of Experts)", def: "Sparse-activation architecture: many expert sub-networks, only a few selected per token. LFM2.5-8B-A1B uses MoE: 8.3B total / 1.5B active."},
   "hybrid": {term: "Hybrid architecture", def: "Combines a non-attention block (gated conv / SSM / linear recurrence) with a small amount of attention. Liquid's signature: 'just enough attention.'"},
   "gated-conv": {term: "Gated short conv", def: "Short causal convolution wrapped in a gating mechanism — replaces most attention blocks in LFM2. Cheap, KV-cache-free, hardware-friendly."},
@@ -846,9 +846,9 @@ const MODULES = [
       <p>The product surface is wider than it first looks. Across base, vision, audio, thinking, and Nanos, Liquid ships roughly 33 distinct SKUs.</p>
       <table>
         <tr><th>Generation</th><th>Family</th><th>Sizes</th><th>Notes</th></tr>
-        <tr><td>LFM v1</td><td>Base</td><td>1.3B / 3B / 40B-MoE</td><td>Sept 2024. Phase-2 challenger.</td></tr>
+        <tr><td>LFM v1</td><td>Base</td><td>1.3B / 3.1B / 40.3B-MoE</td><td>Sept 2024. Phase-2 challenger.</td></tr>
         <tr><td>LFM2</td><td>Base</td><td>350M / 700M / 1.2B / 2.6B</td><td>Hybrid; the edge category-leader generation.</td></tr>
-        <tr><td>LFM2-VL</td><td>Vision-Language</td><td>450M / 1.6B</td><td>SigLIP2 NaFlex encoder.</td></tr>
+        <tr><td>LFM2-VL</td><td>Vision-Language</td><td>450M / 1.6B / 3B</td><td>SigLIP2 NaFlex encoder. (3B added Oct 22, 2025.)</td></tr>
         <tr><td>LFM2-Audio</td><td>Audio</td><td>1.5B</td><td>October 2025.</td></tr>
         <tr><td>LFM2.5</td><td>Base / MoE / Thinking</td><td>1.2B-Thinking, 8B-A1B</td><td>Current flagship generation.</td></tr>
         <tr><td>Nanos</td><td>Task-specific</td><td>~350M class</td><td>JSON, function-calling, translation, extraction.</td></tr>
@@ -868,7 +868,7 @@ const MODULES = [
     `, drill:["2.4","6.2","6.3","6.6"]},
 
     {id:"3.3", title:"LFM2-VL — vision-language deployment", html:`
-      <p>Two sizes: 450M and 1.6B. The 450M variant matters because it fits in wearables (e.g. <span class="term" data-key="brilliant">Brilliant Labs</span>) where the entire compute budget might be sub-watt and the memory budget is hundreds of MB.</p>
+      <p>Three sizes: 450M, 1.6B, and 3B (added Oct 22, 2025). The smallest variant matters because it fits in wearables (e.g. <span class="term" data-key="brilliant">Brilliant Labs</span>) where the entire compute budget might be sub-watt and the memory budget is hundreds of MB.</p>
       <p>The vision encoder is <span class="term" data-key="naflex">SigLIP2 NaFlex</span> — not Liquid IP. The decision to use a Google-DeepMind encoder rather than build their own is a focus decision: spend the lab's architecture-search budget on the language backbone, where the LNN heritage gives real differentiation.</p>
     `, drill:["2.6","6.4","7.4"]},
 
@@ -972,7 +972,7 @@ const MODULES = [
         <div class="stat"><div class="v">$35.8B</div><div class="l">Edge AI market 2025</div></div>
         <div class="stat"><div class="v">$385.9B</div><div class="l">Edge AI market 2034</div></div>
         <div class="stat"><div class="v">29.9%</div><div class="l">Edge AI CAGR</div></div>
-        <div class="stat"><div class="v">$8.6B → $58B</div><div class="l">SLM market growth</div></div>
+        <div class="stat"><div class="v">$2.3B</div><div class="l">Liquid valuation (Dec 2024 AMD Series A)</div></div>
         <div class="stat"><div class="v">$7.6T</div><div class="l">Goldman AI capex 2026-2031</div></div>
         <div class="stat"><div class="v">8×</div><div class="l">Lenovo on-prem vs cloud IaaS</div></div>
       </div>
@@ -1114,7 +1114,7 @@ const MODULES = [
     `, drill:["3.8","3.9","5.4"]},
 
     {id:"6.4", title:"Wearables — Brilliant Labs", html:`
-      <p>Smart glasses, smart rings, hearables. <span class="term" data-key="brilliant">Brilliant Labs</span> ships LFM2-VL in their Frame product line. Memory budget: hundreds of MB. Power budget: sub-watt. The 450M LFM2-VL variant is built for exactly this.</p>
+      <p>Smart glasses, smart rings, hearables. <span class="term" data-key="brilliant">Brilliant Labs</span> ships LFM2-VL in their Frame product line. Memory budget: hundreds of MB. Power budget: sub-watt. The smallest LFM2-VL variant is built for exactly this.</p>
       <p>Wearables are a useful proof environment because they are the hardest place to run any meaningful AI. If a model runs on Frame, it runs everywhere else.</p>
     `, drill:["7.4","3.3"]},
 
