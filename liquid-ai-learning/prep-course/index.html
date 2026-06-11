@@ -467,7 +467,7 @@ const GLOSSARY = {
   "smollm3": {term: "SmolLM3 (HF)", def: "Hugging Face's open small-model effort. Ring 4."},
   "deepseek": {term: "DeepSeek", def: "Chinese frontier-and-open-weight lab. Surfaces in Ring 4 via small / distilled releases."},
 
-  "anchor-sentence": {term: "The anchor sentence", def: "A synthesized one-line positioning for Liquid, composed in this course's AI-generated research from public claims: 'Liquid AI ships frontier-quality intelligence to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and shipping in production with Shopify today, with Mercedes-Benz, AMD, and Brilliant Labs deployments in progress.'"},
+  "anchor-sentence": {term: "The anchor sentence", def: "A synthesized one-line positioning for Liquid, composed in this course's AI-generated research from public claims: 'Liquid AI ships frontier-grade performance to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and deployed with Mercedes-Benz, AMD, Shopify, and Brilliant Labs.'"},
   "ring": {term: "Competitive ring", def: "One of five concentric layers Liquid groups competitors into: (1) non-transformer rivals, (2) edge specialists, (3) big-tech on-device, (4) open-weight SLMs, (5) frontier labs. Picking which rings to even acknowledge IS the positioning move (Mental Model 1)."},
   "beachhead": {term: "Beachhead", def: "A narrow initial market segment (automotive, Apple-aligned developers, pharma multimodal) that establishes credibility before category expansion. Risk: beachheads aren't moats (Mental Model 6)."},
   "half-life": {term: "Proof half-life", def: "How long a marquee customer keeps validating you before the market expects a new one. This course's working assumption for Mercedes is ~18–24 months (Mental Model 3)."},
@@ -503,7 +503,7 @@ const MODULES = [
   /* ===== Module 0 ===== */
   {id:"m0", title:"Module 0 · How to use this textbook", lessons:[
     {id:"0.1", title:"What this textbook is for", html:`
-      <p>You are reading a compressed onboarding for Liquid AI, designed to take you from outsider to credible interlocutor in roughly two weeks of focused study, instead of the usual ninety days.</p>
+      <p>You are reading an interview-prep guide for the on-device AI category, built around Liquid AI as the worked example. It is written <strong>outside-in</strong>: you are a candidate learning to reason about Liquid as a vendor, not an employee being onboarded. The aim is to take you from outsider to credible interlocutor in roughly two weeks of focused study, so that you can hold your own with anyone who lives inside this space.</p>
       <p><em>A note on sourcing:</em> this curriculum is synthesized from <strong>14 AI-generated research reports</strong> built on public coverage. Framings like the five rings, the messaging pillars, the launch wrappers, and the mental models are analytical constructs from that research: interpretations of public material.</p>
       <p>The brief is unusual: you should be able to <strong>communicate about why the technical detail matters</strong>. That means you cannot route around the hard parts. The architecture, the training pipeline, the license, the rings: these are not background. They are the substance.</p>
       <p>Three working principles:</p>
@@ -1196,16 +1196,15 @@ const MODULES = [
   {id:"m9", title:"Module 9 · Differentiation and the anchor sentence", lessons:[
     {id:"9.1", title:"The anchor sentence: line by line", html:`
       <p><em>Note:</em> this anchor sentence is a synthesis, composed in the AI-generated research behind this course from Liquid's public claims.</p>
-      <blockquote style="font-size:1.05rem;">Liquid AI ships frontier-quality intelligence to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and shipping in production with Shopify today, with Mercedes-Benz, AMD, and Brilliant Labs deployments in progress.<sup class="cite" data-c="306"></sup></blockquote>
+      <blockquote style="font-size:1.05rem;">Liquid AI ships frontier-grade performance to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and deployed with Mercedes-Benz, AMD, Shopify, and Brilliant Labs.<sup class="cite" data-c="306"></sup></blockquote>
       <p>Every clause is doing work. Pull it apart:</p>
       <ul>
         <li><strong>"ships … to the device"</strong>: set selection. Not cloud. Not API. Not "available on Hugging Face." On the device.</li>
-        <li><strong>"frontier-quality"</strong>: quality claim. Concedes that frontier is the benchmark; positions LFMs as in that league for their target tasks.</li>
-        <li><strong>"intelligence"</strong>: not "models," not "tokens." Operates at the value level, not the technical artefact.</li>
+        <li><strong>"frontier-grade performance"</strong>: the quality-per-parameter claim. Concedes that frontier is the benchmark; positions LFMs as in that league for their target tasks. Attack surface: third-party aggregators (the Artificial Analysis Intelligence Index) place LFM2 near the bottom, so the claim holds on Liquid's chosen target tasks more than on general knowledge benchmarks.</li>
         <li><strong>"a fraction of the cost, latency, and energy"</strong>: the trade-off triad. Each word is a Ring 5 attack surface and a Ring 2/3/4 differentiator.</li>
         <li><strong>"foundation models"</strong>: refuses the SLM label. Preserves architectural framing.</li>
-        <li><strong>"architectures were discovered, not compressed"</strong>: the philosophical claim. Distillation rivals (Phi, Gemma 3n, Llama 3.2) are positioned as compressed; Liquid is not.</li>
-        <li><strong>"shipping in production with Shopify today, with Mercedes-Benz, AMD, and Brilliant Labs deployments in progress"</strong>: proof inventory across e-commerce, automotive, hardware, and wearables. <em>Calibrate when teaching this:</em> only Shopify is live in production (since Nov 13, 2025). Mercedes is announced with production targeted H2 2026; Brilliant Halo has not yet shipped (the product page still reads "Shipping starts soon" as of June 2026); AMD is a platform/investor partner running demos rather than a deployed end-customer. Do not group all four as "production-proven."<sup class="cite" data-c="207,307,308,309"></sup></li>
+        <li><strong>"architectures were discovered, not compressed"</strong>: the philosophical claim. Distillation rivals (Phi, Gemma 3n, Llama 3.2) are positioned as compressed; Liquid is not. The single most defensible phrase in the sentence.</li>
+        <li><strong>"deployed with Mercedes-Benz, AMD, Shopify, and Brilliant Labs"</strong>: proof inventory across automotive, hardware, e-commerce, and wearables. <em>Calibrate when teaching this:</em> only Shopify is live in production (since Nov 13, 2025). Mercedes is announced with production targeted H2 2026; Brilliant Halo has not yet shipped (the product page still reads "Shipping starts soon" as of June 2026); AMD is a platform/investor partner running demos rather than a deployed end-customer. Do not group all four as "production-proven."<sup class="cite" data-c="207,307,308,309"></sup></li>
       </ul>
       <p>If you can recite the anchor and unpack any of its clauses on demand, you've internalized 70% of how, per this research's reading, Liquid positions itself in public.</p>
     `, drill:["4.3","2.9","7.1","7.2","7.3","7.4"]},
