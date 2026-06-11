@@ -1546,7 +1546,8 @@ const PATHS = {
     nav.innerHTML = "";
     MODULES.forEach((mod, idx) => {
       const block = document.createElement("div");
-      block.className = "nav-module" + (idx === 0 ? " open" : "");
+      const containsCurrent = mod.lessons.some(l => l.id === currentLessonId);
+      block.className = "nav-module" + ((idx === 0 || containsCurrent) ? " open" : "");
       const title = document.createElement("div");
       title.className = "mod-title";
       title.innerHTML = `<span>${escapeHtml(mod.title)}</span><span class="chev">▾</span>`;
