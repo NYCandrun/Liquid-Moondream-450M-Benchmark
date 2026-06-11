@@ -99,6 +99,12 @@
   .glossary-pane .gloss-term { font-weight:600; color:#1a1d23;}
   .glossary-pane .gloss-def { color:#3a3f48; margin-top:.15rem; line-height:1.45;}
   .glossary-pane .gloss-link { font-size:.72rem; color:#3a6fc7; margin-top:.2rem; display:block;}
+  .glossary-pane .gloss-close {
+    background:transparent; border:1px solid #d8d5cb; border-radius:6px;
+    color:#5a606a; font-size:1rem; line-height:1; width:1.6rem; height:1.6rem;
+    cursor:pointer; padding:0;
+  }
+  .glossary-pane .gloss-close:hover { color:#1a1d23; border-color:#3a6fc7; }
 
   /* ---------- Inline glossary highlight ---------- */
   .term {
@@ -313,8 +319,7 @@
 
     <hr style="border-color:#2a323d;">
     <div style="font-size:.75rem; color:#7e8794; line-height:1.5;">
-      Keyboard: <code style="background:#1c232c;color:#cbd1da;">g</code> glossary ·
-      <code style="background:#1c232c;color:#cbd1da;">/</code> search ·
+      Keyboard: <code style="background:#1c232c;color:#cbd1da;">/</code> search ·
       <code style="background:#1c232c;color:#cbd1da;">j</code>/<code style="background:#1c232c;color:#cbd1da;">k</code> next/prev lesson
     </div>
     <div style="font-size:.7rem; color:#5a606a; margin-top:.7rem;">
@@ -336,7 +341,7 @@
 
   <!-- ============== GLOSSARY ============== -->
   <aside class="glossary-pane" id="glossaryPane">
-    <h3>Glossary <span style="font-size:.7rem; color:#5a606a; font-weight:400;">press <code>g</code></span></h3>
+    <h3>Glossary <button type="button" class="gloss-close" id="glossClose" aria-label="Close glossary" title="Close glossary">&times;</button></h3>
     <input type="text" id="glossSearch" placeholder="Filter terms…">
     <div id="glossList"></div>
   </aside>
@@ -501,7 +506,7 @@ const MODULES = [
 
     {id:"0.3", title:"Glossary and cross-links", html:`
       <p>Roughly 110 terms are defined in the right-hand panel. Every underlined word in lesson body text — like <span class="term" data-key="lfm2">LFM2</span> or <span class="term" data-key="kv-cache">KV cache</span> — is a glossary anchor. Hover to read; click to jump.</p>
-      <p>Press <code>g</code> anywhere to toggle the glossary panel. Press <code>/</code> to jump to search. Press <code>j</code> / <code>k</code> to walk lessons forward and backward.</p>
+      <p>The glossary panel has a &times; button to close it. Press <code>/</code> to jump to search. Press <code>j</code> / <code>k</code> to walk lessons forward and backward.</p>
       <p>The glossary is intentionally short on detail and long on coverage. If a term feels underdeveloped, that's because the lesson is where the real treatment lives — the glossary is the lookup.</p>
     `, drill:["0.1"]},
 
@@ -2311,8 +2316,9 @@ const PATHS = {
   function openGlossary() {
     document.getElementById("glossaryPane").classList.add("open");
   }
-  function toggleGlossary() {
-    document.getElementById("glossaryPane").classList.toggle("open");
+  function closeGlossary() {
+    document.getElementById("glossaryPane").classList.remove("open");
+    if (window.__syncScrim) window.__syncScrim();
   }
 
   // ----- Progress -----
@@ -2469,8 +2475,7 @@ const PATHS = {
     document.addEventListener("keydown", (e) => {
       const tag = (e.target.tagName || "").toLowerCase();
       if (tag === "input" || tag === "textarea") return;
-      if (e.key === "g") { toggleGlossary(); e.preventDefault(); }
-      else if (e.key === "/") { document.getElementById("searchInput").focus(); e.preventDefault(); }
+      if (e.key === "/") { document.getElementById("searchInput").focus(); e.preventDefault(); }
       else if (e.key === "j") { navigateLesson(+1); e.preventDefault(); }
       else if (e.key === "k") { navigateLesson(-1); e.preventDefault(); }
       else if (e.key === "Escape") {
@@ -2497,6 +2502,7 @@ const PATHS = {
       glossPane.classList.remove("open");
       syncScrim();
     };
+    document.getElementById("glossClose").onclick = closeGlossary;
     document.getElementById("mobileGloss").onclick = () => {
       glossPane.classList.toggle("open");
       sidebar.classList.remove("open");
