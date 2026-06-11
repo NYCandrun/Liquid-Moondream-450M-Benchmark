@@ -69,7 +69,9 @@ The file is designed to be hand-editable. All content lives inside inline `<scri
 
 ## Source material
 
-Built from internal briefs and external coverage on Liquid AI's architecture (LFMs, LFM2, STAR), products (LEAP, Apollo, Nanos), market position, competitive landscape (five rings, ten environments), comms strategy, and structural vulnerabilities — all dated to June 2026. The source briefs are referenced, not bundled.
+Built from **14 AI-generated research reports** synthesizing external coverage of Liquid AI's architecture (LFMs, LFM2, STAR), products (LEAP, Apollo, Nanos), market position, competitive landscape (five rings, ten environments), comms strategy, and structural vulnerabilities — all dated to June 2026. The source reports are referenced, not bundled.
+
+A note on framing: the analytical constructs used throughout — the five rings, the messaging pillars, the launch wrappers, the anchor sentence, the mental models — come from that AI-generated research. They are interpretations of public material, not official Liquid AI frameworks, and nothing in this course reflects insider or internal knowledge.
 
 ## Related
 
