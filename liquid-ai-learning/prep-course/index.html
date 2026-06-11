@@ -2,9 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Liquid AI — Interactive Curriculum</title>
 <style>
+  /* ---------- Gate overlay ---------- */
+  #gate {
+    position: fixed; inset: 0; z-index: 99999;
+    background: linear-gradient(160deg, #0f1115 0%, #1a2129 60%, #11161d 100%);
+    color: #f0eee6;
+    display: flex; align-items: center; justify-content: center;
+    padding: max(env(safe-area-inset-top), 1rem) 1rem max(env(safe-area-inset-bottom), 1rem);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  #gate .gate-card {
+    width: 100%; max-width: 380px;
+    background: #1c232c;
+    border: 1px solid #2a323d;
+    border-radius: 12px;
+    padding: 1.6rem 1.4rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  }
+  #gate h2 {
+    margin: 0 0 .4rem; font-size: 1.2rem; color: #f0eee6;
+  }
+  #gate p.lede {
+    margin: 0 0 1.1rem; font-size: .88rem; color: #9aa3b1; line-height: 1.5;
+  }
+  #gate label {
+    display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .7px;
+    color: #9aa3b1; margin: .8rem 0 .3rem;
+  }
+  #gate input[type="password"], #gate input[type="text"] {
+    width: 100%; padding: .65rem .7rem;
+    background: #11161d; color: #f0eee6;
+    border: 1px solid #2a323d; border-radius: 7px;
+    font-size: 16px; /* >=16px prevents iOS auto-zoom */
+    font-family: inherit;
+    -webkit-appearance: none; appearance: none;
+  }
+  #gate input:focus { outline: none; border-color: #4a90ff; }
+  #gate .captcha-row {
+    display: flex; gap: .5rem; align-items: center;
+  }
+  #gate .captcha-q {
+    background: #11161d; border: 1px solid #2a323d; border-radius: 7px;
+    padding: .55rem .7rem; font-size: .95rem; color: #ffdf91;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: .5px; white-space: nowrap;
+  }
+  #gate .captcha-row input { flex: 1; min-width: 0; }
+  #gate button.gate-submit {
+    width: 100%; margin-top: 1.2rem;
+    background: #3a6fc7; color: #fff;
+    border: none; border-radius: 7px;
+    padding: .75rem 1rem; font-size: 1rem; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  #gate button.gate-submit:hover { background: #4a7fd6; }
+  #gate button.gate-submit:disabled { background: #2a323d; color: #6a6f78; cursor: not-allowed; }
+  #gate .gate-error {
+    color: #ff8b8b; font-size: .82rem; margin-top: .7rem; min-height: 1.1em;
+  }
+  #gate .gate-foot {
+    margin-top: 1rem; font-size: .72rem; color: #6a6f78; text-align: center;
+  }
+  #gate .gate-refresh {
+    background: transparent; border: 1px solid #2a323d; color: #9aa3b1;
+    border-radius: 6px; padding: .55rem .6rem; cursor: pointer;
+    font-family: inherit; font-size: .85rem;
+  }
+  #gate .gate-refresh:hover { color: #fff; border-color: #4a90ff; }
+  body.gated { overflow: hidden; }
+  body.gated .app { filter: blur(8px); pointer-events: none; user-select: none; }
+
   /* ---------- Reset & base ---------- */
   *,*::before,*::after { box-sizing: border-box; }
   html,body { margin:0; padding:0; height:100%; }
@@ -193,24 +264,63 @@
     .app { grid-template-columns: 260px 1fr; }
     .glossary-pane { display:none; }
     .glossary-pane.open {
-      display:block; position:fixed; right:0; top:0; width:340px; z-index:100;
+      display:block; position:fixed; right:0; top:0; width:min(340px, 90vw); z-index:100;
       box-shadow:-4px 0 18px rgba(0,0,0,.15);
     }
   }
   @media (max-width: 760px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { position: fixed; left:-100%; width: 280px; z-index:200; transition: left .25s;}
-    .sidebar.open { left:0; }
-    .main { padding: 1.2rem 1.1rem 4rem; }
+    body { font-size: 15px; }
+    .app { grid-template-columns: 1fr; min-height: auto; }
+    .sidebar {
+      position: fixed; left:-100%; top:0;
+      width: min(300px, 86vw); height: 100vh; height: 100dvh;
+      z-index:200; transition: left .25s;
+      padding-top: max(env(safe-area-inset-top), .8rem);
+      padding-bottom: max(env(safe-area-inset-bottom), 3rem);
+    }
+    .sidebar.open { left:0; box-shadow: 4px 0 20px rgba(0,0,0,.4); }
+    .main {
+      padding: .9rem 1rem 5rem;
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+    h1 { font-size: 1.45rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1.05rem; }
+    .lesson-body table { font-size: .82rem; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .lesson-body table th, .lesson-body table td { padding: .35rem .45rem; }
+    blockquote { margin: .8rem 0; padding-left: .7rem; font-size: .95rem; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+    .stat .v { font-size: 1.1rem; }
+    .drill-into { padding: .8rem; }
+    .drill-into a { font-size: .78rem; padding: .35rem .55rem; }
+    .mm-callout, .key-callout { padding: .7rem .85rem; font-size: .9rem; }
+    .lesson-actions button { font-size: .8rem; padding: .45rem .6rem; }
     .mobile-bar { display:flex !important; }
+    .glossary-pane.open {
+      width: min(340px, 92vw);
+      padding-top: max(env(safe-area-inset-top), 1rem);
+      padding-bottom: max(env(safe-area-inset-bottom), 3rem);
+    }
+    /* Scrim when sidebar/gloss is open */
+    .scrim {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 150; display: none;
+    }
+    .scrim.show { display: block; }
+  }
+  @media (max-width: 420px) {
+    .toolbar { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
   }
   .mobile-bar {
     display:none; position: sticky; top:0; background:#11161d; color:#fff;
-    padding:.55rem .8rem; z-index:50; align-items:center; gap:.6rem;
+    padding:.55rem .8rem; z-index:250; align-items:center; gap:.6rem;
     border-bottom:1px solid #2a323d;
+    padding-top: max(env(safe-area-inset-top), .55rem);
   }
-  .mobile-bar button { background:#1c232c; color:#fff; border:1px solid #2a323d; padding:.3rem .55rem; border-radius:5px; font-size:.8rem;}
-  .mobile-bar .ttl { font-size:.9rem; font-weight:600;}
+  .mobile-bar button { background:#1c232c; color:#fff; border:1px solid #2a323d; padding:.45rem .7rem; border-radius:6px; font-size:.85rem; min-height:38px;}
+  .mobile-bar .ttl { font-size:.9rem; font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 
   /* ---------- Print ---------- */
   @media print {
@@ -220,7 +330,32 @@
   }
 </style>
 </head>
-<body>
+<body class="gated">
+
+<!-- ============== AUTH GATE ============== -->
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate-card">
+    <h2 id="gateTitle">Liquid AI — Interactive Curriculum</h2>
+    <p class="lede">This document is access-controlled. Enter the password and solve the captcha to continue.</p>
+    <form id="gateForm" autocomplete="off" novalidate>
+      <label for="gatePw">Password</label>
+      <input type="password" id="gatePw" autocomplete="current-password" inputmode="text" required>
+
+      <label for="gateCap">Verify you're human</label>
+      <div class="captcha-row">
+        <span class="captcha-q" id="captchaQ">—</span>
+        <input type="text" id="gateCap" inputmode="numeric" pattern="-?[0-9]*" autocomplete="off" required aria-label="Captcha answer">
+        <button type="button" class="gate-refresh" id="captchaRefresh" aria-label="New captcha">↻</button>
+      </div>
+
+      <button class="gate-submit" type="submit">Unlock</button>
+      <div class="gate-error" id="gateError" role="alert" aria-live="polite"></div>
+    </form>
+    <div class="gate-foot">Local access only · nothing is sent to a server</div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
 
 <div class="app">
   <!-- ============== SIDEBAR ============== -->
@@ -276,6 +411,89 @@
 
 <!-- Popover container -->
 <div id="popover" class="popover" style="display:none;"></div>
+
+<!-- ============== AUTH GATE LOGIC ============== -->
+<script>
+(function(){
+  // Hardcoded password (deliberately client-side per requirement)
+  var PASSWORD = "123";
+  var SESSION_KEY = "liquidai-curriculum-unlock";
+
+  function newCaptcha(){
+    var a = Math.floor(Math.random() * 9) + 2; // 2..10
+    var b = Math.floor(Math.random() * 9) + 2;
+    var op = Math.random() < 0.5 ? "+" : "-";
+    var ans = op === "+" ? (a + b) : (a - b);
+    document.getElementById("captchaQ").textContent = "What is " + a + " " + op + " " + b + " ?";
+    document.getElementById("gateCap").value = "";
+    window.__captchaAnswer = ans;
+  }
+
+  function unlock(){
+    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch(e){}
+    var gate = document.getElementById("gate");
+    var scrim = document.getElementById("scrim");
+    document.body.classList.remove("gated");
+    if (gate) gate.style.display = "none";
+    if (scrim) scrim.classList.remove("show");
+    // Boot the curriculum app now that we're unlocked
+    if (typeof window.__bootCurriculum === "function") {
+      try { window.__bootCurriculum(); } catch(e){ console.error(e); }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    var gate = document.getElementById("gate");
+    var form = document.getElementById("gateForm");
+    var pw = document.getElementById("gatePw");
+    var cap = document.getElementById("gateCap");
+    var err = document.getElementById("gateError");
+    var refresh = document.getElementById("captchaRefresh");
+
+    // If already unlocked this session, skip the gate
+    var already = false;
+    try { already = sessionStorage.getItem(SESSION_KEY) === "1"; } catch(e){}
+    if (already) { unlock(); return; }
+
+    newCaptcha();
+    refresh.addEventListener("click", function(){ newCaptcha(); err.textContent = ""; });
+
+    var attempts = 0;
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var capVal = parseInt((cap.value || "").trim(), 10);
+      var pwOk = pw.value === PASSWORD;
+      var capOk = !isNaN(capVal) && capVal === window.__captchaAnswer;
+      if (pwOk && capOk) {
+        err.textContent = "";
+        unlock();
+      } else {
+        attempts++;
+        if (!pwOk && !capOk) err.textContent = "Password and captcha are both incorrect.";
+        else if (!pwOk) err.textContent = "Password is incorrect.";
+        else err.textContent = "Captcha answer is incorrect.";
+        newCaptcha();
+        pw.focus();
+        // Mild brute-force friction
+        if (attempts >= 5) {
+          var btn = form.querySelector("button.gate-submit");
+          btn.disabled = true;
+          var delay = 3;
+          var orig = btn.textContent;
+          btn.textContent = "Wait " + delay + "s…";
+          var t = setInterval(function(){
+            delay--;
+            if (delay <= 0) { clearInterval(t); btn.disabled = false; btn.textContent = orig; }
+            else btn.textContent = "Wait " + delay + "s…";
+          }, 1000);
+        }
+      }
+    });
+
+    pw.focus();
+  });
+})();
+</script>
 
 <!-- Lesson data & app logic loaded below -->
 <script>
@@ -1876,18 +2094,52 @@ const PATHS = {
       else if (e.key === "/") { document.getElementById("searchInput").focus(); e.preventDefault(); }
       else if (e.key === "j") { navigateLesson(+1); e.preventDefault(); }
       else if (e.key === "k") { navigateLesson(-1); e.preventDefault(); }
-      else if (e.key === "Escape") { hidePopover(); document.getElementById("glossaryPane").classList.remove("open"); document.getElementById("sidebar").classList.remove("open"); }
+      else if (e.key === "Escape") {
+        hidePopover();
+        document.getElementById("glossaryPane").classList.remove("open");
+        document.getElementById("sidebar").classList.remove("open");
+        if (window.__syncScrim) window.__syncScrim();
+      }
     });
   }
 
   // ----- Mobile -----
   function setupMobile() {
+    const scrim = document.getElementById("scrim");
+    const sidebar = document.getElementById("sidebar");
+    const glossPane = document.getElementById("glossaryPane");
+    function syncScrim(){
+      if (!scrim) return;
+      const open = sidebar.classList.contains("open") || glossPane.classList.contains("open");
+      if (open) scrim.classList.add("show"); else scrim.classList.remove("show");
+    }
     document.getElementById("mobileMenu").onclick = () => {
-      document.getElementById("sidebar").classList.toggle("open");
+      sidebar.classList.toggle("open");
+      glossPane.classList.remove("open");
+      syncScrim();
     };
     document.getElementById("mobileGloss").onclick = () => {
-      toggleGlossary();
+      glossPane.classList.toggle("open");
+      sidebar.classList.remove("open");
+      syncScrim();
     };
+    if (scrim) {
+      scrim.addEventListener("click", () => {
+        sidebar.classList.remove("open");
+        glossPane.classList.remove("open");
+        syncScrim();
+      });
+    }
+    // When a nav link is tapped on mobile, close the sidebar drawer
+    document.getElementById("navTree").addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-lesson-id]");
+      if (a && window.innerWidth <= 760) {
+        sidebar.classList.remove("open");
+        syncScrim();
+      }
+    });
+    // Expose for keyboard handler
+    window.__syncScrim = syncScrim;
   }
 
   // ----- Helpers -----
@@ -1925,10 +2177,22 @@ const PATHS = {
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
+  // Expose boot to be called by the auth gate after unlock
+  window.__bootCurriculum = function(){
+    if (window.__curriculumBooted) return;
+    window.__curriculumBooted = true;
     boot();
+  };
+  // If the gate is not present (e.g. removed in a future build), boot directly
+  if (!document.getElementById("gate")) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", window.__bootCurriculum);
+    } else {
+      window.__bootCurriculum();
+    }
+  } else if (!document.body.classList.contains("gated")) {
+    // Already unlocked (e.g. session restored) by the time scripts run
+    window.__bootCurriculum();
   }
 })();
 
