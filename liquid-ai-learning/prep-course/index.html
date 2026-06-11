@@ -592,7 +592,7 @@ const GLOSSARY = {
   "smollm3": {term: "SmolLM3 (HF)", def: "Hugging Face's open small-model effort. Ring 4."},
   "deepseek": {term: "DeepSeek", def: "Chinese frontier-and-open-weight lab. Surfaces in Ring 4 via small / distilled releases."},
 
-  "anchor-sentence": {term: "The anchor sentence", def: "A synthesized one-line positioning for Liquid, composed in this course's AI-generated research from public claims (not an official tagline): 'Liquid AI ships frontier-quality intelligence to the device — at a fraction of the cost, latency, and energy — through foundation models whose architectures were discovered, not compressed, and proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs.'"},
+  "anchor-sentence": {term: "The anchor sentence", def: "A synthesized one-line positioning for Liquid, composed in this course's AI-generated research from public claims: 'Liquid AI ships frontier-quality intelligence to the device — at a fraction of the cost, latency, and energy — through foundation models whose architectures were discovered, not compressed, and proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs.'"},
   "ring": {term: "Competitive ring", def: "One of five concentric layers Liquid groups competitors into: (1) non-transformer rivals, (2) edge specialists, (3) big-tech on-device, (4) open-weight SLMs, (5) frontier labs. Picking which rings to even acknowledge IS the positioning move (Mental Model 1)."},
   "beachhead": {term: "Beachhead", def: "A narrow initial market segment (automotive, Apple-aligned developers, pharma multimodal) that establishes credibility before category expansion. Risk: beachheads aren't moats (Mental Model 6)."},
   "half-life": {term: "Proof half-life", def: "How long a marquee customer keeps validating you before the market expects a new one. Mercedes' Liquid-shaped half-life is ~18–24 months (Mental Model 3)."},
@@ -629,7 +629,7 @@ const MODULES = [
   {id:"m0", title:"Module 0 · How to use this textbook", lessons:[
     {id:"0.1", title:"What this textbook is for", html:`
       <p>You are reading a compressed onboarding for Liquid AI — designed to take you from outsider to credible interlocutor in roughly two weeks of focused study, instead of the usual ninety days.</p>
-      <p><em>A note on sourcing:</em> this curriculum is synthesized from <strong>14 AI-generated research reports</strong> built on public coverage. Framings like the five rings, the messaging pillars, the launch wrappers, and the mental models are analytical constructs from that research — interpretations of public material, not official Liquid AI frameworks or insider knowledge.</p>
+      <p><em>A note on sourcing:</em> this curriculum is synthesized from <strong>14 AI-generated research reports</strong> built on public coverage. Framings like the five rings, the messaging pillars, the launch wrappers, and the mental models are analytical constructs from that research — interpretations of public material.</p>
       <p>The brief is unusual: you should be able to <strong>communicate about why the technical detail matters</strong>. That means you cannot route around the hard parts. The architecture, the training pipeline, the license, the rings — these are not background. They are the substance.</p>
       <p>Three working principles:</p>
       <ol>
@@ -1004,7 +1004,7 @@ const MODULES = [
   /* ===== Module 5 ===== */
   {id:"m5", title:"Module 5 · The five competitive rings", lessons:[
     {id:"5.1", title:"How to use rings — segmentation IS positioning", html:`
-      <p>The five-ring model is an analytical map of who Liquid competes with — a construct of the AI-generated research this course is based on, not an official or internal Liquid framework. It is not industry-standard either; it is a framing that does a strategic job.</p>
+      <p>The five-ring model is an analytical map of who Liquid competes with — a construct of the AI-generated research this course is based on. It is not industry-standard; it is a framing that does a strategic job.</p>
       <p>The trick is that the rings are <strong>concentric</strong>. Ring 1 is the closest philosophical neighbor (other non-transformer architectures). Ring 5 is the farthest (frontier labs). Buyers compare Liquid mostly to Rings 2-3-4. By naming Ring 1 explicitly, the framing assigns Liquid architectural kinship with Mamba/Jamba/RWKV — consistent with how Liquid's public materials embrace the post-transformer label.</p>
       <div class="mm-callout"><div class="mm-label">Mental Model 1</div>Choosing rings at all — rather than a "magic quadrant" or a "competitor table" — is itself a positioning move. Rings imply gradient and overlap; a quadrant implies winners and losers. The ring framing suits a player that is not (yet) the obvious winner in any 2×2.</div>
     `, drill:["5.2","5.3","5.4","5.5","5.6","12.1"]},
@@ -1228,7 +1228,7 @@ const MODULES = [
     `, drill:["1.7","12.5"]},
 
     {id:"8.3", title:"The eight messaging pillars", html:`
-      <p>Based on AI-generated research synthesizing Liquid's public materials, eight recurring messaging pillars emerge. These are distilled patterns, not an official messaging framework:</p>
+      <p>Based on AI-generated research synthesizing Liquid's public materials, eight recurring messaging pillars emerge. These are distilled patterns from that research:</p>
       <ol>
         <li><strong>Efficiency-per-parameter.</strong> "Small models that punch up."</li>
         <li><strong>On-device / edge-first.</strong> The category claim.</li>
@@ -1242,8 +1242,8 @@ const MODULES = [
       <p>Notice the order: technical pillars (1, 4, 5) precede commercial pillars (3, 6, 7) precede category pillars (2, 8). This ordering is the research's reading rather than a stated Liquid doctrine, but it tracks: the technical claim has to land before the commercial one becomes credible.</p>
     `, drill:["9.2","9.3","11.3"]},
 
-    {id:"8.4", title:"Fifteen launch wrappers — the framing playbook", html:`
-      <p>Liquid's launches appear to reuse a small set of framings — these fifteen "wrappers" were identified in the AI-generated research behind this course by reading across public announcements; they are observed patterns, not a documented playbook. Recognising them helps you read announcements faster.</p>
+    {id:"8.4", title:"Fifteen launch wrappers — the framing patterns", html:`
+      <p>Liquid's launches appear to reuse a small set of framings — these fifteen "wrappers" were identified in the AI-generated research behind this course by reading across public announcements; they are observed patterns. Recognising them helps you read announcements faster.</p>
       <ul>
         <li>"Frontier-quality, edge cost." (LFM2.5-8B-A1B, etc.)</li>
         <li>"Discovered, not compressed."</li>
@@ -1298,14 +1298,14 @@ const MODULES = [
         <li>Analyst defaults to whatever Apple/Google/Microsoft publishes.</li>
         <li>Buyers' assumption that "if they were good at X, they'd have shown it by now."</li>
       </ul>
-      <p>The research's assessment — an outside read, not an informed one — is that some opacity is necessary, but the current ratio of opacity-to-disclosure looks to lean further toward opacity than it should for a Phase-3 category leader making enterprise sales.</p>
+      <p>The research's assessment — an outside read — is that some opacity is necessary, but the current ratio of opacity-to-disclosure looks to lean further toward opacity than it should for a Phase-3 category leader making enterprise sales.</p>
     `, drill:["12.5","10.5","10.7"]}
   ]},
 
   /* ===== Module 9 ===== */
   {id:"m9", title:"Module 9 · Differentiation and the anchor sentence", lessons:[
     {id:"9.1", title:"The anchor sentence — line by line", html:`
-      <p><em>Note:</em> this anchor sentence is a synthesis — composed in the AI-generated research behind this course from Liquid's public claims. It is not an official Liquid AI tagline.</p>
+      <p><em>Note:</em> this anchor sentence is a synthesis — composed in the AI-generated research behind this course from Liquid's public claims.</p>
       <blockquote style="font-size:1.05rem;">Liquid AI ships frontier-quality intelligence to the device — at a fraction of the cost, latency, and energy — through foundation models whose architectures were discovered, not compressed, and proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs.</blockquote>
       <p>Every clause is doing work. Pull it apart:</p>
       <ul>
