@@ -388,10 +388,10 @@ const GLOSSARY = {
   "lfm": {term: "LFM (Liquid Foundation Model)", def: "Generic name for Liquid's foundation model line. LFM v1 (Sept 2024) was the first generation; LFM2 (mid 2025) the hybrid edge-optimized generation; LFM2.5 (late 2025–2026) the current."},
   "lfm2": {term: "LFM2", def: "Hybrid architecture: 10 gated short-conv blocks + 6 GQA blocks across 16 layers (dense sizes; the 2.6B uses 30 layers). Sizes 350M / 700M / 1.2B / 2.6B. The basis of Liquid's edge category leadership claim."},
   "lfm25": {term: "LFM2.5", def: "Jan 5, 2026 generation (8B-A1B flagship released May 28, 2026). Headlined by LFM2.5-8B-A1B (MoE) and LFM2.5-1.2B-Thinking (fits in 900MB). Adds reasoning and sparse activation to the LFM2 recipe."},
-  "lfm25-8b": {term: "LFM2.5-8B-A1B", def: "24-layer MoE: 18 linear-conv layers (zero KV cache) + 6 GQA. 8.3B total parameters, 1.5B active per token. 128K context, trained on 38T tokens."},
+  "lfm25-8b": {term: "LFM2.5-8B-A1B", def: "24-layer MoE: 18 linear-conv layers (KV-free) + 6 GQA layers (which retain a compact KV cache). 8.3B total parameters, 1.5B active per token. 128K context, trained on 38T tokens."},
   "lfm25-thinking": {term: "LFM2.5-1.2B-Thinking", def: "Compact reasoning model fitting in 900MB of memory, designed to bring chain-of-thought to phones and wearables."},
   "lfm2-vl": {term: "LFM2-VL", def: "Vision-language variant. Uses SigLIP2 NaFlex as the vision encoder for variable-resolution input."},
-  "lfm2-audio": {term: "LFM2-Audio-1.5B", def: "October 2025 audio foundation model. Liquid's challenge to Cartesia and OpenAI Whisper at the edge."},
+  "lfm2-audio": {term: "LFM2-Audio-1.5B", def: "October 2025 end-to-end audio foundation model. Liquid's challenge to real-time edge-audio rivals such as Kyutai Moshi and Cartesia. (Note: OpenAI Whisper is ASR-only transcription, not a full end-to-end audio model, so it is not a like-for-like rival.)"},
   "nanos": {term: "Nanos", def: "Task-specific micro-models (typically 350M class); e.g. JSON extraction, function-calling, translation. Liquid's answer to the 'one model per skill' SLM pattern."},
   "leap": {term: "LEAP (Liquid Edge AI Platform)", def: "SDK + runtime + model zoo. The developer surface for shipping LFMs into iOS/Android/Linux/Windows apps."},
   "apollo": {term: "Apollo", def: "Liquid's consumer iOS chat app. The flagship demonstration of LFM2 running on-device and the primary consumer-facing brand asset."},
@@ -431,7 +431,7 @@ const GLOSSARY = {
   "cagr": {term: "CAGR (Compound Annual Growth Rate)", def: "Smoothed annual growth rate. Edge AI's ~30% CAGR (Fortune Business Insights) is the headline reason investors put $250M into Liquid's Series A."},
   "capex": {term: "Goldman $7.6T AI capex", def: "Goldman Sachs estimate of AI infrastructure capital expenditure 2026-2031. Used to argue that the edge complements (not threatens) the cloud build-out."},
   "copilot-plus": {term: "Copilot+ PC", def: "Microsoft branding for Windows PCs with 40+ TOPS NPUs. The Ring 3 / Ring 2 battleground."},
-  "mbux": {term: "MBUX", def: "Mercedes-Benz User Experience, the in-car infotainment OS. The new CLA carries fourth-generation MBUX (MB.OS); the H2 2026 North America rollout carries the LFM2-based assistant. Liquid's #1 proof point."},
+  "mbux": {term: "MBUX", def: "Mercedes-Benz User Experience, the in-car infotainment OS. The Liquid AI partnership spans third- and fourth-generation MBUX; the new CLA carries fourth-generation MBUX (MB.OS), and the H2 2026 North America rollout carries the LFM2-based assistant. Liquid's #1 proof point."},
   "ryzen-ai": {term: "Ryzen AI (AMD)", def: "AMD's NPU-equipped client CPU line. Tri-engine: CPU + GPU + NPU. Liquid is the day-zero LLM partner."},
   "tri-engine": {term: "Tri-engine NPU", def: "AMD's framing: CPU, GPU, and NPU together. LEAP can dispatch across all three."},
   "sovereign-ai": {term: "Sovereign AI", def: "AI infrastructure controlled by a single nation or government. G42 (UAE) is Liquid's lead sovereign-AI relationship."},
@@ -467,7 +467,7 @@ const GLOSSARY = {
   "smollm3": {term: "SmolLM3 (HF)", def: "Hugging Face's open small-model effort. Ring 4."},
   "deepseek": {term: "DeepSeek", def: "Chinese frontier-and-open-weight lab. Surfaces in Ring 4 via small / distilled releases."},
 
-  "anchor-sentence": {term: "The anchor sentence", def: "A synthesized one-line positioning for Liquid, composed in this course's AI-generated research from public claims: 'Liquid AI ships frontier-quality intelligence to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs.'"},
+  "anchor-sentence": {term: "The anchor sentence", def: "A synthesized one-line positioning for Liquid, composed in this course's AI-generated research from public claims: 'Liquid AI ships frontier-quality intelligence to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and shipping in production with Shopify today, with Mercedes-Benz, AMD, and Brilliant Labs deployments in progress.'"},
   "ring": {term: "Competitive ring", def: "One of five concentric layers Liquid groups competitors into: (1) non-transformer rivals, (2) edge specialists, (3) big-tech on-device, (4) open-weight SLMs, (5) frontier labs. Picking which rings to even acknowledge IS the positioning move (Mental Model 1)."},
   "beachhead": {term: "Beachhead", def: "A narrow initial market segment (automotive, Apple-aligned developers, pharma multimodal) that establishes credibility before category expansion. Risk: beachheads aren't moats (Mental Model 6)."},
   "half-life": {term: "Proof half-life", def: "How long a marquee customer keeps validating you before the market expects a new one. This course's working assumption for Mercedes is ~18–24 months (Mental Model 3)."},
@@ -544,7 +544,7 @@ const MODULES = [
       <h4>By mental model</h4>
       <ul>
         <li>Apply "license = business model" to Qwen3. What GTM does its license push them into, and how does that compare to Liquid? (<a href="#l-12.4">12.4</a>, <a href="#l-3.10">3.10</a>)</li>
-        <li>If Mercedes shipped MBUX Gen 4 flawlessly but Liquid announced no new flagship by Q4 2027, what specifically breaks in the narrative? (<a href="#l-12.3">12.3</a>, <a href="#l-7.1">7.1</a>)</li>
+        <li>If Mercedes shipped fourth-generation MBUX flawlessly but Liquid announced no new flagship by Q4 2027, what specifically breaks in the narrative? (<a href="#l-12.3">12.3</a>, <a href="#l-7.1">7.1</a>)</li>
       </ul>
       <h4>By gap</h4>
       <ul>
@@ -564,7 +564,7 @@ const MODULES = [
     {id:"1.2", title:"Liquid Time-constant Networks (LTCs, 2020)", html:`
       <p>The 2020 LTC paper formalized the insight.<sup class="cite" data-c="12"></sup> In an LTC, each neuron's time constant (how fast it integrates new input) is itself a function of the input.<sup class="cite" data-c="13"></sup> The network's behavior is described by an ordinary differential equation: <code>dx/dt = f(x, I, t, θ)</code> where <code>f</code> depends on the input <code>I</code>.<sup class="cite" data-c="14"></sup></p>
       <p>Concretely: the network can <em>slow down</em> when an input is noisy and <em>speed up</em> when it changes meaningfully. Static transformers cannot do this; they have to learn it implicitly via many layers of attention.</p>
-      <p>LTCs were dramatically smaller than transformers for control tasks: the MIT CSAIL team (Hasani as lead author, <span class="term" data-key="amini">Alexander Amini</span> among the co-authors, in Daniela Rus's lab) used 19-neuron LTC networks to drive a real car.<sup class="cite" data-c="15"></sup> That demo became the visual shorthand for "tiny models, big behaviors" and was widely re-shared even before Liquid AI the company existed.</p>
+      <p>Liquid networks were dramatically smaller than transformers for control tasks: the famous 19-neuron car-steering result comes from the MIT CSAIL/IST Austria team's <span class="term" data-key="amini">NCP</span> paper, "Neural circuit policies enabling auditable autonomy" (<em>Nature Machine Intelligence</em>, 2020), with <strong>Mathias Lechner as first author</strong> (Hasani, Amini, Henzinger, Rus, Grosu as co-authors), in Daniela Rus's lab.<sup class="cite" data-c="15"></sup> The separate LTC paper (Hasani as lead author) supplies the mathematics; NCP supplies the driving demo. That demo became the visual shorthand for "tiny models, big behaviors" and was widely re-shared even before Liquid AI the company existed.</p>
       <p>Cost: LTCs required ODE solvers at every inference step.<sup class="cite" data-c="16"></sup> Beautiful theory, slow runtime.</p>
     `, drill:["1.3","1.7"]},
 
@@ -603,7 +603,7 @@ const MODULES = [
         <tr><th>Person</th><th>Role</th><th>Voice</th></tr>
         <tr><td><span class="term" data-key="hasani">Ramin Hasani</span></td><td>CEO &amp; co-founder<sup class="cite" data-c="34"></sup></td><td>Technical lead. Drives the architectural narrative. Lead author of LTC and CfC.<sup class="cite" data-c="35"></sup></td></tr>
         <tr><td><span class="term" data-key="lechner">Mathias Lechner</span></td><td>Co-founder<sup class="cite" data-c="36"></sup></td><td>Dynamical-systems theory voice. Co-author of LTC/CfC.<sup class="cite" data-c="37"></sup></td></tr>
-        <tr><td><span class="term" data-key="amini">Alexander Amini</span></td><td>Co-founder<sup class="cite" data-c="38"></sup></td><td>Robotics &amp; control. Co-author on the CSAIL self-driving LTC demos.<sup class="cite" data-c="39"></sup></td></tr>
+        <tr><td><span class="term" data-key="amini">Alexander Amini</span></td><td>Co-founder<sup class="cite" data-c="38"></sup></td><td>Robotics &amp; control. Co-author on the CSAIL self-driving NCP demos.<sup class="cite" data-c="39"></sup></td></tr>
         <tr><td><span class="term" data-key="rus">Daniela Rus</span></td><td>Co-founder<sup class="cite" data-c="40"></sup></td><td>Director of MIT CSAIL.<sup class="cite" data-c="41"></sup> Mainstream-press credibility. Forbes profile, Oct 2025.<sup class="cite" data-c="42"></sup></td></tr>
       </table>
       <p>The team composition matters strategically: Hasani gives the technical voice, Rus gives institutional credibility, Amini gives the visceral robotics proof points. Based on patterns in public coverage, each appears to be surfaced to different audiences (<a href="#l-8.2">8.2</a>).</p>
@@ -616,7 +616,7 @@ const MODULES = [
       <p>Transformers have two scaling problems that matter on a phone or a car:</p>
       <ol>
         <li><strong>Quadratic attention.</strong> The cost of attention scales with the square of context length.<sup class="cite" data-c="43"></sup> Doubling the prompt quadruples the compute.<sup class="cite" data-c="44"></sup> On a battery-powered device, that translates directly to heat and millisecond latency.</li>
-        <li><strong>The <span class="term" data-key="kv-cache">KV cache</span>.</strong> To decode efficiently, transformers cache the key/value vectors of every prior token. This cache grows linearly with context, and at 32K context, a 7B model needs <em>several gigabytes</em> of KV cache alone.<sup class="cite" data-c="45"></sup> Phones have ~4–8GB of total RAM.<sup class="cite" data-c="46"></sup></li>
+        <li><strong>The <span class="term" data-key="kv-cache">KV cache</span>.</strong> To decode efficiently, transformers cache the key/value vectors of every prior token. This cache grows linearly with context, and at 32K context, a 7B model needs <em>several gigabytes</em> of KV cache alone.<sup class="cite" data-c="45"></sup> Phones have ~4–12GB of total RAM (flagships 12–16GB).<sup class="cite" data-c="46"></sup></li>
       </ol>
       <p>The big-tech response (Apple, Google, Meta) has been to keep transformers and lean on distillation and quantization. The Liquid response is to replace most of the attention with cheaper blocks while keeping just enough to handle long-range dependencies.</p>
       <p>Hold this fact: in <span class="term" data-key="lfm2">LFM2</span>, only 6 of 16 layers are attention (GQA); the rest are cheaper conv blocks.<sup class="cite" data-c="47"></sup> In <span class="term" data-key="lfm25-8b">LFM2.5-8B-A1B</span>, the non-attention layers are explicitly <em>KV-cache-free</em>.<sup class="cite" data-c="48"></sup> That is the architectural pitch in one sentence.</p>
@@ -660,7 +660,7 @@ const MODULES = [
       <p>Sizes shipped in this generation: 350M, 700M, 1.2B, 2.6B parameters<sup class="cite" data-c="63"></sup>, all built on the same hybrid conv + GQA family. The 350M/700M/1.2B share a 16-layer recipe (10 conv + 6 GQA)<sup class="cite" data-c="25"></sup>; the 2.6B scales it to 30 layers (22 conv + 8 GQA).<sup class="cite" data-c="64"></sup></p>
     `, drill:["2.1","2.5","3.2","1.6","2.9"]},
 
-    {id:"2.5", title:"LFM2.5-8B-A1B: MoE, zero-KV scale-up", html:`
+    {id:"2.5", title:"LFM2.5-8B-A1B: MoE, mostly-zero-KV scale-up", html:`
       <p>Released May 28, 2026 (<a href="#l-11.1">May–June 2026 inflection</a>).<sup class="cite" data-c="65"></sup> The headline model of the LFM2.5 generation.</p>
       <div class="stat-grid">
         <div class="stat"><div class="v">8.3B</div><div class="l">Total parameters</div><sup class="cite" data-c="66"></sup></div>
@@ -673,7 +673,7 @@ const MODULES = [
       <p>Three things to notice:</p>
       <ol>
         <li><strong><span class="term" data-key="moe">MoE</span> goes edge.</strong> Sparse activation lets the model carry 8.3B worth of knowledge but only pay for 1.5B at inference time. This is the same trick frontier models use; Liquid is bringing it down-stack.</li>
-        <li><strong>Zero KV cache for 75% of the layers.</strong> The 18 linear-conv layers don't accumulate KV state. Memory at 128K context is dramatically below a same-size transformer.<sup class="cite" data-c="72"></sup></li>
+        <li><strong>KV-free for 75% of the layers.</strong> The 18 linear-conv layers don't accumulate KV state; the remaining 6 GQA layers keep a compact KV cache. Memory at 128K context is dramatically below a same-size transformer.<sup class="cite" data-c="72"></sup></li>
         <li><strong>128K context on-device.</strong> Closes most of the <a href="#l-10.4">context-length gap</a> versus frontier models (still 256K–1M, but the gap matters less on phones).<sup class="cite" data-c="73"></sup></li>
       </ol>
     `, drill:["2.4","3.5","10.4","11.1"]},
@@ -748,8 +748,8 @@ const MODULES = [
     `, drill:["2.6","6.4","7.4"]},
 
     {id:"3.4", title:"LFM2-Audio-1.5B", html:`
-      <p>Released October 2025.<sup class="cite" data-c="94"></sup> Liquid's challenge to Cartesia and OpenAI Whisper specifically <em>at the edge</em>.<sup class="cite" data-c="102"></sup></p>
-      <p>The competitive dynamic here is the most uncomfortable Liquid faces. <span class="term" data-key="cartesia">Cartesia</span> is a fellow non-transformer believer (Mamba lineage), and their audio quality is widely regarded as best-in-class.<sup class="cite" data-c="50,103"></sup> Liquid's audio story is therefore <em>narrower</em>: it competes on integration with the rest of the LFM ecosystem, not on raw audio quality.</p>
+      <p>Released October 2025.<sup class="cite" data-c="94"></sup> An end-to-end audio model positioned against real-time edge-audio rivals such as Kyutai Moshi (the most direct end-to-end comparison) and Cartesia.<sup class="cite" data-c="102"></sup> (OpenAI Whisper is ASR-only transcription, not a full end-to-end audio model, so it is not a like-for-like rival.)</p>
+      <p>The competitive dynamic here is the most uncomfortable Liquid faces. <span class="term" data-key="cartesia">Cartesia</span> is a fellow non-transformer believer (Mamba lineage) with a strong real-time-voice reputation.<sup class="cite" data-c="50,103"></sup> Liquid's audio story is therefore <em>narrower</em>: it competes on integration with the rest of the LFM ecosystem rather than on standalone audio leadership.</p>
     `, drill:["10.8","5.2"]},
 
     {id:"3.5", title:"LFM2.5: Thinking and 8B-A1B", html:`
@@ -833,11 +833,13 @@ const MODULES = [
     `, drill:["2.4","5.1","9.1","12.1"]},
 
     {id:"4.4", title:"Why edge, why now", html:`
-      <p>Three forces converged in 2024-2026 to make on-device viable as a category:<sup class="cite" data-c="144"></sup></p>
+      <p>Five forces converged in 2024-2026 to make on-device viable as a category:<sup class="cite" data-c="144"></sup></p>
       <ol>
-        <li><strong>Hardware.</strong> Snapdragon 8 Gen 4 and Ryzen AI crossed the 40+ TOPS NPU threshold (Microsoft's Copilot+ PC bar), and Apple's A17/A18 Neural Engine reached the ~35 TOPS class, enough that real models can run on-device across the category.<sup class="cite" data-c="145,146,147,148"></sup></li>
-        <li><strong>Regulation.</strong> EU AI Act, GDPR enforcement, China data-residency rules.<sup class="cite" data-c="149,150,151"></sup> Cloud LLM inference exposes personal data; on-device avoids the question.</li>
-        <li><strong>Cost.</strong> Cloud LLM inference at scale is expensive. <a href="#l-4.5">Lenovo's analysis</a> puts on-prem at 8× cheaper than cloud IaaS for sustained workloads.<sup class="cite" data-c="152"></sup> On-device is free at the margin.</li>
+        <li><strong>Cloud capex limits.</strong> Cloud LLM inference at scale is expensive and power-constrained. <a href="#l-4.5">Lenovo's analysis</a> puts on-prem at 8× cheaper than cloud IaaS for sustained workloads.<sup class="cite" data-c="152"></sup> On-device is free at the margin and relieves datacenter build-out pressure.</li>
+        <li><strong>Data sovereignty.</strong> EU AI Act, GDPR enforcement, China data-residency rules.<sup class="cite" data-c="149,150,151"></sup> Cloud LLM inference exposes personal data across borders; on-device keeps data on the device and avoids the question.</li>
+        <li><strong>NPU proliferation.</strong> Snapdragon 8 Gen 4 and Ryzen AI crossed the 40+ TOPS NPU threshold (Microsoft's Copilot+ PC bar), and Apple's A17/A18 Neural Engine reached the ~35 TOPS class, putting capable on-device silicon in phones, PCs, and cars across the category.<sup class="cite" data-c="145,146,147,148"></sup></li>
+        <li><strong>Low-latency needs.</strong> Agentic and interactive use cases (in-car voice, real-time assistants) need instant, predictable response times that a cloud round-trip cannot guarantee; local inference removes the network from the loop.<sup class="cite" data-c="208"></sup></li>
+        <li><strong>Agentic economics.</strong> Agents that plan, call tools, and loop multiply token consumption; running that loop on-device keeps the marginal cost near zero rather than paying per-call cloud inference for every step.<sup class="cite" data-c="157,158"></sup></li>
       </ol>
       <p>None of these are Liquid-specific tailwinds. But they make the category big enough to support a credible challenger, and Liquid is the most architecturally distinct candidate for that role.</p>
     `, drill:["4.5","11.1","6.1","6.2"]},
@@ -847,7 +849,7 @@ const MODULES = [
         <div class="stat"><div class="v">$35.8B</div><div class="l">Edge AI market 2025<sup class="cite" data-c="153"></sup></div></div>
         <div class="stat"><div class="v">$385.9B</div><div class="l">Edge AI market 2034<sup class="cite" data-c="154"></sup></div></div>
         <div class="stat"><div class="v">29.9%</div><div class="l">Edge AI CAGR<sup class="cite" data-c="155"></sup></div></div>
-        <div class="stat"><div class="v">$7B → $57B</div><div class="l">Agentic AI market 2025 → 2031 (~42% CAGR)<sup class="cite" data-c="157,158,159"></sup></div></div>
+        <div class="stat"><div class="v">$7B → $57B</div><div class="l">Agentic AI market 2025 → 2031<sup class="cite" data-c="157,158"></sup></div></div>
         <div class="stat"><div class="v">$7.6T</div><div class="l">Goldman AI capex 2026-2031<sup class="cite" data-c="160"></sup></div></div>
         <div class="stat"><div class="v">8×</div><div class="l">Lenovo on-prem vs cloud IaaS<sup class="cite" data-c="152"></sup></div></div>
       </div>
@@ -870,7 +872,7 @@ const MODULES = [
       <h4>1. AMD hardware-aligned distribution moat</h4>
       <p>AMD didn't just invest: it made Liquid a flagship LLM partner on Ryzen AI, and AMD is the first AI-PC platform to run LFMs across the full CPU/GPU/NPU tri-engine (vendor-supported).<sup class="cite" data-c="164,165"></sup> Developers can deploy LFMs on-device on AMD Ryzen AI PCs via the LEAP SDK (a developer kit, not a pre-installed feature).<sup class="cite" data-c="166"></sup> That is, arguably, distribution at a scale no Ring 2 specialist can match without a similar partnership.</p>
       <h4>2. Flagship production proof points</h4>
-      <p>Mercedes-Benz (automotive), AMD (PC), Shopify (e-commerce), Brilliant Labs (wearable), Insilico (pharma), G42 (sovereign).<sup class="cite" data-c="167"></sup> Six different verticals, each a credible reference.<sup class="cite" data-c="167"></sup> No other Ring 2 player has this density of named production deployments.</p>
+      <p>Mercedes-Benz (automotive), AMD (PC), Shopify (e-commerce), Brilliant Labs (wearable), Insilico (pharma), G42 (sovereign).<sup class="cite" data-c="167"></sup> Six different verticals, each a credible reference.<sup class="cite" data-c="167"></sup> No other Ring 2 player has this density of named partnerships, though only Shopify is live in production today (Brilliant Halo has not yet shipped; Mercedes is targeted for H2 2026).</p>
       <div class="mm-callout"><div class="mm-label">Mental Models 3 + 6</div>Both advantages have time pressure. AMD partnerships can be matched by Intel/Qualcomm. Mercedes proof has a limited half-life. The structural advantages are real <em>and</em> they need maintenance.</div>
     `, drill:["7.1","7.2","12.3","12.6"]}
   ]},
@@ -965,7 +967,7 @@ const MODULES = [
   /* ===== Module 6 ===== */
   {id:"m6", title:"Module 6 · Deployment environments (10-slice matrix)", lessons:[
     {id:"6.1", title:"Automotive: Mercedes MBUX", html:`
-      <p>The flagship environment. <span class="term" data-key="mercedes">Mercedes-Benz</span> ships LFM2-based assistants in <span class="term" data-key="mbux">MBUX Gen 4</span>; the new CLA is fourth-generation MBUX with MB.OS (H2 2026 North America rollout).<sup class="cite" data-c="206,207"></sup></p>
+      <p>The flagship environment. <span class="term" data-key="mercedes">Mercedes-Benz</span> ships LFM2-based assistants across <span class="term" data-key="mbux">third- and fourth-generation MBUX</span>; the new CLA is fourth-generation MBUX with MB.OS (H2 2026 North America rollout).<sup class="cite" data-c="206,207"></sup></p>
       <p>Why automotive is a near-perfect fit:</p>
       <ul>
         <li>Latency: in-car voice needs to feel immediate; Liquid and Mercedes cite low latency as a core goal of embedding.<sup class="cite" data-c="208"></sup></li>
@@ -977,7 +979,7 @@ const MODULES = [
     `, drill:["7.1","12.3"]},
 
     {id:"6.2", title:"PCs and laptops: AMD Ryzen AI", html:`
-      <p>The <span class="term" data-key="copilot-plus">Copilot+ PC</span> standard requires 40+ TOPS NPUs.<sup class="cite" data-c="147"></sup> AMD Ryzen AI, Intel Lunar Lake, Qualcomm Snapdragon X all clear it.<sup class="cite" data-c="146,210,211"></sup></p>
+      <p>The <span class="term" data-key="copilot-plus">Copilot+ PC</span> standard requires 40+ TOPS NPUs.<sup class="cite" data-c="147"></sup> AMD Ryzen AI, Intel Panther Lake (Core Ultra Series 3, CES Jan 2026), Qualcomm Snapdragon X all clear it.<sup class="cite" data-c="146,210,211"></sup></p>
       <p>Liquid's primary play here is the AMD relationship: day-zero LFM availability on every Ryzen AI machine, LEAP dispatch across the <span class="term" data-key="tri-engine">CPU/GPU/NPU tri-engine</span>.<sup class="cite" data-c="164,116"></sup> CES 2026 keynote with Lisa Su was the formal coming-out for this story.<sup class="cite" data-c="142"></sup></p>
       <p>Competitors on the same surface: <span class="term" data-key="phi-4">Microsoft Phi Silica</span> (Windows' on-device default, derived from Phi-3.5-mini), Apple AFM on Mac, open-weight Llama 3.2 / Qwen3 for prosumer.<sup class="cite" data-c="212"></sup></p>
     `, drill:["7.2","5.4","11.2"]},
@@ -989,12 +991,12 @@ const MODULES = [
     `, drill:["3.8","3.9","5.4"]},
 
     {id:"6.4", title:"Wearables: Brilliant Labs", html:`
-      <p>Smart glasses, smart rings, hearables. <span class="term" data-key="brilliant">Brilliant Labs</span> ships LFM2-VL in their Halo smart glasses ($299) product line.<sup class="cite" data-c="76,217"></sup> Memory budget: hundreds of MB.<sup class="cite" data-c="218"></sup> Power budget: sub-watt.<sup class="cite" data-c="219"></sup> The smallest LFM2-VL variant is built for exactly this.</p>
+      <p>Smart glasses, smart rings, hearables. <span class="term" data-key="brilliant">Brilliant Labs</span> has selected LFM2-VL for their Halo smart glasses ($299); as of June 2026 the Halo product page still reads "Shipping starts soon" and the device has not yet begun shipping.<sup class="cite" data-c="76,217"></sup> Memory budget: hundreds of MB.<sup class="cite" data-c="218"></sup> Power budget: sub-watt.<sup class="cite" data-c="219"></sup> The smallest LFM2-VL variant is built for exactly this.</p>
       <p>Wearables are a useful proof environment because they are the hardest place to run any meaningful AI. If a model runs on Halo, it runs everywhere else.</p>
     `, drill:["7.4","3.3"]},
 
     {id:"6.5", title:"Robotics", html:`
-      <p>Liquid's heritage. The MIT CSAIL team's LTC self-driving demos (Hasani, Rus, <span class="term" data-key="amini">Amini</span>, Lechner, et al.) remain among the most viral pieces of LNN proof material.<sup class="cite" data-c="220,221"></sup> Today, robotics is not a primary commercial market for Liquid, but it is a permanent narrative asset.<sup class="cite" data-c="222"></sup></p>
+      <p>Liquid's heritage. The MIT CSAIL team's NCP self-driving demos (Lechner, Hasani, <span class="term" data-key="amini">Amini</span>, Rus, et al.) remain among the most viral pieces of LNN proof material.<sup class="cite" data-c="220,221"></sup> Today, robotics is not a primary commercial market for Liquid, but it is a permanent narrative asset.<sup class="cite" data-c="222"></sup></p>
       <p>Expect any future humanoid-robot or autonomous-system partnership to land hard in the press because it matches the founder mythology.</p>
     `, drill:["1.7","1.2"]},
 
@@ -1028,7 +1030,7 @@ const MODULES = [
   /* ===== Module 7 ===== */
   {id:"m7", title:"Module 7 · Customers and proof points", lessons:[
     {id:"7.1", title:"Mercedes-Benz: the flagship", html:`
-      <p>MBUX Gen 4 (new CLA is fourth-generation MBUX with MB.OS).<sup class="cite" data-c="206"></sup> MBUX Gen 4 rolls out H2 2026 in North America.<sup class="cite" data-c="207"></sup> Both run LFM2-class assistants on the embedded compute platform.<sup class="cite" data-c="206"></sup></p>
+      <p>Third- and fourth-generation MBUX (new CLA is fourth-generation MBUX with MB.OS).<sup class="cite" data-c="206"></sup> The fourth-generation MBUX rollout reaches North America in H2 2026.<sup class="cite" data-c="207"></sup> Both run LFM2-class assistants on the embedded compute platform.<sup class="cite" data-c="206"></sup></p>
       <p>What it proves:</p>
       <ul>
         <li>LFMs survive real-OEM integration testing (functional safety, quality, supply chain).<sup class="cite" data-c="235"></sup></li>
@@ -1039,7 +1041,7 @@ const MODULES = [
     `, drill:["6.1","12.3","4.8"]},
 
     {id:"7.2", title:"AMD: the strategic investor", html:`
-      <p>AMD led the <strong>$250M Series A</strong> in December 2024.<sup class="cite" data-c="32"></sup> That round valued Liquid at $2B+.<sup class="cite" data-c="237"></sup></p>
+      <p>AMD led the <strong>$250M Series A</strong> in December 2024.<sup class="cite" data-c="32"></sup> That round valued Liquid at $2.3B (Bloomberg).<sup class="cite" data-c="237"></sup></p>
       <p>What AMD plausibly gets: a credible LLM partner aligned with Ryzen AI tri-engine NPUs. Without Liquid, AMD's Copilot+ story competes against Microsoft Phi on Microsoft's own silicon partners' machines.<sup class="cite" data-c="239"></sup> With Liquid, AMD has a differentiated model story.</p>
       <p>What Liquid gets: distribution to every Ryzen AI machine sold, day-zero developer story, CES 2026 keynote with Lisa Su, ongoing co-engineering of LEAP for Ryzen NPUs.<sup class="cite" data-c="142,164,240,241"></sup></p>
       <p>Watch carefully: the AMD relationship appears non-exclusive on both sides (no exclusivity has been disclosed).<sup class="cite" data-c="242"></sup> AMD can partner with others; Liquid can ship on Intel/Apple/Qualcomm.<sup class="cite" data-c="243,244"></sup> The mutual depth appears to come from co-engineering rather than contract exclusivity.</p>
@@ -1051,7 +1053,7 @@ const MODULES = [
     `, drill:["6.9","4.8"]},
 
     {id:"7.4", title:"Brilliant Labs: wearable proof", html:`
-      <p>LFM2-VL inside Halo smart glasses ($299).<sup class="cite" data-c="76,217"></sup> Proves the extreme-low-power vision-language story. Useful as a developer-credible reference: the kind of demo a CTO at another wearables company can verify.</p>
+      <p>LFM2-VL selected for Halo smart glasses ($299); the device has not yet shipped (product page still reads "Shipping starts soon" as of June 2026).<sup class="cite" data-c="76,217"></sup> Demonstrates the extreme-low-power vision-language story. Useful as a developer-credible reference: the kind of demo a CTO at another wearables company can verify.</p>
     `, drill:["6.4","3.3"]},
 
     {id:"7.5", title:"Insilico Medicine: regulated-vertical expansion", html:`
@@ -1125,7 +1127,7 @@ const MODULES = [
         <li>"Privacy by architecture."<sup class="cite" data-c="283"></sup></li>
         <li>"X seconds to first token on a [device]."<sup class="cite" data-c="284"></sup></li>
         <li>"Fits in [N] MB."<sup class="cite" data-c="285"></sup></li>
-        <li>"Production-proven by Mercedes / AMD / Shopify."<sup class="cite" data-c="286"></sup></li>
+        <li>"In production with Shopify today; Mercedes, AMD, and Brilliant Labs in progress."<sup class="cite" data-c="286"></sup></li>
         <li>"The first [non-transformer / hybrid / on-device-MoE] foundation model to…"<sup class="cite" data-c="287"></sup></li>
         <li>"Open license, $10M threshold."<sup class="cite" data-c="288"></sup></li>
         <li>"With our partners at MIT CSAIL…"<sup class="cite" data-c="289"></sup></li>
@@ -1179,7 +1181,7 @@ const MODULES = [
   {id:"m9", title:"Module 9 · Differentiation and the anchor sentence", lessons:[
     {id:"9.1", title:"The anchor sentence: line by line", html:`
       <p><em>Note:</em> this anchor sentence is a synthesis, composed in the AI-generated research behind this course from Liquid's public claims.</p>
-      <blockquote style="font-size:1.05rem;">Liquid AI ships frontier-quality intelligence to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs.<sup class="cite" data-c="306"></sup></blockquote>
+      <blockquote style="font-size:1.05rem;">Liquid AI ships frontier-quality intelligence to the device, at a fraction of the cost, latency, and energy, through foundation models whose architectures were discovered, not compressed, and shipping in production with Shopify today, with Mercedes-Benz, AMD, and Brilliant Labs deployments in progress.<sup class="cite" data-c="306"></sup></blockquote>
       <p>Every clause is doing work. Pull it apart:</p>
       <ul>
         <li><strong>"ships … to the device"</strong>: set selection. Not cloud. Not API. Not "available on Hugging Face." On the device.</li>
@@ -1188,16 +1190,16 @@ const MODULES = [
         <li><strong>"a fraction of the cost, latency, and energy"</strong>: the trade-off triad. Each word is a Ring 5 attack surface and a Ring 2/3/4 differentiator.</li>
         <li><strong>"foundation models"</strong>: refuses the SLM label. Preserves architectural framing.</li>
         <li><strong>"architectures were discovered, not compressed"</strong>: the philosophical claim. Distillation rivals (Phi, Gemma 3n, Llama 3.2) are positioned as compressed; Liquid is not.</li>
-        <li><strong>"proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs"</strong>: proof inventory. Four references covering automotive, hardware, e-commerce, wearables. <em>Calibrate when teaching this:</em> "proven in production" is literally true today only for Shopify (live since Nov 2025); Mercedes is announced with production targeted H2 2026; Brilliant Halo began shipping in 2026; AMD is a platform/investor partner rather than a deployed end-customer.<sup class="cite" data-c="207,307,308,309"></sup></li>
+        <li><strong>"shipping in production with Shopify today, with Mercedes-Benz, AMD, and Brilliant Labs deployments in progress"</strong>: proof inventory across e-commerce, automotive, hardware, and wearables. <em>Calibrate when teaching this:</em> only Shopify is live in production (since Nov 13, 2025). Mercedes is announced with production targeted H2 2026; Brilliant Halo has not yet shipped (the product page still reads "Shipping starts soon" as of June 2026); AMD is a platform/investor partner running demos rather than a deployed end-customer. Do not group all four as "production-proven."<sup class="cite" data-c="207,307,308,309"></sup></li>
       </ul>
       <p>If you can recite the anchor and unpack any of its clauses on demand, you've internalized 70% of how, per this research's reading, Liquid positions itself in public.</p>
     `, drill:["4.3","2.9","7.1","7.2","7.3","7.4"]},
 
     {id:"9.2", title:"Six differentiators", html:`
       <ol>
-        <li><strong>Hybrid architecture (10 conv + 6 GQA in LFM2; zero-KV scale-up in LFM2.5).</strong><sup class="cite" data-c="25,48"></sup></li>
+        <li><strong>Hybrid architecture (10 conv + 6 GQA in LFM2; 18 of 24 layers KV-free, 6 GQA retain a compact cache in LFM2.5-8B-A1B).</strong><sup class="cite" data-c="25,48"></sup></li>
         <li><strong>STAR-discovered, not distilled.</strong></li>
-        <li><strong>Production proof across six verticals.</strong><sup class="cite" data-c="167"></sup></li>
+        <li><strong>Named partnerships across six verticals (Shopify live in production today).</strong><sup class="cite" data-c="167"></sup></li>
         <li><strong>AMD-aligned tri-engine NPU distribution.</strong></li>
         <li><strong>Multi-platform breadth (iOS, Android, Mac, Windows, Linux, embedded).</strong><sup class="cite" data-c="310"></sup></li>
         <li><strong>LNN scientific lineage (LTC, CfC, peer-reviewed).</strong><sup class="cite" data-c="311"></sup></li>
@@ -1287,16 +1289,16 @@ const MODULES = [
       <ul>
         <li><strong>Alibaba released Qwen 3.7-Max</strong> (May 19).<sup class="cite" data-c="342"></sup> Proprietary / API-only (1M context, no downloadable weights), not open-weight.<sup class="cite" data-c="193"></sup></li>
         <li><strong>Liquid released LFM2.5-8B-A1B</strong> (May 28).<sup class="cite" data-c="65"></sup> Their flagship answer.</li>
-        <li><strong>Microsoft went agent-first at Build (June 2)</strong>: a new in-house MAI model family plus agent tooling<sup class="cite" data-c="343"></sup>, with Phi positioned as its edge/low-latency line.<sup class="cite" data-c="188"></sup></li>
+        <li><strong>Microsoft went agent-first at Build (June 2)</strong>: its in-house MAI model family (cloud) plus agent tooling, with the new Aion family positioned as its on-device/low-latency line.<sup class="cite" data-c="343,188"></sup></li>
       </ul>
       <p>Two earlier 2026 releases are sometimes lumped into this window but actually predate it: <strong>Google's Gemma 4</strong> (weights March 31, announced April 2) and <strong>Meta's Muse Spark</strong> (April 8).<sup class="cite" data-c="185,344"></sup> Both are April releases, predating this window.<sup class="cite" data-c="345"></sup></p>
       <p>The collective signal, as this course reads it: the agentic-on-device wave has begun. Models are no longer judged on stand-alone Q&amp;A; they're judged on whether they can plan, call tools, and run in a loop on the device.</p>
     `, drill:["2.5","5.4","5.5"]},
 
     {id:"11.2", title:"Microsoft's agent-first push: what it means for everyone", html:`
-      <p>Microsoft going agent-first at Build 2026 (MAI models plus agent tooling, with Phi positioned as the edge/low-latency line<sup class="cite" data-c="343,188"></sup>) is arguably the most consequential shift in the May–June 2026 wave. Two implications:</p>
+      <p>Microsoft going agent-first at Build 2026 (MAI models in the cloud plus agent tooling, with the new Aion family positioned as the on-device/low-latency line<sup class="cite" data-c="343,188"></sup>) is arguably the most consequential shift in the May–June 2026 wave. Two implications:</p>
       <ol>
-        <li><strong>Ring 3 is now more crowded for Liquid.</strong> Microsoft is leaning in via Phi + Copilot+.</li>
+        <li><strong>Ring 3 is now more crowded for Liquid.</strong> Microsoft is leaning in via Aion + Phi Silica + Copilot+.</li>
         <li><strong>The Belcak SLM thesis gains momentum as Microsoft pushes agents toward the edge.</strong> Helpful for everyone in the SLM/edge category, including Liquid, but it raises the stakes on differentiation.</li>
       </ol>
     `, drill:["5.4","5.5"]},
@@ -1314,7 +1316,7 @@ const MODULES = [
     {id:"11.4", title:"What to watch in the next six months", html:`
       <ul>
         <li><strong>Apple Foundation Models framework adoption.</strong> If iOS developers default to AFM-only, third-party on-device LLMs lose share on iPhones.</li>
-        <li><strong>Mercedes MBUX Gen 4 NA launch (H2 2026).</strong><sup class="cite" data-c="207"></sup> The proof becomes visible to American press; coverage cycle is critical.</li>
+        <li><strong>Mercedes fourth-generation MBUX NA launch (H2 2026).</strong><sup class="cite" data-c="207"></sup> The proof becomes visible to American press; coverage cycle is critical.</li>
         <li><strong>Liquid Series B or partnership news.</strong> Cash runway and strategic alignment for the next 18 months.</li>
         <li><strong>Any ISO 42001 / SOC 2 announcement.</strong> Would unlock regulated buyers.</li>
         <li><strong>An industrial-IoT flagship.</strong> Would address the proof breadth question (<a href="#l-6.6">6.6</a>).</li>
@@ -1888,7 +1890,7 @@ const PATHS = {
   "12": {"l": "LTC Paper Published 2020", "s": [{"n": "arXiv", "d": "2020-06-08", "u": "https://arxiv.org/abs/2006.04439"}, {"n": "ISTA Research Explorer", "d": "2022-01", "u": "https://research-explorer.ista.ac.at/record/10671"}]},
   "13": {"l": "LTC Input-Dependent Time Constants", "s": [{"n": "arXiv LTC Paper", "d": "2020-06", "u": "https://arxiv.org/abs/2006.04439"}, {"n": "emergentmind.com: LTC Networks", "d": "2026-01", "u": "https://www.emergentmind.com/topics/liquid-time-constant-networks"}]},
   "14": {"l": "LTC ODE Form dx/dt = f(x,I,t,θ)", "s": [{"n": "arXiv LTC Paper", "d": "2020-06", "u": "https://arxiv.org/abs/2006.04439"}, {"n": "Nature: CfC Paper (cites LTC ODE)", "d": "2022-11", "u": "https://www.nature.com/articles/s42256-022-00556-7"}]},
-  "15": {"l": "19-Neuron LTC Drives Real Car", "s": [{"n": "ISTA News: New Deep Learning Models", "d": "2020-10", "u": "https://ista.ac.at/en/news/new-deep-learning-models/"}, {"n": "MIT News: Cause-Effect Neural Networks", "d": "2021-10", "u": "https://news.mit.edu/2021/cause-effect-neural-networks-1014"}]},
+  "15": {"l": "19-Neuron NCP Drives Real Car (Lechner et al., Nature Machine Intelligence 2020)", "s": [{"n": "NCP — Neural circuit policies enabling auditable autonomy (Nature Machine Intelligence)", "d": "2020-10", "u": "https://doi.org/10.1038/s42256-020-00237-3"}, {"n": "ISTA News: New Deep Learning Models", "d": "2020-10", "u": "https://ista.ac.at/en/news/new-deep-learning-models/"}, {"n": "MIT News: Cause-Effect Neural Networks", "d": "2021-10", "u": "https://news.mit.edu/2021/cause-effect-neural-networks-1014"}]},
   "16": {"l": "LTC Slow Due to ODE Solver", "s": [{"n": "arXiv CfC Paper", "d": "2021-06", "u": "https://arxiv.org/abs/2106.13898"}, {"n": "Nature: CfC Paper", "d": "2022-11", "u": "https://www.nature.com/articles/s42256-022-00556-7"}]},
   "17": {"l": "CfC Paper Nature Machine Intelligence 2022", "s": [{"n": "Nature Machine Intelligence", "d": "2022-11-15", "u": "https://www.nature.com/articles/s42256-022-00556-7"}, {"n": "GitHub raminmh/CfC", "d": "2021", "u": "https://github.com/raminmh/CfC"}]},
   "18": {"l": "CfC Removes ODE Solver", "s": [{"n": "arXiv CfC Paper", "d": "2021-06", "u": "https://arxiv.org/abs/2106.13898"}, {"n": "Nature: CfC Paper", "d": "2022-11", "u": "https://www.nature.com/articles/s42256-022-00556-7"}]},
@@ -1917,7 +1919,7 @@ const PATHS = {
   "43": {"l": "Quadratic Attention Complexity", "s": [{"n": "Weights & Biases Report", "d": "2024-03-14", "u": "https://wandb.ai/wandb_fc/tips/reports/The-Problem-with-Quadratic-Attention-in-Transformer-Architectures--Vmlldzo3MDE0Mzcz"}, {"n": "PatSnap Blog", "d": "2026-04-16", "u": "https://www.patsnap.com/resources/blog/articles/sparse-attention-cuts-transformer-on%C2%B2-complexity/"}]},
   "44": {"l": "Transformer Attention Quadratic Compute", "s": [{"n": "PatSnap Insights", "d": "2026-04", "u": "https://www.patsnap.com/resources/blog/articles/sparse-attention-cuts-transformer-on%C2%B2-complexity/"}, {"n": "dev.to (VF Insights)", "d": "2025-11", "u": "https://dev.to/vf-insights/transformers-and-attention-how-llms-actually-process-text-3e3e"}]},
   "45": {"l": "7B Model KV Cache at 32K", "s": [{"n": "dev.to (KV Cache Calculator)", "d": "2026-04", "u": "https://dev.to/jagmarques/kv-cache-memory-calculator-how-much-does-your-llm-actually-use-85n"}, {"n": "mbrenndoerfer.com", "d": "2026-01", "u": "https://mbrenndoerfer.com/writing/kv-cache-memory-calculation-llm-inference-gpu"}]},
-  "46": {"l": "Phones Have 4–8GB RAM", "s": [{"n": "Android Authority", "d": "2025", "u": "https://www.androidauthority.com/how-much-ram-do-i-need-phone-3086661/"}, {"n": "ScientiaMobile MOVR", "d": "2022-08", "u": "https://scientiamobile.com/how-much-ram-is-in-smartphones/"}]},
+  "46": {"l": "Phones Have 4–12GB RAM (Flagships 12–16GB)", "s": [{"n": "Android Authority", "d": "2025", "u": "https://www.androidauthority.com/how-much-ram-do-i-need-phone-3086661/"}, {"n": "ScientiaMobile MOVR", "d": "2022-08", "u": "https://scientiamobile.com/how-much-ram-is-in-smartphones/"}]},
   "47": {"l": "LFM2 6 of 16 Layers Attention (GQA)", "v": [{"n": "Liquid AI Blog LFM2", "d": "2025-07", "u": "https://www.liquid.ai/blog/liquid-foundation-models-v2-our-second-series-of-generative-ai-models"}, {"n": "LFM2 Technical Report (arXiv)", "d": "2025-11", "u": "https://arxiv.org/html/2511.23404v1"}]},
   "48": {"l": "LFM2.5-8B-A1B Non-Attn KV-Free", "v": [{"n": "Liquid AI Blog LFM2.5-8B-A1B", "d": "2026-05", "u": "https://www.liquid.ai/blog/lfm2-5-8b-a1b"}, {"n": "HuggingFace LiquidAI/LFM2.5-8B-A1B", "d": "2025-11", "u": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"}]},
   "49": {"l": "Mamba SSM Selective Recurrence", "s": [{"n": "arXiv Mamba paper (Gu & Dao)", "d": "2023-12", "u": "https://arxiv.org/abs/2312.00752"}, {"n": "OpenReview Mamba", "d": "2024-07", "u": "https://openreview.net/forum?id=tEYskw1VY2"}]},
@@ -1970,8 +1972,8 @@ const PATHS = {
   "99": {"l": "LFM2 1.2B Flagship Phone Automotive", "v": [{"n": "Liquid AI Blog (LFM2.5 launch)", "d": "2026-01-05", "u": "https://www.liquid.ai/blog/introducing-lfm2-5-the-next-generation-of-on-device-ai"}]},
   "100": {"l": "LFM2 2.6B Premium PC Copilot+", "s": [{"n": "AMD Blog (Liquid AI AMD partnership)", "d": "2026-01-05", "u": "https://www.amd.com/en/blogs/2026/liquid-ai-amd-ryzen-on-device-meeting-summaries.html"}], "v": [{"n": "LFM2 Technical Report (arXiv)", "d": "2025-11-28", "u": "https://arxiv.org/html/2511.23404v1"}]},
   "101": {"l": "LFM2-VL 450M Wearable Sub-Watt", "s": [{"n": "VentureBeat (LFM2-VL coverage)", "d": "2025-09-02", "u": "https://venturebeat.com/ai/liquid-ai-wants-to-give-smartphones-small-fast-ai-that-can-see-with-new-lfm2-vl-model"}], "v": [{"n": "Liquid AI Blog (LFM2-VL launch)", "d": "2025-08-12", "u": "https://www.liquid.ai/blog/lfm2-vl-efficient-vision-language-models"}]},
-  "102": {"l": "LFM2-Audio vs Cartesia and Whisper", "v": [{"n": "Liquid AI Blog (LFM2-Audio)", "d": "2025-10-01", "u": "https://www.liquid.ai/blog/lfm2-audio-an-end-to-end-audio-foundation-model"}]},
-  "103": {"l": "Cartesia Best-In-Class Edge Audio", "s": [{"n": "Impekable (ElevenLabs vs Cartesia benchmark)", "d": "2026-05-26", "u": "https://www.impekable.com/blog/elevenlabs-vs-cartesia"}, {"n": "Famulor (Cartesia vs ElevenLabs vs Minimax)", "d": "2026-01-13", "u": "https://www.famulor.io/blog/choosing-the-perfect-ai-voice-cartesia-vs-elevenlabs-vs-minimaxio-in-the-ultimate-showdown"}]},
+  "102": {"l": "LFM2-Audio vs Kyutai Moshi and Cartesia (Whisper is ASR-only)", "s": [{"n": "Kyutai Moshi (end-to-end speech-to-speech)", "d": "2024-09", "u": "https://kyutai.org/Moshi.pdf"}, {"n": "OpenAI Whisper (ASR-only)", "d": "2022-09", "u": "https://openai.com/index/whisper/"}], "v": [{"n": "Liquid AI Blog (LFM2-Audio)", "d": "2025-10-01", "u": "https://www.liquid.ai/blog/lfm2-audio-an-end-to-end-audio-foundation-model"}]},
+  "103": {"l": "Cartesia Strong Real-Time Voice Reputation", "s": [{"n": "Impekable (ElevenLabs vs Cartesia benchmark)", "d": "2026-05-26", "u": "https://www.impekable.com/blog/elevenlabs-vs-cartesia"}, {"n": "Famulor (Cartesia vs ElevenLabs vs Minimax)", "d": "2026-01-13", "u": "https://www.famulor.io/blog/choosing-the-perfect-ai-voice-cartesia-vs-elevenlabs-vs-minimaxio-in-the-ultimate-showdown"}]},
   "104": {"l": "LFM2-Audio Not Best-In-Class", "v": [{"n": "Liquid AI Blog – LFM2-Audio", "d": "2025-09", "u": "https://www.liquid.ai/blog/lfm2-audio-an-end-to-end-audio-foundation-model"}], "x": "Liquid AI's own blog documents LFM2-Audio; the comparative judgment vs Cartesia is not independently verified."},
   "105": {"l": "LFM2.5-1.2B-Thinking 900MB RAM", "v": [{"n": "Liquid AI Blog", "d": "2026-01-20", "u": "https://www.liquid.ai/blog/lfm2-5-1-2b-thinking-on-device-reasoning-under-1gb"}, {"n": "Hugging Face Model Card", "d": "2026-01", "u": "https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking"}]},
   "106": {"l": "LFM2.5-1.2B-Thinking Chain-of-Thought", "v": [{"n": "Liquid AI Blog", "d": "2026-01-20", "u": "https://www.liquid.ai/blog/lfm2-5-1-2b-thinking-on-device-reasoning-under-1gb"}, {"n": "Hugging Face Model Card", "d": "2026-01", "u": "https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking"}]},
@@ -2066,10 +2068,10 @@ const PATHS = {
   "202": {"l": "Apple AFM Gemini Nano OS Default", "s": [{"n": "Android Developers – Gemini Nano on Android", "d": "2024-10-01", "u": "https://developer.android.com/ai/gemini-nano"}], "v": [{"n": "Apple Machine Learning – Introducing Apple Foundation Models", "d": "2024-06-10", "u": "https://machinelearning.apple.com/research/introducing-apple-foundation-models"}]},
   "203": {"l": "Liquid Privacy/Offline Leadership Claim", "v": [{"n": "Liquid AI Blog – Liquid Foundation Models", "d": "2024-09-30", "u": "https://www.liquid.ai/blog/liquid-foundation-models-our-first-series-of-generative-ai-models"}, {"n": "McKinsey – The case for liquid foundation models", "d": "2026-01-21", "u": "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-case-for-liquid-foundation-models"}]},
   "204": {"l": "Liquid Edge Latency Automotive Lead", "s": [{"n": "Edge AI Foundation Wiki – Mercedes-Benz Liquid AI partnership", "d": "2026-04-23", "u": "https://wiki.edgeaifoundation.org/wiki/mercedes-benz-and-liquid-ai-have-entered-a-multi-year-strategic-partnership-as-of-april-2026/"}], "v": [{"n": "Liquid AI Press Release – Mercedes-Benz partnership", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}]},
-  "206": {"l": "Mercedes MBUX Gen 4 LFM2", "s": [{"n": "Edge AI Foundation Wiki", "d": "2026-04-23", "u": "https://wiki.edgeaifoundation.org/wiki/mercedes-benz-and-liquid-ai-have-entered-a-multi-year-strategic-partnership-as-of-april-2026/"}], "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}]},
+  "206": {"l": "Mercedes third- and fourth-generation MBUX LFM2", "s": [{"n": "Edge AI Foundation Wiki", "d": "2026-04-23", "u": "https://wiki.edgeaifoundation.org/wiki/mercedes-benz-and-liquid-ai-have-entered-a-multi-year-strategic-partnership-as-of-april-2026/"}], "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}]},
   "207": {"l": "Mercedes CLA MBUX H2 2026", "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}, {"n": "Daniela Rus LinkedIn", "d": "2026-04-23", "u": "https://www.linkedin.com/posts/daniela-rus-220b3_a-very-exciting-step-for-the-future-of-ai-activity-7453130393102446592-6rg1"}]},
   "209": {"l": "MBUX Runs Qualcomm SoC NPU", "v": [{"n": "Qualcomm Press Release", "d": "2025-09-08", "u": "https://www.qualcomm.com/news/releases/2025/09/qualcomm-s-snapdragon-cockpit-platforms-power-smart--intuitive-a"}, {"n": "Mercedes-Benz Strategy Update", "d": "2023-02-22", "u": "https://group.mercedes-benz.com/investors/events/2023-02-mercedes-benz-group-strategy-update.html"}]},
-  "210": {"l": "Intel Lunar Lake 40+ TOPS Copilot+", "s": [{"n": "WindowsForum Analysis", "d": "2025-01-08", "u": "https://windowsforum.com/threads/intel-arrow-lake-vs-microsoft-copilot-where-do-new-processors-stand.349166/"}], "v": [{"n": "Microsoft Official Blog", "d": "2024-05-20", "u": "https://blogs.microsoft.com/blog/2024/05/20/introducing-copilot-pcs/"}]},
+  "210": {"l": "Intel Panther Lake / Core Ultra Series 3 40+ TOPS Copilot+", "s": [{"n": "Intel Newsroom (CES 2026 Core Ultra Series 3)", "d": "2026-01-06", "u": "https://newsroom.intel.com/client-computing/ces-2026-intel-core-ultra-series-3-debut-first-built-on-intel-18a"}], "v": [{"n": "Microsoft Official Blog", "d": "2024-05-20", "u": "https://blogs.microsoft.com/blog/2024/05/20/introducing-copilot-pcs/"}]},
   "211": {"l": "Qualcomm Snapdragon X 40+ TOPS", "v": [{"n": "Qualcomm Official", "d": "2024-06-05", "u": "https://www.qualcomm.com/news/onq/2024/06/what-on-earth-is-a-copilot-plus-pc"}, {"n": "Microsoft Official Blog", "d": "2024-05-20", "u": "https://blogs.microsoft.com/blog/2024/05/20/introducing-copilot-pcs/"}]},
   "212": {"l": "Phi Silica (Phi-3.5-mini-Derived) Copilot+ Default", "v": [{"n": "Windows Blog (Phi Silica)", "d": "2024-12-06", "u": "https://blogs.windows.com/windowsexperience/2024/12/06/phi-silica-small-but-mighty-on-device-slm/"}, {"n": "Microsoft Learn (Phi Silica)", "d": "2026-01-26", "u": "https://learn.microsoft.com/en-us/windows/ai/apis/phi-silica"}]},
   "213": {"l": "Liquid Apollo Consumer Phone Surface", "s": [{"n": "VentureBeat", "d": "2025-07-15", "u": "https://venturebeat.com/ai/finally-a-dev-kit-for-designing-on-device-mobile-ai-apps-is-here-liquid-ais-leap"}], "v": [{"n": "Liquid AI Blog", "d": "2025-07-15", "u": "https://www.liquid.ai/blog/liquid-ai-launches-leap-and-apollo-bringing-edge-ai-to-every-developer"}]},
@@ -2079,8 +2081,8 @@ const PATHS = {
   "217": {"l": "Brilliant Labs Halo $299", "s": [{"n": "Road to VR", "d": "2025-08-01", "u": "https://roadtovr.com/brilliant-labs-halo-smart-glasses-price-release-date/"}], "v": [{"n": "Liquid AI Press (Brilliant Labs partnership)", "d": "2025-09-15", "u": "https://www.liquid.ai/press/brilliant-labs-partners-with-liquid-ai-to-bring-vision-language-tech-to-your-glasses"}]},
   "218": {"l": "Halo Memory Budget Hundreds MB", "v": [{"n": "Liquid AI Press (Brilliant Labs partnership)", "d": "2025-09-15", "u": "https://www.liquid.ai/press/brilliant-labs-partners-with-liquid-ai-to-bring-vision-language-tech-to-your-glasses"}, {"n": "Brilliant Labs Frame Hardware Docs", "d": "2024", "u": "https://docs.brilliant.xyz/frame/hardware/"}]},
   "219": {"l": "Halo Power Budget Sub-Watt", "s": [{"n": "VentureBeat (Alif partnership)", "d": "2026-03-11", "u": "https://venturebeat.com/business/brilliant-labs-and-alif-semiconductor-partner-on-development-of-new-technologies-for-next-generation-ai-powered-smart-glasses"}, {"n": "EE News Europe", "d": "2026-03-16", "u": "https://www.eenewseurope.com/en/brilliant-labs-and-alif-semiconductor-partner-on-ai-silicon-for-smart-glasses/"}]},
-  "220": {"l": "MIT CSAIL LTC Demo Team", "s": [{"n": "MIT News", "d": "2021-01-28", "u": "https://news.mit.edu/2021/machine-learning-adapts-0128"}, {"n": "arXiv LTC Paper", "d": "2020-06-08", "u": "https://arxiv.org/abs/2006.04439"}]},
-  "221": {"l": "LTC Self-Driving Viral Demos", "s": [{"n": "VentureBeat", "d": "2023-08-02", "u": "https://venturebeat.com/ai/how-mits-liquid-neural-networks-can-solve-ai-problems-from-robotics-to-self-driving-cars"}, {"n": "MIT News", "d": "2021-01-28", "u": "https://news.mit.edu/2021/machine-learning-adapts-0128"}]},
+  "220": {"l": "MIT CSAIL NCP Demo Team (Lechner first author)", "s": [{"n": "NCP (Nature Machine Intelligence)", "d": "2020-10", "u": "https://doi.org/10.1038/s42256-020-00237-3"}, {"n": "MIT News", "d": "2021-01-28", "u": "https://news.mit.edu/2021/machine-learning-adapts-0128"}]},
+  "221": {"l": "NCP Self-Driving Viral Demos", "s": [{"n": "VentureBeat", "d": "2023-08-02", "u": "https://venturebeat.com/ai/how-mits-liquid-neural-networks-can-solve-ai-problems-from-robotics-to-self-driving-cars"}, {"n": "MIT News", "d": "2021-01-28", "u": "https://news.mit.edu/2021/machine-learning-adapts-0128"}]},
   "222": {"l": "Robotics Not Primary Liquid Market", "s": [{"n": "Robotec.ai Blog", "d": "2026-03-31", "u": "https://www.robotec.ai/blog/robotics/advancing-agentic-ai-with-amd-liquid"}], "v": [{"n": "Liquid AI Website", "d": "2026", "u": "https://www.liquid.ai/industrial-robotics"}]},
   "223": {"l": "350M Model ARM Gateway IoT", "s": [{"n": "VentureBeat (LEAP)", "d": "2025-07-15", "u": "https://venturebeat.com/ai/finally-a-dev-kit-for-designing-on-device-mobile-ai-apps-is-here-liquid-ais-leap"}], "v": [{"n": "Liquid AI Blog (LEAP)", "d": "2025-07-15", "u": "https://www.liquid.ai/blog/liquid-ai-launches-leap-and-apollo-bringing-edge-ai-to-every-developer"}]},
   "224": {"l": "No Named Industrial Customer", "v": [{"n": "Liquid AI Website", "d": "2026", "u": "https://www.liquid.ai/industrial-robotics"}, {"n": "Liquid AI Homepage", "d": "2026-01-14", "u": "https://www.liquid.ai"}]},
@@ -2093,7 +2095,7 @@ const PATHS = {
   "233": {"l": "LFMs on llama.cpp LM Studio Ollama", "v": [{"n": "Liquid AI Blog – LEAP AMD Ryzen", "d": "2025-08-18", "u": "https://www.liquid.ai/blog/liquids-edge-ai-platform-leap-expands-support-to-laptops-with-best-in-class-performance-on-amd-ryzen-tm-and-ryzen-ai-tm-processors"}, {"n": "Liquid AI Blog – LFM2.5-1.2B-Thinking", "d": "2026-01-20", "u": "https://www.liquid.ai/blog/lfm2-5-1-2b-thinking-on-device-reasoning-under-1gb"}]},
   "235": {"l": "LFMs Survive OEM Functional Safety Testing", "s": [{"n": "Electric Cars Report", "d": "2026-04-29", "u": "https://electriccarsreport.com/2026/04/mercedes-benz-partners-with-liquid-ai-to-power-next-gen-in-car-intelligence/"}], "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}]},
   "236": {"l": "Non-Liquid Hardware Hosting LFM at Scale", "s": [{"n": "AMD Blog", "d": "2026-01-05", "u": "https://www.amd.com/en/blogs/2026/liquid-ai-amd-ryzen-on-device-meeting-summaries.html"}], "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}]},
-  "237": {"l": "Series A $250M $2B+ Valuation", "s": [{"n": "Tech Funding News", "d": "2024-12-16", "u": "https://techfundingnews.com/liquid-ai-closes-250m-hits-2b-valuation-with-amd-led-funding/"}], "v": [{"n": "Liquid AI Blog", "d": "2024-12-13", "u": "https://www.liquid.ai/blog/we-raised-250m-to-scale-capable-and-efficient-general-purpose-ai"}]},
+  "237": {"l": "Series A $250M $2.3B Valuation (Bloomberg)", "s": [{"n": "Bloomberg: Liquid AI Raising $250M at $2.3B Valuation", "d": "2024-12-13", "u": "https://www.bloomberg.com/news/articles/2024-12-13/liquid-ai-raising-250-million-to-build-ai-inspired-by-worm-brains"}, {"n": "Tech Funding News", "d": "2024-12-16", "u": "https://techfundingnews.com/liquid-ai-closes-250m-hits-2b-valuation-with-amd-led-funding/"}], "v": [{"n": "Liquid AI Blog", "d": "2024-12-13", "u": "https://www.liquid.ai/blog/we-raised-250m-to-scale-capable-and-efficient-general-purpose-ai"}]},
   "239": {"l": "AMD Copilot+ Competes vs Microsoft Phi", "s": [{"n": "Windows Forum", "d": "2026-02-24", "u": "https://windowsforum.com/threads/kb5079267-phi-silica-update-brings-on-device-ai-to-amd-copilot-pcs-on-windows-11-26h1.403116/"}], "v": [{"n": "Windows Experience Blog", "d": "2024-12-06", "u": "https://blogs.windows.com/windowsexperience/2024/12/06/phi-silica-small-but-mighty-on-device-slm/"}]},
   "240": {"l": "AMD Gives Liquid Day-Zero Developer Story", "v": [{"n": "Liquid AI Blog – LFM2.5-350M", "d": "2026-03-31", "u": "https://www.liquid.ai/blog/lfm2-5-350m-no-size-left-behind"}, {"n": "Liquid AI Blog – LEAP AMD", "d": "2025-08-18", "u": "https://www.liquid.ai/blog/liquids-edge-ai-platform-leap-expands-support-to-laptops-with-best-in-class-performance-on-amd-ryzen-tm-and-ryzen-ai-tm-processors"}]},
   "241": {"l": "AMD LEAP Co-Engineering Ryzen NPUs", "s": [{"n": "HuggingFace AMD Collection", "d": "2026-04-19", "u": "https://huggingface.co/collections/amd/ryzen-ai-171-npu-lfm2-models"}], "v": [{"n": "Liquid AI Blog – LEAP AMD Ryzen", "d": "2025-08-18", "u": "https://www.liquid.ai/blog/liquids-edge-ai-platform-leap-expands-support-to-laptops-with-best-in-class-performance-on-amd-ryzen-tm-and-ryzen-ai-tm-processors"}]},
@@ -2136,7 +2138,7 @@ const PATHS = {
   "283": {"l": "Wrapper: Privacy By Architecture", "s": [{"n": "AMD Blog - Liquid AI On-Device", "d": "2026-01", "u": "https://www.amd.com/en/blogs/2026/liquid-ai-amd-ryzen-on-device-meeting-summaries.html"}], "v": [{"n": "Liquid AI LEAP Docs", "d": "2026", "u": "https://docs.liquid.ai/deployment/on-device/sdk/overview"}]},
   "284": {"l": "Wrapper: Seconds to First Token", "s": [{"n": "AMD Blog - Liquid AI On-Device", "d": "2026-01", "u": "https://www.amd.com/en/blogs/2026/liquid-ai-amd-ryzen-on-device-meeting-summaries.html"}], "v": [{"n": "Liquid AI LFM2 arXiv Technical Report", "d": "2025-11", "u": "https://arxiv.org/html/2511.23404v1"}]},
   "285": {"l": "Fits in [N] MB Framing", "s": [{"n": "LM Studio LFM2 Page", "d": "2025-10-28", "u": "https://lmstudio.ai/models/lfm2"}], "v": [{"n": "Liquid AI Blog", "d": "2026-01-20", "u": "https://www.liquid.ai/blog/lfm2-5-1-2b-thinking-on-device-reasoning-under-1gb"}]},
-  "286": {"l": "Production-Proven Partners Framing", "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}, {"n": "LinkedIn / Liquid AI", "d": "2026-04-23", "u": "https://www.linkedin.com/posts/liquid-ai-inc_start-your-engines-the-news-about-our-partnership-activity-7453191952541368320-8JDJ"}]},
+  "286": {"l": "Shopify In Production; Mercedes/AMD/Brilliant In Progress", "v": [{"n": "Liquid AI Press Release", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}, {"n": "LinkedIn / Liquid AI", "d": "2026-04-23", "u": "https://www.linkedin.com/posts/liquid-ai-inc_start-your-engines-the-news-about-our-partnership-activity-7453191952541368320-8JDJ"}]},
   "287": {"l": "First Non-Transformer/Hybrid/On-Device-MoE Framing", "s": [{"n": "VentureBeat (Carl Franzen)", "d": "2024-09-30", "u": "https://venturebeat.com/ai/mit-spinoff-liquid-debuts-non-transformer-ai-models-and-theyre-already-state-of-the-art"}], "v": [{"n": "Liquid AI Blog", "d": "2024-09-30", "u": "https://www.liquid.ai/blog/liquid-foundation-models-our-first-series-of-generative-ai-models"}]},
   "288": {"l": "Open License $10M Threshold", "v": [{"n": "Liquid AI Docs", "d": "2026-04-02", "u": "https://docs.liquid.ai/lfm/help/model-license"}, {"n": "Liquid AI Pricing", "d": "2025", "u": "https://www.liquid.ai/pricing"}]},
   "289": {"l": "With Our Partners at MIT CSAIL Framing", "v": [{"n": "Liquid AI Blog (Capgemini collab)", "d": "2024-01-12", "u": "https://www.liquid.ai/blog/liquid-ai-announces-collaboration-with-capgemini-to-build-next-generation-ai-solutions-for-enterprises"}, {"n": "Liquid AI About Page", "d": "2024", "u": "https://www.liquid.ai/company/about"}]},
@@ -2156,7 +2158,7 @@ const PATHS = {
   "304": {"l": "Press Coverage Skews Anglo/English", "s": [{"n": "VentureBeat", "d": "2024-09-30", "u": "https://venturebeat.com/ai/mit-spinoff-liquid-debuts-non-transformer-ai-models-and-theyre-already-state-of-the-art"}], "v": [{"n": "BusinessWire Portuguese Press Release", "d": "2025-07-10", "u": "https://www.businesswire.com/news/home/20250710527694/en/Liquid-AI-Releases-Worlds-Fastest-and-Best-Performing-Open-Source-Small-Foundation-Models"}]},
   "306": {"l": "Anchor Sentence Partners", "v": [{"n": "Liquid AI Blog (Shopify)", "d": "2025-11-13", "u": "https://www.liquid.ai/blog/liquid-ai-announces-multi-year-partnership-with-shopify-to-bring-sub-20ms-foundation-models-to-core-commerce-experiences"}, {"n": "Liquid AI Blog (Mercedes)", "d": "2026-04-23", "u": "https://www.liquid.ai/press/liquid-ai-and-mercedes-benz-partner-to-scale-embedded-in-car-intelligence"}, {"n": "Liquid AI Blog (AMD)", "d": "2024-12", "u": "https://www.liquid.ai/blog/we-raised-250m-to-scale-capable-and-efficient-general-purpose-ai"}]},
   "307": {"l": "Shopify Live Nov 2025", "s": [{"n": "Digital Commerce 360", "d": "2025-11-13", "u": "https://www.digitalcommerce360.com/2025/11/13/shopify-liquid-ai-product-search-recommendations/"}], "v": [{"n": "Liquid AI Blog", "d": "2025-11-13", "u": "https://www.liquid.ai/blog/liquid-ai-announces-multi-year-partnership-with-shopify-to-bring-sub-20ms-foundation-models-to-core-commerce-experiences"}]},
-  "308": {"l": "Brilliant Labs Halo 2026 Shipping", "s": [{"n": "Reddit r/SmartGlasses", "d": "2026-05-12", "u": "https://www.reddit.com/r/SmartGlasses/comments/1spf1l6/any_updates_on_halo_by_brilliant_labs/"}], "v": [{"n": "Liquid AI Press Release", "d": "2025-09-15", "u": "https://www.liquid.ai/press/brilliant-labs-partners-with-liquid-ai-to-bring-vision-language-tech-to-your-glasses"}]},
+  "308": {"l": "Brilliant Labs Halo Not Yet Shipped (Shipping Soon)", "s": [{"n": "Reddit r/SmartGlasses", "d": "2026-05-12", "u": "https://www.reddit.com/r/SmartGlasses/comments/1spf1l6/any_updates_on_halo_by_brilliant_labs/"}], "v": [{"n": "Liquid AI Press Release", "d": "2025-09-15", "u": "https://www.liquid.ai/press/brilliant-labs-partners-with-liquid-ai-to-bring-vision-language-tech-to-your-glasses"}]},
   "309": {"l": "AMD Platform Investor Partner", "v": [{"n": "Liquid AI Blog", "d": "2024-12", "u": "https://www.liquid.ai/blog/we-raised-250m-to-scale-capable-and-efficient-general-purpose-ai"}, {"n": "AMD Blog", "d": "2026-01-05", "u": "https://www.amd.com/en/blogs/2026/liquid-ai-amd-ryzen-on-device-meeting-summaries.html"}]},
   "310": {"l": "Multi-Platform iOS Android Mac Windows Linux", "v": [{"n": "Liquid AI Blog (LEAP Launch)", "d": "2025-07-15", "u": "https://www.liquid.ai/blog/liquid-ai-launches-leap-and-apollo-bringing-edge-ai-to-every-developer"}, {"n": "Business Wire (LEAP AMD)", "d": "2025-07-15", "u": "https://www.businesswire.com/news/home/20250715701268/en/Liquid-AI-Launches-LEAP-and-Apollo-A-New-Era-for-Edge-AI-Deployment-Begins"}]},
   "311": {"l": "LNN Lineage LTC CfC Papers", "s": [{"n": "arXiv LTC paper", "d": "2020-06-08", "u": "https://arxiv.org/abs/2006.04439"}, {"n": "Nature Machine Intelligence CfC paper", "d": "2022-11-15", "u": "https://www.nature.com/articles/s42256-022-00556-7"}]},
@@ -2186,7 +2188,7 @@ const PATHS = {
   "340": {"l": "Gemini Nano Improves Each Pixel", "s": [{"n": "Google Store (Gemini Nano Multimodal Capabilities)", "d": "2025", "u": "https://store.google.com/us/magazine/gemini-nano-offline"}], "v": [{"n": "Google Blog (5 new things Gemini can do on Pixel)", "d": "2025-08-21", "u": "https://blog.google/products-and-platforms/products/gemini/gemini-nano-pixel-10-updates/"}]},
   "341": {"l": "Microsoft Phi Improves Each Build", "s": [{"n": "TechCrunch (New Phi-4 models at Build 2025)", "d": "2025-04-30", "u": "https://techcrunch.com/2025/04/30/microsofts-most-capable-new-phi-4-ai-model-rivals-the-performance-of-far-larger-systems/"}], "v": [{"n": "Microsoft Azure Blog (Introducing Phi-3 at Build 2024)", "d": "2024-04-23", "u": "https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/"}]},
   "342": {"l": "Qwen 3.7-Max May 19 2026", "s": [{"n": "Yotta Labs (Qwen 3.7-Max Release Date)", "d": "2026-05-27", "u": "https://www.yottalabs.ai/post/qwen-3-7-max-release-date-features-open-source-status-and-how-to-access-2026"}, {"n": "VentureBeat (Alibaba Qwen3.7-Max)", "d": "2026-05-21", "u": "https://venturebeat.com/technology/alibabas-proprietary-qwen3-7-max-can-run-for-35-hours-autonomously-and-supports-external-harnesses-like-anthropics-claude-code"}]},
-  "343": {"l": "Microsoft Agent-First at Build 2026 (MAI + Agents)", "v": [{"n": "Microsoft Official Blog (Build 2026)", "d": "2026-06-02", "u": "https://blogs.microsoft.com/blog/2026/06/02/microsoft-build-2026-be-yourself-at-work/"}, {"n": "Microsoft AI (Build 2026 MAI Keynote)", "d": "2026-06-10", "u": "https://microsoft.ai/news/microsoft-build-2026-mai-keynote-transcript/"}]},
+  "343": {"l": "Microsoft Agent-First at Build 2026 (MAI Cloud + Aion On-Device)", "s": [{"n": "Windows Blog (Aion on-device AI in Microsoft Edge)", "d": "2026-06-02", "u": "https://blogs.windows.com/msedgedev/2026/06/02/expanding-on-device-ai-in-microsoft-edge"}], "v": [{"n": "Microsoft Official Blog (Build 2026)", "d": "2026-06-02", "u": "https://blogs.microsoft.com/blog/2026/06/02/microsoft-build-2026-be-yourself-at-work/"}, {"n": "Microsoft AI (Build 2026 MAI Keynote)", "d": "2026-06-10", "u": "https://microsoft.ai/news/microsoft-build-2026-mai-keynote-transcript/"}]},
   "344": {"l": "Meta Muse Spark April 8 2026", "v": [{"n": "Meta AI Blog (Introducing Muse Spark)", "d": "2026-04-08", "u": "https://ai.meta.com/blog/introducing-muse-spark-msl/"}, {"n": "Meta Newsroom (Introducing Muse Spark)", "d": "2026-04-08", "u": "https://about.fb.com/news/2026/04/introducing-muse-spark-meta-superintelligence-labs/"}]},
   "345": {"l": "Gemma 4 & Muse Spark April", "v": [{"n": "Google Blog", "d": "2026-04-02", "u": "https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/"}, {"n": "Meta AI Blog", "d": "2026-04-08", "u": "https://ai.meta.com/blog/introducing-muse-spark-msl/"}]},
   "348": {"l": "LFM2.5-8B-A1B MoE Specs", "v": [{"n": "Liquid AI Blog", "d": "2026-05-28", "u": "https://www.liquid.ai/blog/lfm2-5-8b-a1b"}, {"n": "Hugging Face Model Card", "d": "2026-05-28", "u": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"}]},
