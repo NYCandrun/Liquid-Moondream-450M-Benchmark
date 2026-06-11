@@ -512,7 +512,7 @@ const GLOSSARY = {
   "star": {term: "STAR (Synthesis of Tailored Architectures)", def: "ICLR 2025 oral. Evolutionary, hardware-in-the-loop architecture search that designed LFM2's hybrid recipe. The reason Liquid says architectures are 'discovered, not compressed.'"},
   "lfm": {term: "LFM (Liquid Foundation Model)", def: "Generic name for Liquid's foundation model line. LFM v1 (Sept 2024) was the first generation; LFM2 (mid 2025) the hybrid edge-optimized generation; LFM2.5 (late 2025–2026) the current."},
   "lfm2": {term: "LFM2", def: "Hybrid architecture: 10 gated short-conv blocks + 6 GQA blocks across 16 layers. Only ~20% attention. Sizes 350M / 700M / 1.2B / 2.6B. The basis of Liquid's edge category leadership claim."},
-  "lfm25": {term: "LFM2.5", def: "May 2026 generation. Headlined by LFM2.5-8B-A1B (MoE) and LFM2.5-1.2B-Thinking (fits in 900MB). Adds reasoning and sparse activation to the LFM2 recipe."},
+  "lfm25": {term: "LFM2.5", def: "Jan 5, 2026 generation (8B-A1B flagship released May 28, 2026). Headlined by LFM2.5-8B-A1B (MoE) and LFM2.5-1.2B-Thinking (fits in 900MB). Adds reasoning and sparse activation to the LFM2 recipe."},
   "lfm25-8b": {term: "LFM2.5-8B-A1B", def: "24-layer MoE: 18 linear-conv layers (zero KV cache) + 6 GQA. 8.3B total parameters, 1.5B active per token. 128K context, trained on 38T tokens."},
   "lfm25-thinking": {term: "LFM2.5-1.2B-Thinking", def: "Compact reasoning model fitting in 900MB of memory — designed to bring chain-of-thought to phones and wearables."},
   "lfm2-vl": {term: "LFM2-VL", def: "Vision-language variant. Uses SigLIP2 NaFlex as the vision encoder for variable-resolution input."},
@@ -549,11 +549,11 @@ const GLOSSARY = {
   "distillation": {term: "Distillation", def: "Training a small student model to imitate a large teacher's outputs. Most edge SLMs (Phi, Gemma 3n, Llama 3.2) are distillation-driven. Liquid's foil: 'discovered, not compressed.'"},
   "discovered-not-compressed": {term: "Discovered, not compressed", def: "Liquid's central architectural claim: LFM2 was found by STAR architecture search at its native size, not shrunk from a frontier model. Differentiates from distillation-led SLMs."},
 
-  "edge-ai": {term: "Edge AI", def: "Inference that happens on or near the device (phone, PC, car, wearable) rather than in cloud datacenters. The category Liquid leads. Market: $35.81B in 2025 → $385.89B by 2034 (29.9% CAGR)."},
+  "edge-ai": {term: "Edge AI", def: "Inference that happens on or near the device (phone, PC, car, wearable) rather than in cloud datacenters. The category Liquid leads. Market: $35.81B in 2025 → $385.89B by 2034 (~30.2% CAGR (endpoints imply; Fortune Business Insights states 33.30%))."},
   "on-device": {term: "On-device", def: "Subset of edge AI — runs entirely on the consumer device, no network round-trip. The privacy/latency/offline value proposition."},
-  "slm": {term: "SLM (Small Language Model)", def: "Language model small enough to run on consumer hardware (loose definition, usually <8B params). Market: $8.62B → $58.05B. Liquid plays here but rejects the framing — 'foundation model' is the brand word."},
+  "slm": {term: "SLM (Small Language Model)", def: "Language model small enough to run on consumer hardware (loose definition, usually <8B params). Market: (unverified) $8.62B → $58.05B. Liquid plays here but rejects the framing — 'foundation model' is the brand word."},
   "tam": {term: "TAM (Total Addressable Market)", def: "Maximum possible revenue if a vendor captured 100% of demand for a category."},
-  "cagr": {term: "CAGR (Compound Annual Growth Rate)", def: "Smoothed annual growth rate. Edge AI's 29.9% CAGR is the headline reason investors put $250M into Liquid's Series A."},
+  "cagr": {term: "CAGR (Compound Annual Growth Rate)", def: "Smoothed annual growth rate. Edge AI's ~30.2% CAGR (endpoints imply; Fortune Business Insights states 33.30%) is the headline reason investors put $250M into Liquid's Series A."},
   "capex": {term: "Goldman $7.6T AI capex", def: "Goldman Sachs estimate of AI infrastructure capital expenditure 2026-2031. Used to argue that the edge complements (not threatens) the cloud build-out."},
   "copilot-plus": {term: "Copilot+ PC", def: "Microsoft branding for Windows PCs with 40+ TOPS NPUs. The Ring 3 / Ring 2 battleground."},
   "mbux": {term: "MBUX", def: "Mercedes-Benz User Experience — the in-car infotainment OS. Gen 3 ships on the next CLA; Gen 4 H2 2026 NA carries the LFM2-based assistant. Liquid's #1 proof point."},
@@ -972,7 +972,7 @@ const MODULES = [
         <div class="stat"><div class="v">$35.8B</div><div class="l">Edge AI market 2025</div></div>
         <div class="stat"><div class="v">$385.9B</div><div class="l">Edge AI market 2034</div></div>
         <div class="stat"><div class="v">29.9%</div><div class="l">Edge AI CAGR</div></div>
-        <div class="stat"><div class="v">$2.3B</div><div class="l">Liquid valuation (Dec 2024 AMD Series A)</div></div>
+        <div class="stat"><div class="v">$7B → $57B</div><div class="l">Agentic AI market 2025 → 2031 (~42% CAGR)</div></div>
         <div class="stat"><div class="v">$7.6T</div><div class="l">Goldman AI capex 2026-2031</div></div>
         <div class="stat"><div class="v">8×</div><div class="l">Lenovo on-prem vs cloud IaaS</div></div>
       </div>
@@ -1043,7 +1043,7 @@ const MODULES = [
       <table>
         <tr><th>Player</th><th>Asset</th><th>What it means for Liquid</th></tr>
         <tr><td><span class="term" data-key="apple-afm">Apple AFM 3</span></td><td>Default model on every iOS device, exposed via on-device Foundation Models framework</td><td>Most existential threat. If Apple's default is "good enough," third-party LFMs become optional.</td></tr>
-        <tr><td><span class="term" data-key="gemini-nano">Gemini Nano</span> + <span class="term" data-key="gemma-3n">Gemma 3n</span> + <span class="term" data-key="gemma-4">Gemma 4</span></td><td>AICore on Android; open Gemma family</td><td>Closes the Android side analogously; Gemma 4 (May 2026) sharply raises the open-weight bar.</td></tr>
+        <tr><td><span class="term" data-key="gemini-nano">Gemini Nano</span> + <span class="term" data-key="gemma-3n">Gemma 3n</span> + <span class="term" data-key="gemma-4">Gemma 4</span></td><td>AICore on Android; open Gemma family</td><td>Closes the Android side analogously; Gemma 4 (early April 2026 — announced Apr 2, weights Mar 31) sharply raises the open-weight bar.</td></tr>
         <tr><td><span class="term" data-key="phi-4">Microsoft Phi-4</span></td><td>Strong reasoning at SLM size; Copilot+ default for non-AMD Windows</td><td>Direct alternative on Windows; pivot toward agentic edge in May 2026 (<a href="#l-11.2">11.2</a>)</td></tr>
         <tr><td><span class="term" data-key="llama-3.2">Meta Llama 3.2</span> + <span class="term" data-key="muse-spark">Muse Spark</span></td><td>Default on-device open-weight choice; Muse Spark adds agentic edge</td><td>Free; ubiquitous; sets community expectations</td></tr>
       </table>
@@ -1059,7 +1059,7 @@ const MODULES = [
         <li><span class="term" data-key="smollm3">SmolLM3 (HF)</span> — small but credible.</li>
         <li><span class="term" data-key="deepseek">DeepSeek</span> — frontier-aligned releases that have small/distilled variants.</li>
       </ul>
-      <p>Notice the Belcak SLM thesis (Microsoft Research, 2025) sits behind this whole ring: <em>"Small language models are the future of agentic AI."</em> The community broadly agrees. Liquid agrees in <em>direction</em> but resists the SLM label — they prefer "foundation model" because it preserves architectural framing.</p>
+      <p>Notice the Belcak SLM thesis (NVIDIA Research, 2025) sits behind this whole ring: <em>"Small language models are the future of agentic AI."</em> The community broadly agrees. Liquid agrees in <em>direction</em> but resists the SLM label — they prefer "foundation model" because it preserves architectural framing.</p>
     `, drill:["3.10","9.2","11.1"]},
 
     {id:"5.6", title:"Ring 5 — frontier labs", html:`
@@ -1090,7 +1090,7 @@ const MODULES = [
   /* ===== Module 6 ===== */
   {id:"m6", title:"Module 6 · Deployment environments (10-slice matrix)", lessons:[
     {id:"6.1", title:"Automotive — Mercedes MBUX", html:`
-      <p>The flagship environment. <span class="term" data-key="mercedes">Mercedes-Benz</span> ships LFM2-based assistants in <span class="term" data-key="mbux">MBUX Gen 3</span> (next CLA) and <span class="term" data-key="mbux">MBUX Gen 4</span> (H2 2026 North America rollout).</p>
+      <p>The flagship environment. <span class="term" data-key="mercedes">Mercedes-Benz</span> ships LFM2-based assistants in <span class="term" data-key="mbux">MBUX Gen 4</span> — the new CLA is fourth-generation MBUX with MB.OS (H2 2026 North America rollout).</p>
       <p>Why automotive is a near-perfect fit:</p>
       <ul>
         <li>Latency must be sub-second (driver distraction).</li>
@@ -1114,8 +1114,8 @@ const MODULES = [
     `, drill:["3.8","3.9","5.4"]},
 
     {id:"6.4", title:"Wearables — Brilliant Labs", html:`
-      <p>Smart glasses, smart rings, hearables. <span class="term" data-key="brilliant">Brilliant Labs</span> ships LFM2-VL in their Frame product line. Memory budget: hundreds of MB. Power budget: sub-watt. The smallest LFM2-VL variant is built for exactly this.</p>
-      <p>Wearables are a useful proof environment because they are the hardest place to run any meaningful AI. If a model runs on Frame, it runs everywhere else.</p>
+      <p>Smart glasses, smart rings, hearables. <span class="term" data-key="brilliant">Brilliant Labs</span> ships LFM2-VL in their Halo smart glasses ($299) product line. Memory budget: hundreds of MB. Power budget: sub-watt. The smallest LFM2-VL variant is built for exactly this.</p>
+      <p>Wearables are a useful proof environment because they are the hardest place to run any meaningful AI. If a model runs on Halo, it runs everywhere else.</p>
     `, drill:["7.4","3.3"]},
 
     {id:"6.5", title:"Robotics", html:`
@@ -1153,7 +1153,7 @@ const MODULES = [
   /* ===== Module 7 ===== */
   {id:"m7", title:"Module 7 · Customers and proof points", lessons:[
     {id:"7.1", title:"Mercedes-Benz — the flagship", html:`
-      <p>MBUX Gen 3 ships on the next CLA. MBUX Gen 4 rolls out H2 2026 in North America. Both run LFM2-class assistants on the embedded compute platform. This is by a long way the single most-cited proof point in Liquid's materials.</p>
+      <p>MBUX Gen 4 (new CLA is fourth-generation MBUX with MB.OS). MBUX Gen 4 rolls out H2 2026 in North America. Both run LFM2-class assistants on the embedded compute platform. This is by a long way the single most-cited proof point in Liquid's materials.</p>
       <p>What it proves:</p>
       <ul>
         <li>LFMs survive real-OEM integration testing (functional safety, quality, supply chain).</li>
@@ -1176,7 +1176,7 @@ const MODULES = [
     `, drill:["6.9","4.8"]},
 
     {id:"7.4", title:"Brilliant Labs — wearable proof", html:`
-      <p>LFM2-VL inside Frame smart glasses. Proves the extreme-low-power vision-language story. Useful as a developer-credible reference — the kind of demo a CTO at another wearables company can verify.</p>
+      <p>LFM2-VL inside Halo smart glasses ($299). Proves the extreme-low-power vision-language story. Useful as a developer-credible reference — the kind of demo a CTO at another wearables company can verify.</p>
     `, drill:["6.4","3.3"]},
 
     {id:"7.5", title:"Insilico Medicine — regulated-vertical expansion", html:`
@@ -1413,12 +1413,11 @@ const MODULES = [
     {id:"11.1", title:"What changed in May 2026", html:`
       <p>In a roughly four-week window in May 2026:</p>
       <ul>
-        <li><strong>Google released Gemma 4.</strong> Strong benchmarks; agentic on-device features tied into Android.</li>
-        <li><strong>Alibaba released Qwen 3.7.</strong> Best open-weight benchmarks at small sizes.</li>
-        <li><strong>Meta released Muse Spark.</strong> Hybrid on-device + cloud agent architecture for Llama.</li>
+        <li><strong>Alibaba released Qwen 3.7-Max</strong> (May 19). Proprietary / API-only (1M context, no downloadable weights) — not open-weight.</li>
         <li><strong>Microsoft signalled an aggressive SLM-first pivot.</strong> Phi-4 reframed as the agentic-edge engine.</li>
         <li><strong>Liquid released LFM2.5-8B-A1B</strong> (May 28). Their flagship answer.</li>
       </ul>
+      <p>Two earlier 2026 releases are sometimes lumped into this window but actually predate it: <strong>Google's Gemma 4</strong> (weights March 31, announced April 2) and <strong>Meta's Muse Spark</strong> (April 8). Both are April releases, not part of the May wave.</p>
       <p>The collective signal: the agentic-on-device wave has begun. Models are no longer judged on stand-alone Q&amp;A; they're judged on whether they can plan, call tools, and run in a loop on the device.</p>
     `, drill:["2.5","5.4","5.5"]},
 
