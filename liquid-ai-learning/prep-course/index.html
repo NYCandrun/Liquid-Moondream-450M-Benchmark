@@ -511,7 +511,7 @@ const GLOSSARY = {
   "cfc": {term: "CfC (Closed-form Continuous-time)", def: "2022 Nature Machine Intelligence model. Removes ODE solvers from LTCs by giving a closed-form solution — orders of magnitude faster training/inference while preserving expressivity."},
   "star": {term: "STAR (Synthesis of Tailored Architectures)", def: "ICLR 2025 oral. Evolutionary, hardware-in-the-loop architecture search that designed LFM2's hybrid recipe. The reason Liquid says architectures are 'discovered, not compressed.'"},
   "lfm": {term: "LFM (Liquid Foundation Model)", def: "Generic name for Liquid's foundation model line. LFM v1 (Sept 2024) was the first generation; LFM2 (mid 2025) the hybrid edge-optimized generation; LFM2.5 (late 2025–2026) the current."},
-  "lfm2": {term: "LFM2", def: "Hybrid architecture: 10 gated short-conv blocks + 6 GQA blocks across 16 layers. Only ~20% attention. Sizes 350M / 700M / 1.2B / 2.6B. The basis of Liquid's edge category leadership claim."},
+  "lfm2": {term: "LFM2", def: "Hybrid architecture: 10 gated short-conv blocks + 6 GQA blocks across 16 layers. Only ~20% attention (by compute share); 6 of 16 layers are attention. Sizes 350M / 700M / 1.2B / 2.6B. The basis of Liquid's edge category leadership claim."},
   "lfm25": {term: "LFM2.5", def: "Jan 5, 2026 generation (8B-A1B flagship released May 28, 2026). Headlined by LFM2.5-8B-A1B (MoE) and LFM2.5-1.2B-Thinking (fits in 900MB). Adds reasoning and sparse activation to the LFM2 recipe."},
   "lfm25-8b": {term: "LFM2.5-8B-A1B", def: "24-layer MoE: 18 linear-conv layers (zero KV cache) + 6 GQA. 8.3B total parameters, 1.5B active per token. 128K context, trained on 38T tokens."},
   "lfm25-thinking": {term: "LFM2.5-1.2B-Thinking", def: "Compact reasoning model fitting in 900MB of memory — designed to bring chain-of-thought to phones and wearables."},
@@ -529,7 +529,7 @@ const GLOSSARY = {
   "mamba": {term: "Mamba", def: "Selective state-space model from Albert Gu / Tri Dao. Closest non-transformer competitor to LFM at the architectural level; underpins Cartesia, parts of Jamba/Granite/Nemotron-H."},
   "rwkv": {term: "RWKV", def: "RNN-style architecture combining attention and recurrence properties. An open community-led non-transformer line; small footprint but limited big-customer proof."},
   "jamba": {term: "Jamba (AI21)", def: "Hybrid Mamba + Transformer + MoE family from AI21. Targets long-context enterprise workloads — Ring 1 competitor."},
-  "granite": {term: "IBM Granite 4.0", def: "IBM's hybrid Mamba/transformer enterprise SLM line. Comes with SOC 2 / ISO certifications Liquid lacks."},
+  "granite": {term: "IBM Granite 4.0", def: "IBM's hybrid Mamba/transformer enterprise SLM line. Granite is the first open model family certified under ISO/IEC 42001 (IBM's AI-management-system standard); IBM also markets enterprise compliance (SOC 2 at the cloud-service level) — trust credentials Liquid lacks (vendor claim)."},
   "nemotron-h": {term: "Nemotron-H", def: "NVIDIA's hybrid SSM-attention model line. Architectural cousin in Ring 1."},
   "sakana": {term: "Sakana AI", def: "Tokyo-based lab (David Ha, Llion Jones, Ren Ito) doing evolutionary/biological model search. Most direct philosophical competitor to STAR."},
   "cartesia": {term: "Cartesia", def: "Karan Goel / Albert Gu spinout from the Mamba team. Strong in real-time voice / audio SSMs — contests Liquid's audio story."},
@@ -743,7 +743,7 @@ const MODULES = [
         <li><strong>The <span class="term" data-key="kv-cache">KV cache</span>.</strong> To decode efficiently, transformers cache the key/value vectors of every prior token. This cache grows linearly with context — and at 32K context, a 7B model needs <em>several gigabytes</em> of KV cache alone. Phones have ~4–8GB of total RAM.</li>
       </ol>
       <p>The big-tech response (Apple, Google, Meta) has been to keep transformers and lean on distillation and quantization. The Liquid response is to replace most of the attention with cheaper blocks while keeping just enough to handle long-range dependencies.</p>
-      <p>Hold this fact: in <span class="term" data-key="lfm2">LFM2</span>, only ~20% of the layers are attention. In <span class="term" data-key="lfm25-8b">LFM2.5-8B-A1B</span>, the non-attention layers are explicitly <em>KV-cache-free</em>. That is the architectural pitch in one sentence.</p>
+      <p>Hold this fact: in <span class="term" data-key="lfm2">LFM2</span>, only ~20% of the compute is attention (6 of 16 layers are GQA). In <span class="term" data-key="lfm25-8b">LFM2.5-8B-A1B</span>, the non-attention layers are explicitly <em>KV-cache-free</em>. That is the architectural pitch in one sentence.</p>
     `, drill:["2.2","2.4","2.5"]},
 
     {id:"2.2", title:"The non-transformer landscape", html:`
@@ -772,7 +772,7 @@ const MODULES = [
         <div class="stat"><div class="v">16</div><div class="l">Total layers</div></div>
         <div class="stat"><div class="v">10</div><div class="l">Gated short-conv blocks</div></div>
         <div class="stat"><div class="v">6</div><div class="l">GQA attention blocks</div></div>
-        <div class="stat"><div class="v">~20%</div><div class="l">Of layers are attention</div></div>
+        <div class="stat"><div class="v">~20%</div><div class="l">Attention (compute share)</div></div>
       </div>
       <p>The hybrid was not hand-designed. It was selected by <span class="term" data-key="star">STAR</span> from a search space of thousands of candidate architectures, evaluated on both quality and on-device throughput.</p>
       <p>Why this specific mix:</p>
@@ -781,7 +781,7 @@ const MODULES = [
         <li>The 6 attention blocks are <span class="term" data-key="gqa">GQA</span> (grouped-query) — already memory-thrifty — and are spaced through the network where long-range pointers are most useful.</li>
         <li>Gating gives the conv blocks input-dependent behavior — the LNN heritage shows up here, in spirit if not in equations.</li>
       </ul>
-      <p>Sizes shipped in this generation: 350M, 700M, 1.2B, 2.6B parameters — all using the same hybrid recipe.</p>
+      <p>Sizes shipped in this generation: 350M, 700M, 1.2B, 2.6B parameters — all built on the same hybrid conv + GQA family. The 350M/700M/1.2B share a 16-layer recipe (10 conv + 6 GQA); the 2.6B scales it to 30 layers (22 conv + 8 GQA).</p>
     `, drill:["2.1","2.5","3.2","1.6","2.9"]},
 
     {id:"2.5", title:"LFM2.5-8B-A1B — MoE, zero-KV scale-up", html:`
@@ -851,7 +851,7 @@ const MODULES = [
         <tr><td>LFM2-VL</td><td>Vision-Language</td><td>450M / 1.6B / 3B</td><td>SigLIP2 NaFlex encoder. (3B added Oct 22, 2025.)</td></tr>
         <tr><td>LFM2-Audio</td><td>Audio</td><td>1.5B</td><td>October 2025.</td></tr>
         <tr><td>LFM2.5</td><td>Base / MoE / Thinking</td><td>1.2B-Thinking, 8B-A1B</td><td>Current flagship generation.</td></tr>
-        <tr><td>Nanos</td><td>Task-specific</td><td>~350M class</td><td>JSON, function-calling, translation, extraction.</td></tr>
+        <tr><td>Nanos</td><td>Task-specific</td><td>350M – 2.6B</td><td>JSON, function-calling, translation, extraction.</td></tr>
       </table>
       <p>Read this map as a layered offering: <strong>Apollo</strong> as the consumer face, <strong>LFM2/2.5 base</strong> as the developer default, <strong>VL/Audio</strong> as modality extensions, <strong>Nanos</strong> as drop-in task replacements, <strong>LEAP</strong> as the runtime, <strong>LiquidKit</strong> as the embeddable.</p>
     `, drill:["3.2","3.3","3.4","3.5","3.6","3.7","3.8","3.9"]},
@@ -886,7 +886,7 @@ const MODULES = [
     `, drill:["2.5","9.3","11.1"]},
 
     {id:"3.6", title:"Nanos — task-specific micro-models", html:`
-      <p>Nanos are 350M-class models, each fine-tuned for one job: structured-output JSON extraction, function/tool calling, translation between specific language pairs, etc.</p>
+      <p>Nanos are small task-specific models (roughly 350M–2.6B parameters), each fine-tuned for one job: structured-output JSON extraction, function/tool calling, translation between specific language pairs, etc.</p>
       <p>Why they exist: a properly fine-tuned 350M Nano can outperform a general-purpose 3B model on its specific task, while using less than 1/10 the energy. For mobile and IoT, that's the gap between "feasible feature" and "battery killer."</p>
       <p>Competitive shadow: this is the same pattern <span class="term" data-key="arcee">Arcee</span> ships with their domain-merged SuperNova models, and <span class="term" data-key="nexa">Nexa</span> with their task adapters.</p>
     `, drill:["5.3","6.6","2.9"]},
@@ -903,7 +903,7 @@ const MODULES = [
     `, drill:["7.2","3.9","10.6","6.2"]},
 
     {id:"3.8", title:"Apollo — the consumer face", html:`
-      <p>Apollo is a free iOS chat app running LFM2 entirely on-device. It is Liquid's consumer brand asset — and arguably the highest-leverage marketing surface they have.</p>
+      <p>Apollo is a free iOS chat app that can run LFM2 models fully on-device. It is Liquid's consumer brand asset — and arguably the highest-leverage marketing surface they have.</p>
       <p>What Apollo accomplishes:</p>
       <ul>
         <li><strong>Proof.</strong> Anyone can install it and feel real on-device latency and offline behavior. That's hard to argue with.</li>
@@ -960,7 +960,7 @@ const MODULES = [
     {id:"4.4", title:"Why edge, why now", html:`
       <p>Three forces converged in 2024-2026 to make on-device viable as a category:</p>
       <ol>
-        <li><strong>Hardware.</strong> Apple A17/A18, Snapdragon 8 Gen 4, Ryzen AI all crossed the 40+ TOPS NPU threshold. Real models can run.</li>
+        <li><strong>Hardware.</strong> Snapdragon 8 Gen 4 and Ryzen AI crossed the 40+ TOPS NPU threshold (Microsoft's Copilot+ PC bar), and Apple's A17/A18 Neural Engine reached the ~35 TOPS class — enough that real models can run on-device across the category.</li>
         <li><strong>Regulation.</strong> EU AI Act, GDPR enforcement, China data-residency rules. Cloud LLM inference exposes personal data; on-device avoids the question.</li>
         <li><strong>Cost.</strong> Cloud LLM inference at scale is expensive. <a href="#l-4.5">Lenovo's analysis</a> puts on-prem at 8× cheaper than cloud IaaS for sustained workloads. On-device is free at the margin.</li>
       </ol>
@@ -976,7 +976,7 @@ const MODULES = [
         <div class="stat"><div class="v">$7.6T</div><div class="l">Goldman AI capex 2026-2031</div></div>
         <div class="stat"><div class="v">8×</div><div class="l">Lenovo on-prem vs cloud IaaS</div></div>
       </div>
-      <p>Read these numbers carefully. The $7.6T capex headline can be misread as cloud-only — it isn't. Roughly 15–20% of that figure represents edge silicon (NPUs in phones, PCs, cars). Even a modest share of that becomes an enormous floor for the on-device model market.</p>
+      <p>Read these numbers carefully. The $7.6T capex headline can be misread as cloud-only — it isn't. By our own estimate, a meaningful share — on the order of 15–20% — ultimately flows to edge silicon (NPUs in phones, PCs, cars); Goldman's $7.6T headline itself spans compute, data centers, and power and does not break this out. Even a modest share of that becomes an enormous floor for the on-device model market.</p>
     `, drill:["4.4","4.7"]},
 
     {id:"4.6", title:"What the $7.6T capex story means for edge", html:`
@@ -993,7 +993,7 @@ const MODULES = [
     {id:"4.8", title:"Two structural advantages — AMD moat and flagship proof points", html:`
       <p>If you had to name what's most defensible about Liquid in mid-2026, the honest answer is two things:</p>
       <h4>1. AMD hardware-aligned distribution moat</h4>
-      <p>AMD didn't just invest — they made Liquid the day-zero LLM partner on Ryzen AI. Every Copilot+ AMD PC sold in 2026 ships with the option to run LFMs out of the box. That is distribution at a scale no Ring 2 specialist can match without a similar partnership.</p>
+      <p>AMD didn't just invest — it made Liquid a flagship LLM partner on Ryzen AI, and AMD is the first AI-PC platform to run LFMs across the full CPU/GPU/NPU tri-engine (vendor-supported). Any Copilot+ AMD PC sold in 2026 can run LFMs on-device via LEAP. That is distribution at a scale no Ring 2 specialist can match without a similar partnership.</p>
       <h4>2. Flagship production proof points</h4>
       <p>Mercedes-Benz (automotive), AMD (PC), Shopify (e-commerce), Brilliant Labs (wearable), Insilico (pharma), G42 (sovereign). Six different verticals, each a credible reference. No other Ring 2 player has this density of named production deployments.</p>
       <div class="mm-callout"><div class="mm-label">Mental Models 3 + 6</div>Both advantages have time pressure. AMD partnerships can be matched by Intel/Qualcomm. Mercedes proof has an 18–24-month half-life. The structural advantages are real <em>and</em> they need maintenance.</div>
@@ -1042,9 +1042,9 @@ const MODULES = [
       <p>The platform owners. They distribute on-device models as default features of the operating system or developer SDK.</p>
       <table>
         <tr><th>Player</th><th>Asset</th><th>What it means for Liquid</th></tr>
-        <tr><td><span class="term" data-key="apple-afm">Apple AFM 3</span></td><td>Default model on every iOS device, exposed via on-device Foundation Models framework</td><td>Most existential threat. If Apple's default is "good enough," third-party LFMs become optional.</td></tr>
+        <tr><td><span class="term" data-key="apple-afm">Apple AFM 3</span></td><td>Default model on every Apple Intelligence–capable device (iPhone 15 Pro and later), exposed via the on-device Foundation Models framework</td><td>Most existential threat. If Apple's default is "good enough," third-party LFMs become optional.</td></tr>
         <tr><td><span class="term" data-key="gemini-nano">Gemini Nano</span> + <span class="term" data-key="gemma-3n">Gemma 3n</span> + <span class="term" data-key="gemma-4">Gemma 4</span></td><td>AICore on Android; open Gemma family</td><td>Closes the Android side analogously; Gemma 4 (early April 2026 — announced Apr 2, weights Mar 31) sharply raises the open-weight bar.</td></tr>
-        <tr><td><span class="term" data-key="phi-4">Microsoft Phi-4</span></td><td>Strong reasoning at SLM size; Copilot+ default for non-AMD Windows</td><td>Direct alternative on Windows; pivot toward agentic edge in May 2026 (<a href="#l-11.2">11.2</a>)</td></tr>
+        <tr><td><span class="term" data-key="phi-4">Microsoft Phi (Phi Silica on-device)</span></td><td>Strong reasoning at SLM size; Phi Silica is the Copilot+ NPU default for non-AMD Windows</td><td>Direct alternative on Windows; pivot toward agentic edge in May 2026 (<a href="#l-11.2">11.2</a>)</td></tr>
         <tr><td><span class="term" data-key="llama-3.2">Meta Llama 3.2</span> + <span class="term" data-key="muse-spark">Muse Spark</span></td><td>Default on-device open-weight choice; Muse Spark adds agentic edge</td><td>Free; ubiquitous; sets community expectations</td></tr>
       </table>
       <p>Strategic posture: Liquid does not try to displace these on their own turf. Instead, the pitch is "we work better than the OS default <em>when you care about</em> [latency / privacy / customization / multi-platform]." Picking a ring you can't beat head-on and reframing the trade-off is the textbook Mental Model 2 play.</p>
@@ -1053,7 +1053,7 @@ const MODULES = [
     {id:"5.5", title:"Ring 4 — open-weight SLMs", html:`
       <p>The community-darling, benchmark-leading open releases. Cheap, very permissive licenses, often Chinese-origin and aggressively iterated.</p>
       <ul>
-        <li><span class="term" data-key="qwen3">Qwen3 / 3.5 / 3.7 (Alibaba)</span> — the most aggressive open-weight player by far. Excellent benchmarks at small sizes, Apache-2.0-style license. Eats into mid-market deals.</li>
+        <li><span class="term" data-key="qwen3">Qwen3 (and successive 3.5 / 3.x open releases, Alibaba)</span> — the most aggressive open-weight player by far. Excellent benchmarks at small sizes, with permissive Apache-2.0-style licensing on the open-weight releases (note the top proprietary tiers, e.g. Qwen3.7-Max, are API-only). Eats into mid-market deals.</li>
         <li><span class="term" data-key="ministral">Mistral Ministral 3</span> — European, well-regarded, strong on-device performance.</li>
         <li><span class="term" data-key="gemma-3n">Gemma 3n</span> — Google's open contribution; overlaps with Ring 3.</li>
         <li><span class="term" data-key="smollm3">SmolLM3 (HF)</span> — small but credible.</li>
@@ -1119,7 +1119,7 @@ const MODULES = [
     `, drill:["7.4","3.3"]},
 
     {id:"6.5", title:"Robotics", html:`
-      <p>Liquid's heritage. <span class="term" data-key="amini">Amini</span>'s LTC self-driving demos at MIT remain among the most viral pieces of LNN proof material. Today, robotics is not a primary commercial market for Liquid — but it is a permanent narrative asset.</p>
+      <p>Liquid's heritage. The MIT CSAIL team's LTC self-driving demos (Hasani, Rus, <span class="term" data-key="amini">Amini</span>, Lechner, et al.) remain among the most viral pieces of LNN proof material. Today, robotics is not a primary commercial market for Liquid — but it is a permanent narrative asset.</p>
       <p>Expect any future humanoid-robot or autonomous-system partnership to land hard in the press because it matches the founder mythology.</p>
     `, drill:["1.7","1.2"]},
 
@@ -1206,7 +1206,7 @@ const MODULES = [
   {id:"m8", title:"Module 8 · Communications, coverage, and voice", lessons:[
     {id:"8.1", title:"Owned channels", html:`
       <ul>
-        <li><strong>liquid.ai blog.</strong> Cadence: roughly bi-weekly during launches, monthly otherwise. Technical-leaning; long posts; Hasani usually co-authored.</li>
+        <li><strong>liquid.ai blog.</strong> Cadence: posts cluster around launches (often several in a launch month), quieter otherwise. Technical-leaning; long posts; typically team/researcher-bylined, with founders (incl. Hasani) co-signing major launches.</li>
         <li><strong>X / Twitter.</strong> @LiquidAI_, @ramin_m_h. Launch announcements, paper threads, occasional benchmark snipes.</li>
         <li><strong>LinkedIn.</strong> Corporate updates, hires, partnership announcements.</li>
         <li><strong>Discord.</strong> Developer community; AMA cadence. Where LEAP / Apollo bugs get triaged.</li>
@@ -1266,7 +1266,7 @@ const MODULES = [
       <table>
         <tr><th>Outlet / channel</th><th>Voice</th><th>What they say well</th></tr>
         <tr><td><span class="term" data-key="venturebeat">VentureBeat (Carl Franzen)</span></td><td>Tech-trade</td><td>Most consistent coverage. Five-plus articles across LFM2 launches. Closest thing to a beat reporter.</td></tr>
-        <tr><td><span class="term" data-key="mckinsey-qb">McKinsey QuantumBlack</span></td><td>Consulting analyst</td><td>Jan 2026 report named Liquid as an edge-AI architecture exemplar.</td></tr>
+        <tr><td><span class="term" data-key="mckinsey-qb">McKinsey QuantumBlack</span></td><td>Consulting analyst</td><td>Jan 2026 interview/insight piece ("The case for liquid foundation models") positioned Liquid as an edge-AI architecture exemplar.</td></tr>
         <tr><td><span class="term" data-key="deeplearning-ai">DeepLearning.AI The Batch</span></td><td>Andrew Ng's newsletter</td><td>Feb 2026 piece on LFM2.5 reasoning.</td></tr>
         <tr><td>TechCrunch</td><td>Startup press</td><td>$250M Series A coverage.</td></tr>
         <tr><td><span class="term" data-key="wired-knight">Wired (Will Knight)</span></td><td>Mainstream-tech</td><td>2024 founder profile; established the worm-brain framing.</td></tr>
@@ -1312,7 +1312,7 @@ const MODULES = [
         <li><strong>"a fraction of the cost, latency, and energy"</strong> — the trade-off triad. Each word is a Ring 5 attack surface and a Ring 2/3/4 differentiator.</li>
         <li><strong>"foundation models"</strong> — refuses the SLM label. Preserves architectural framing.</li>
         <li><strong>"architectures were discovered, not compressed"</strong> — the philosophical claim. Distillation rivals (Phi, Gemma 3n, Llama 3.2) are positioned as compressed; Liquid is not.</li>
-        <li><strong>"proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs"</strong> — proof inventory. Four references covering automotive, hardware, e-commerce, wearables.</li>
+        <li><strong>"proven in production by Mercedes-Benz, AMD, Shopify, and Brilliant Labs"</strong> — proof inventory. Four references covering automotive, hardware, e-commerce, wearables. <em>Calibrate when teaching this:</em> "proven in production" is literally true today only for Shopify (live since Nov 2025); Mercedes is announced with production targeted H2 2026; Brilliant Halo began shipping in 2026; AMD is a platform/investor partner rather than a deployed end-customer.</li>
       </ul>
       <p>If you can recite the anchor and unpack any of its clauses on demand, you've internalized 70% of how Liquid wants to be talked about.</p>
     `, drill:["4.3","2.9","7.1","7.2","7.3","7.4"]},
@@ -1362,8 +1362,8 @@ const MODULES = [
     `, drill:["3.10","12.4"]},
 
     {id:"10.2", title:"Artificial Analysis 6/10 — the benchmark gap", html:`
-      <p>Independent benchmarks like <span class="term" data-key="artificial-analysis">Artificial Analysis</span> show LFM-class models around 6/10. That's credible — clearly above hobby — but not frontier.</p>
-      <p>Why this matters: many enterprise buyers' first filter is "show me your AA score." If you're at 6 and a Phi-4 / Qwen3 alternative is at 7.5, the conversation can stop before the trade-off frame can land.</p>
+      <p>Independent benchmarks like <span class="term" data-key="artificial-analysis">Artificial Analysis</span> place LFM-class models in the mid-tier of their Intelligence Index — credibly above hobby-grade, but not frontier. (Artificial Analysis reports a numeric Intelligence Index rather than a /10 score; treat '~6/10' as a rough shorthand for 'solidly mid-pack, not frontier.')</p>
+      <p>Why this matters: many enterprise buyers' first filter is "show me your AA score." If you're a few points behind a Phi-4 / Qwen3 alternative, the conversation can stop before the trade-off frame can land.</p>
       <p>Liquid's mitigation: get the buyer to look at <em>edge-specific</em> benchmarks (latency-per-token, joules-per-token, KV-cache-at-32K) where the hybrid architecture pulls ahead. See <a href="#l-9.3">9.3</a>.</p>
     `, drill:["9.3","2.4"]},
 
