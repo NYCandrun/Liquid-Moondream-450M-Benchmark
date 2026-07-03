@@ -1,0 +1,128 @@
+[
+  {
+    "cell": "bench_internvl35_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 10,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_internvl35_count.sample20s7.md"
+  },
+  {
+    "cell": "bench_internvl35_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 15,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_internvl35_grounding.sample20s7.md"
+  },
+  {
+    "cell": "bench_internvl35_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 12,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_internvl35_pope.sample20s7.md"
+  },
+  {
+    "cell": "bench_lfm450m_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 16,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_lfm450m_count.sample20s7.md"
+  },
+  {
+    "cell": "bench_lfm450m_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 14,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_lfm450m_grounding.sample20s7.md"
+  },
+  {
+    "cell": "bench_lfm450m_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 13,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_lfm450m_pope.sample20s7.md"
+  },
+  {
+    "cell": "bench_llava_ov_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 16,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_llava_ov_count.sample20s7.md"
+  },
+  {
+    "cell": "bench_llava_ov_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 0,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_llava_ov_grounding.sample20s7.md"
+  },
+  {
+    "cell": "bench_llava_ov_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 14,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_llava_ov_pope.sample20s7.md"
+  },
+  {
+    "cell": "bench_moondream2_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 16,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_moondream2_count.sample20s7.md"
+  },
+  {
+    "cell": "bench_moondream2_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 15,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_moondream2_grounding.sample20s7.md"
+  },
+  {
+    "cell": "bench_moondream2_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 16,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_moondream2_pope.sample20s7.md"
+  },
+  {
+    "cell": "bench_qwen25vl_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 18,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_qwen25vl_count.sample20s7.md"
+  },
+  {
+    "cell": "bench_qwen25vl_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 18,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_qwen25vl_grounding.sample20s7.md"
+  },
+  {
+    "cell": "bench_qwen25vl_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 14,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_qwen25vl_pope.sample20s7.md"
+  },
+  {
+    "cell": "bench_smolvlm2_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 11,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_smolvlm2_count.sample20s7.md"
+  },
+  {
+    "cell": "bench_smolvlm2_grounding.sample20s7",
+    "n": 20,
+    "parsed": 11,
+    "correct": 0,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_smolvlm2_grounding.sample20s7.md"
+  },
+  {
+    "cell": "bench_smolvlm2_pope.sample20s7",
+    "n": 20,
+    "parsed": 16,
+    "correct": 10,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_smolvlm2_pope.sample20s7.md"
+  }
+]

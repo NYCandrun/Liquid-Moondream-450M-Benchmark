@@ -31,29 +31,34 @@ GPU_TYPE = "A100-40GB"  # single GPU type for all main-table and sweep runs
 # Shared HF cache volume so repeated runs don't re-download weights/datasets.
 hf_cache_volume = modal.Volume.from_name("edge-vlm-hf-cache", create_if_missing=True)
 
+# All top-level deps pinned to the exported-lock versions (Gate C prep,
+# 2026-07-02): a lockfile with floating tops is not frozen. huggingface_hub
+# intentionally differs per lane (transformers 5.x needs hub 1.x).
 _COMMON = [
-    "accelerate",
-    "pillow",
-    "huggingface_hub",
-    "einops",
-    "timm",
-    "sentencepiece",
-    "protobuf",
-    "datasets",  # benchmark items are loaded inside the container (never locally)
+    "accelerate==1.14.0",
+    "pillow==12.3.0",
+    "einops==0.8.2",
+    "timm==1.0.27",
+    "sentencepiece==0.2.1",
+    "protobuf==7.35.1",
+    "datasets==5.0.0",  # benchmark items are loaded inside the container (never locally)
 ]
 
 TF5_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
-    .pip_install("torch", "torchvision")
-    .pip_install("transformers==5.12.1", *_COMMON)
+    .pip_install("torch==2.12.1", "torchvision==0.27.1")
+    .pip_install("transformers==5.12.1", "huggingface_hub==1.21.0", *_COMMON)
     .env({"HF_HOME": HF_CACHE_PATH})
     .add_local_python_source("envs", "harness")
 )
 
 TF457_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
-    .pip_install("torch", "torchvision")
-    .pip_install("transformers==4.57.1", *_COMMON, "qwen-vl-utils", "num2words")
+    .pip_install("torch==2.12.1", "torchvision==0.27.1")
+    .pip_install(
+        "transformers==4.57.1", "huggingface_hub==0.36.2", *_COMMON,
+        "qwen-vl-utils==0.0.14", "num2words==0.5.14",
+    )
     .env({"HF_HOME": HF_CACHE_PATH})
     .add_local_python_source("envs", "harness")
 )
@@ -63,15 +68,19 @@ TF457_IMAGE = (
 MOONDREAM2_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
     .apt_install("libvips-dev")
-    .pip_install("torch", "torchvision")
-    .pip_install("transformers==4.57.1", *_COMMON, "pyvips")
+    .pip_install("torch==2.12.1", "torchvision==0.27.1")
+    .pip_install(
+        "transformers==4.57.1", "huggingface_hub==0.36.2", *_COMMON, "pyvips==3.1.1",
+    )
     .env({"HF_HOME": HF_CACHE_PATH})
     .add_local_python_source("envs", "harness")
 )
 
 DATASETS_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
-    .pip_install("datasets", "pillow", "huggingface_hub", "pyarrow")
+    .pip_install(
+        "datasets==5.0.0", "pillow==12.3.0", "huggingface_hub==1.21.0", "pyarrow==24.0.0",
+    )
     .env({"HF_HOME": HF_CACHE_PATH})
     .add_local_python_source("envs", "harness")
 )

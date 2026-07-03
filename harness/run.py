@@ -189,19 +189,19 @@ def _run_cell(config, prompt_template):
 
 
 @app.function(image=TF5_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES,
-              retries=modal.Retries(max_retries=1, initial_delay=15.0))
+              retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
 def run_cell_tf5(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
 @app.function(image=TF457_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES,
-              retries=modal.Retries(max_retries=1, initial_delay=15.0))
+              retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
 def run_cell_tf457(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
 @app.function(image=MOONDREAM2_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES,
-              retries=modal.Retries(max_retries=1, initial_delay=15.0))
+              retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
 def run_cell_moondream(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 

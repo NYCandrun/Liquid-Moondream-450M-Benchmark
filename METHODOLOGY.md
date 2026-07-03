@@ -232,6 +232,53 @@ as a soft anchor in the calibration table with this caveat printed; CountBench
 calibration table; realized token counts to be measured at run time; parse_yes_no
 to be aligned to VLMEvalKit YOrN extraction before Gate B freeze.
 
+## Gate B audit record (2026-07-02, non-blocking per owner amendment)
+
+Fixed stratified 20-item sample per (model, task), seed 7, run on Modal through
+the production runner (18 cells; sample indices recorded in each JSONL). Dumps
+in results/phase2/dumps/, summary in results/phase2/summary.json. Audit:
+
+- **Parser fix applied pre-freeze:** `parse_yes_no` re-implemented as an exact
+  port of the pinned VLMEvalKit v0.3rc1 `YOrN_Extraction`
+  (vlmeval/dataset/utils/yorn.py L226-233) including its
+  `process_punctuation` normalization (vlmeval/smp/misc.py L32-49) and its
+  quirks (e.g. `*` is not stripped, so `**Yes**` is Unknown). VLMEvalKit's
+  LLM-judge fallback is not used; Unknown → None → scored wrong; parse rate
+  reported per cell. Tests updated to the pinned semantics (167 pass).
+- **After alignment:** every cell except the two best-effort grounding cells
+  and SmolVLM2 POPE parses 20/20. Verified live effect: moondream2 POPE
+  "There is no car in the image…" now parses (16/20 correct).
+- **Findings (models, not parsers), verified against raw outputs:**
+  - `llava_ov` grounding: well-formed normalized boxes, poorly localized —
+    0/20 at IoU≥0.5 with parse 20/20. Runs in full; reported as-is.
+  - `smolvlm2` grounding: degenerate/garbage boxes (`117,117,117,117`,
+    `[10,10,15,15]`) — parse 11/20, 0/20 hits. Runs in full; reported as-is.
+  - `smolvlm2` POPE: 4/20 answers use "does not show" phrasing = Unknown
+    under the pinned rule (VLMEvalKit-faithful). Parse rate reported.
+- Box parsers verified against live captured outputs for all six models
+  (LFM normalized JSON ✓, Qwen bbox_2d absolute ✓ 18/20 hits, InternVL
+  `<box>` 0-1000 ✓, moondream detect ✓, LLaVA bare normalized quad ✓,
+  SmolVLM2 degenerate-tolerant ✓).
+- **Parsers frozen at this commit.**
+
+## Gate C audit record (2026-07-02, non-blocking per owner amendment)
+
+- Functional-before-full: all 18 bench cells passed load + parser checks
+  through the production runner (Phase 2 samples above). Sweep cells share the
+  identical code path; budget wiring proven live at every sweep point value
+  (results/phase0/knob_check.json: LFM 44/74/137/254 input tokens at
+  T=32/64/128/256; SmolVLM2 83/349/680/878 at N=512/1024/1536/2048).
+- Configs frozen: 18 bench + 8 sweep YAMLs at the freeze commit.
+- Environments frozen: every top-level dep re-pinned to locked versions;
+  locks re-exported post-pin (datasets image: zero drift; GPU lanes: intended
+  additions only — datasets==5.0.0 pulled its transitive set). This lock set
+  is the freeze baseline.
+- GPU substitution policy in force: hard assert A100+40GB, up to 3 Modal
+  retries reschedule onto new hosts (observed working: a Qwen cell refused an
+  80GB card, retried, landed 40GB).
+- No code edits during Phase 3 runs; failures are findings; one retry per
+  item on infra errors only.
+
 ## Change log
 
 (empty — nothing changed after freeze; that is the goal)

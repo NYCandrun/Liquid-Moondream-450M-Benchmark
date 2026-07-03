@@ -36,8 +36,12 @@ class TestParseYesNo(unittest.TestCase):
     def test_leading_whitespace(self):
         self.assertIs(parse_yes_no("   yes  "), True)
 
-    def test_markdown_bold(self):
-        self.assertIs(parse_yes_no("**Yes**, there is."), True)
+    def test_markdown_bold_is_none_vlmevalkit_quirk(self):
+        # Gate B alignment: VLMEvalKit's process_punctuation does NOT strip
+        # '*' (absent from its punct list), so the token '**yes**' != 'yes'
+        # and the pinned YOrN_Extraction returns Unknown. The faithful port
+        # keeps the quirk; per-cell parse rate surfaces it if it matters.
+        self.assertIsNone(parse_yes_no("**Yes**, there is."))
 
     def test_quoted_answer(self):
         self.assertIs(parse_yes_no('"No"'), False)
@@ -58,14 +62,22 @@ class TestParseYesNo(unittest.TestCase):
     def test_standalone_on_own_line(self):
         self.assertIs(parse_yes_no("Looking closely at the image:\nyes"), True)
 
-    # ---- Rule C: no explicit answer token -> None -------------------------
-    def test_embedded_determiner_no_is_none(self):
-        # Spec example: "There is no dog" -> None.
-        self.assertIsNone(parse_yes_no("There is no dog"))
+    # ---- Word-presence rule (Gate B: pinned VLMEvalKit YOrN_Extraction) ---
+    def test_embedded_determiner_no_is_false(self):
+        # Gate B alignment: word presence — 'no' in words, 'yes' absent.
+        self.assertIs(parse_yes_no("There is no dog"), False)
 
-    def test_mid_sentence_yes_is_none(self):
-        # Strict provisional rule: not leading, not standalone.
-        self.assertIsNone(parse_yes_no("The answer is yes"))
+    def test_mid_sentence_yes_is_true(self):
+        # Gate B alignment: 'yes' in words, 'no' absent.
+        self.assertIs(parse_yes_no("The answer is yes"), True)
+
+    def test_ambiguous_yes_and_no_is_none(self):
+        self.assertIsNone(parse_yes_no("Yes and no, it depends."))
+
+    def test_does_not_show_is_none(self):
+        # 'not' != 'no' under the pinned rule (observed live on the SmolVLM2
+        # POPE sample: "The image does not show a car.").
+        self.assertIsNone(parse_yes_no("The image does not show a car."))
 
     def test_hedged_answer_is_none(self):
         self.assertIsNone(parse_yes_no("Maybe, it is hard to tell."))

@@ -2,8 +2,12 @@
 
 Two parsers, shared by every model (raw text in, structured answer out):
 
-* :func:`parse_yes_no` -- POPE-style yes/no extraction (PROVISIONAL rule,
-  to be aligned to the pinned VLMEvalKit POPE convention at Gate B).
+* :func:`parse_yes_no` -- POPE yes/no extraction, FROZEN at Gate B as an
+  exact port of VLMEvalKit v0.3rc1 ``YOrN_Extraction``
+  (vlmeval/dataset/utils/yorn.py L226-233) including its
+  ``process_punctuation`` normalization (vlmeval/smp/misc.py L32-49).
+  VLMEvalKit's LLM-judge fallback for 'Unknown' is intentionally NOT used;
+  Unknown -> None (scored as wrong), and parse rate is reported.
 * :func:`parse_count`  -- first integer in the text (digits or the English
   number words zero..twenty).
 
@@ -78,54 +82,61 @@ def _never_raises(fn):
     return wrapper
 
 
+def _process_punctuation(in_text):
+    """Verbatim port of VLMEvalKit v0.3rc1 process_punctuation
+    (vlmeval/smp/misc.py L32-49, commit 8eb37bb9), including its quirks:
+    the replace-with-empty vs replace-with-space branch keys off the ORIGINAL
+    text, and periods not adjacent to digits are removed."""
+    out_text = in_text
+    punct = [
+        ";", r"/", "[", "]", '"', "{", "}", "(", ")", "=", "+", "\\", "_", "-",
+        ">", "<", "@", "`", ",", "?", "!",
+    ]
+    comma_strip = re.compile(r"(\d)(,)(\d)")
+    period_strip = re.compile(r"(?<!\d)\.(?!\d)")
+    for p in punct:
+        if (p + " " in in_text or " " + p in in_text) or (
+            re.search(comma_strip, in_text) is not None
+        ):
+            out_text = out_text.replace(p, "")
+        else:
+            out_text = out_text.replace(p, " ")
+    out_text = period_strip.sub("", out_text, re.UNICODE)
+    return out_text
+
+
 @_never_raises
 def parse_yes_no(raw):
-    """PROVISIONAL -- extract a yes/no answer from raw model text.
+    """FROZEN (Gate B) -- exact port of VLMEvalKit v0.3rc1 YOrN_Extraction.
 
-    PROVISIONAL: this rule will be aligned to the pinned VLMEvalKit POPE
-    convention at Gate B; until then the exact rule is as follows
-    (case-insensitive, robust to punctuation and markdown emphasis):
+    Pinned source (commit 8eb37bb96bc508bd016000318548854fdfa1bd30),
+    vlmeval/dataset/utils/yorn.py L226-233::
 
-    Rule A (leading token): if the FIRST alphabetic word token of the text
-        is exactly "yes" -> True, exactly "no" -> False.
-        Examples: "Yes."; "**No**, there is not"; "yes it is".
-        Word-boundary strict: "yesterday"/"nothing" do NOT match.
+        s = output.lower()
+        words = process_punctuation(s).split()
+        if 'yes' in words and 'no' not in words: return 'Yes'
+        if 'yes' not in words and 'no' in words: return 'No'
+        return 'Unknown'
 
-    Rule B (standalone segment): otherwise, split the text on sentence /
-        clause punctuation (. , ; : ! ? and newlines) and return the first
-        segment that, after stripping quotes/brackets/emphasis, is EXACTLY
-        "yes" or "no". Example: "Hmm. No." -> False.
+    Mapping: 'Yes' -> True, 'No' -> False, 'Unknown' -> None. VLMEvalKit's
+    LLM-judge fallback for Unknown is NOT used (no LLM in the scoring path);
+    Unknown items score as wrong and parse rate is reported per cell.
 
-    Rule C: otherwise None. In particular, an embedded token is NOT an
-        answer: "There is no dog" -> None (determiner "no"), and
-        "The answer is yes" -> None (mid-segment "yes"). This strictness is
-        intentional pending the Gate B alignment.
+    Consequences of the word-presence rule (all VLMEvalKit-faithful):
+    "There is no car in the image" -> False; "The answer is yes" -> True;
+    "The image does not show a car" -> None ('not' is not 'no');
+    "yes... no... maybe" -> None (ambiguous); "yesterday" -> None.
 
     Returns True, False, or None. Never raises.
     """
     if not isinstance(raw, str):
         return None
-    text = raw.strip().lower()
-    if not text:
-        return None
-
-    # Rule A: leading alphabetic token.
-    words = _WORD_RE.findall(text)
-    if words:
-        if words[0] == "yes":
-            return True
-        if words[0] == "no":
-            return False
-
-    # Rule B: a punctuation-delimited segment that IS the answer.
-    for segment in _SEGMENT_SPLIT_RE.split(text):
-        stripped = segment.strip(_SEGMENT_STRIP_CHARS)
-        if stripped == "yes":
-            return True
-        if stripped == "no":
-            return False
-
-    # Rule C: no explicit answer token.
+    s = raw.lower()
+    words = _process_punctuation(s).split()
+    if "yes" in words and "no" not in words:
+        return True
+    if "yes" not in words and "no" in words:
+        return False
     return None
 
 
