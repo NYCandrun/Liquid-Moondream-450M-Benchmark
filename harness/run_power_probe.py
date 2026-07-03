@@ -112,7 +112,7 @@ def power_probe(cell_specs: list):
 
     pool_order = preflight["lfm450m"]["pool"]
     eligible = [iid for iid in pool_order
-                if all(preflight[m]["pass"][iid] for m in preflight)]
+                if all(all(preflight[m]["pass"][iid]) for m in preflight)]
     if len(eligible) < n_target:
         raise RuntimeError(f"preflight found only {len(eligible)}/{n_target} items that "
                            f"complete at every setting (pool {pool_n}) — enlarge the pool")
