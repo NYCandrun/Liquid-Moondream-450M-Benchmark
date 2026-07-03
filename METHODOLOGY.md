@@ -1,80 +1,236 @@
 # Methodology
 
-Single spec for both parts. Every pin, prompt citation, finding, and change lands here.
+Single spec for both parts, as executed. Every pin, prompt citation, finding, and
+change lands here. Gates are executed as recorded quality audits (project owner
+amendment, 2026-07-02): at each gate the full package is audited, failures are
+fixed and re-run, and the audit is written here.
+
+## Shared harness principle
+
+One config-driven harness (`harness/run.py`), one set of adapters/parsers/prompts/
+scoring, the same Modal Images, across both parts (owner directive: bias toward
+fair comparison; never two harnesses). A cell config specifies
+`(model, task[, image_token_budget])`. All inference runs on Modal; the local
+machine is a control plane only. One A100-40GB per Modal function; parallelism
+comes from separate single-GPU containers; models are never sharded.
 
 ## Part 1 — Main benchmark (6 models × 3 benchmarks)
 
-### Models & pins
-_To be filled at Gate A: checkpoint revision hashes, remote-code file hashes,
-transformers versions, dated moondream2 revision._
+### Model pins (Phase 0 load matrix, executed on Modal — results/phase0/load_matrix.json)
 
-### Datasets & pins
-_To be filled at Gate A: revision hashes, exact counts, RefCOCO-M flattening rule,
-CountBenchQA exclusion rule, POPE split composition._
+| key | checkpoint | revision sha | env (transformers) | actual params | notes |
+|---|---|---|---|---|---|
+| lfm450m | LiquidAI/LFM2.5-VL-450M | `fc6221ca597f3315e4f82fc2df606783267b34ba` | tf5 (5.12.1) | 448,718,848 | native `lfm2_vl`, no remote code |
+| smolvlm2 | HuggingFaceTB/SmolVLM2-500M-Video-Instruct | `7b375e1b73b11138ff12fe22c8f2822d8fe03467` | tf457 (4.57.1) | 507,482,304 | processor hard-requires `num2words` (Phase 0 finding) |
+| llava_ov | llava-hf/llava-onevision-qwen2-0.5b-ov-hf | `74dd0bf867a4cda7950c17663794267c60cf4b40` | tf457 (4.57.1) | 893,675,552 | nominal "0.5B" is 0.89B actual |
+| internvl35 | OpenGVLab/InternVL3_5-1B | `2f71cf52542334823e48a46ffba0e2bc9add3446` | tf457 (4.57.1) | 1,060,897,792 | trust_remote_code; 5 remote .py files hashed |
+| qwen25vl | Qwen/Qwen2.5-VL-7B-Instruct | `cc594898137f460bfe9f0759e9844b3ce807cfb5` | tf457 (4.57.1) | 8,292,166,656 | nominal "7B" is 8.29B actual |
+| moondream2 | vikhyatk/moondream2 @ tag `2025-06-21` | `9a7d4024050840e001defacec2b00727e89149e6` | moondream2 (4.57.1 + libvips) | 1,927,237,104 | newest dated revision (14 enumerated); 18 remote .py files hashed; skills query/detect/point/caption |
+
+All six loaded in bf16 on A100-40GB and passed a 2-image inference. Remote-code
+file sha256 hashes recorded in the load matrix JSON. transformers 4.57.1 and
+5.12.1 verified to exist on PyPI and to satisfy every model-card minimum
+(LFM ≥5.1; SmolVLM2 added in 4.50.0; llava-ov ≥4.45.0; InternVL3_5 ≥4.52.1;
+Qwen2.5-VL added in 4.49.0). torch 2.12.1+cu130 identical across both GPU lanes.
+
+### Dataset pins (executed on Modal — results/phase0/dataset_pins.json, data_check.json)
+
+| dataset | revision sha | split | count | verification |
+|---|---|---|---|---|
+| moondream/refcoco-m | `45686f0eb7980ed4b70d3d5480a198775a26b4c1` | validation | 1,190 raw rows → **2,080 flattened instances (exact, counted by the production loader on Modal)** | flattening rule below |
+| lmms-lab/POPE | `4db1276663dfa5eb8ad16a52d24c31a09e470896` | default/test | **9,000** = 3,000 adversarial + 3,000 popular + 3,000 random | category composition verified at load |
+| vikhyatk/CountBenchQA | `76d600309e9d6147bd3713b4cd431518ac1206c8` | test | **491 rows, 0 missing images → 491 usable** | exclusion rule: none needed (dataset ships pre-filtered) |
+
+Image retrievability verified inside Modal for all three (first images decoded,
+sizes recorded).
+
+**RefCOCO-M flattening rule (frozen):** one evaluation instance per element of the
+per-image `samples` list (one per annotated object; 2,080 total). Referring
+expression = `sentences[0]` (each object carries 1–3 expressions; the first is
+taken, deterministically — decision recorded at Gate A; the per-(object,sentence)
+alternative would change N and was rejected to match the ~2,080-instance design).
+`bbox` arrives in COCO `[x, y, w, h]` and is converted to `[x1,y1,x2,y2]`.
+Convention verified empirically over all 2,080 boxes: xywh hypothesis 0
+violations; xyxy hypothesis falsified with 1,204 violations
+(results/phase0/data_check.json).
 
 ### Decoding & environment
-bf16, greedy (`do_sample=False`), fixed `max_new_tokens` per task, A100-40GB for all
-main-table runs. Exact values recorded per cell in `configs/bench/`.
 
-### Prompts
-POPE and CountBenchQA follow pinned VLMEvalKit conventions (exact source file citations
-to be recorded here). Grounding uses each model's native box format; moondream2 via
-`detect()`.
+bf16, greedy (`do_sample=False`) everywhere; `max_new_tokens`: 256 grounding,
+16 POPE, 16 count (recorded per cell in `configs/bench/`). Single GPU type:
+the runner asserts the CUDA device name contains "A100" and "40GB" and refuses
+substituted hardware (Phase 0 found Modal delivered an A100-80GB PCIe for one
+request; policy = fail-and-retry, never silently accept). Seeds fixed (0).
+moondream2 runs through its native skills, which expose no sampler controls in
+their public signatures (recorded from `inspect.signature` in the load matrix);
+skill defaults are used and noted in the config table per the brief.
+
+### Prompts (verbatim templates in prompts/, provenance in prompts/PROVENANCE.md)
+
+- POPE: dataset-level VLMEvalKit convention at the pinned tag — the RAW question,
+  no suffix. Citation: VLMEvalKit v0.3rc1 @ `8eb37bb9`,
+  `vlmeval/dataset/image_yorn.py` L25-32 (the "Please answer yes or no." suffix
+  at L31 fires only for AMBER) + `vlmeval/dataset/image_base.py` L186-203.
+  Note: VLMEvalKit *model adapters* disagree among themselves (its moondream
+  adapter appends "\nAnswer yes or no.", its Qwen alias runs with
+  `use_custom_prompt=False` so gets the raw question). We hold the dataset-level
+  convention constant across all six models; per-model parse rate is reported.
+- CountBenchQA: verbatim VLMEvalKit template, `vlmeval/dataset/image_vqa.py`
+  L2346: `{question} Note that: answer with a number directly e.g. 3. Do not
+  include any additional text.`
+- Grounding: each model's native convention (sources in prompts/PROVENANCE.md):
+  LFM card-verbatim JSON detection prompt (normalized 0-1 output); Qwen2.5-VL
+  blog convention (`bbox_2d`, absolute pixels); InternVL `<ref>…</ref>` prompt
+  (`<box>[[x1,y1,x2,y2]]</box>`, 0-1000); moondream2 via `detect(expression)`;
+  SmolVLM2 and LLaVA-OV best-effort (no published grounding convention —
+  "no boxes" is an acceptable, expected finding).
 
 ### Metrics
-Grounding: Acc@0.5 (headline); extensions (labeled as extensions): center-in-box recall,
-mean IoU on found, area ratio, miss decomposition, parse rate. POPE: accuracy, F1,
-yes-ratio. CountBenchQA: exact-match accuracy, parse rate.
+
+Grounding headline: **Acc@0.5** (IoU ≥ 0.5, computed over ALL items; unparsed =
+miss). Extensions (labeled as extensions): center-in-box recall, mean IoU on
+found, predicted/GT area ratio, miss decomposition (not-found vs
+found-but-loose), parse rate. POPE: accuracy, F1 (yes = positive; unparsed =
+wrong), yes-ratio. CountBenchQA: exact-match accuracy, parse rate. Scoring is a
+separate GPU-free pass (`scoring/score.py`) over raw JSONL; anyone can re-score
+from published raw outputs.
+
+### Instrument decision (Gate A audit)
+
+VLMEvalKit at the pinned tag v0.3rc1 (`8eb37bb96bc508bd016000318548854fdfa1bd30`)
+**cannot be the primary instrument**: it has no LFM/LiquidAI adapter at all
+(repo-wide grep: zero hits), no RefCOCO/RefCOCO-M dataset, and no InternVL3_5
+registry entry. (Current main adds LFM2VL and RefCOCO, but still no
+LFM2.5-VL-450M alias and no RefCOCO-M.) Decision: **custom shared harness is
+primary for all six models; VLMEvalKit v0.3rc1 is the secondary calibration lane**
+for the covered cells (SmolVLM2-500M, llava-onevision-0.5b, Qwen2.5-VL-7B,
+moondream2 × POPE + CountBenchQA), with the moondream2 revision overridden to
+`2025-06-21` (its adapter defaults to 2025-01-09 — recorded caveat).
+
+Coverage matrix at the pinned tag (evidence paths in
+results/phase0/discovery_bundle.json):
+
+| model | POPE | RefCOCO-M | CountBenchQA |
+|---|---|---|---|
+| LFM2.5-VL-450M | no (no adapter) | no (no dataset) | no (no adapter) |
+| SmolVLM2-500M | yes | no | yes |
+| LLaVA-OV-0.5B | yes | no | yes |
+| InternVL3_5-1B | partial (generic class, unregistered) | no | partial |
+| Qwen2.5-VL-7B | yes | no | yes |
+| moondream2 | yes (rev caveat) | no | yes (its counting prompt is dead code at tag — misspelled key) |
 
 ### Deployed-form comparison (separate table, never merged)
-Moondream 0.5B as-shipped in its own runtime + LFM2.5-VL-450M in its shipped small
-(int8/GGUF) form, same items, same scoring. Runtime/artifact/quantization pins to be
-filled at Gate A.
 
-**Interpretation guardrail:** numbers in the deployed-form table are int8/shrunk-down and
-are not directly comparable to the bf16 main table. Within the deployed-form table, the
-Moondream 0.5B and the LFM 450M are precision-matched to each other, so that head-to-head
-is fair; it shows how the two same-size models behave when deployed the way a buyer would
-run them. The reader weighs it.
+**Moondream 0.5B distribution finding (verified 2026-07-02, URLs in
+results/phase0/discovery_bundle.json):** no transformers-loadable (safetensors
+fp16/bf16) 0.5B checkpoint exists. The official moondream org hosts no 0.5B
+repo; the 0.5B ships only as int8/int4 `.mf` archives (MOON v1 container of ONNX
+components) on the `onnx` branch of vikhyatk/moondream2.
 
-### Moondream 0.5B distribution finding
-_To be filled at Gate A with URLs._
+- Artifact (pinned): `moondream-0_5b-int8.mf.gz`, vikhyatk/moondream2 branch
+  `onnx` @ `9dddae84d54db4ac56fe37817aeaeb502ed083e2`, 621,619,051 bytes, LFS
+  sha256 `355c534d5f71fff8524dfeb41ba65f7d07948f910f754de4df242d0037d8be4a`
+  (int4 twin exists, 442,376,060 bytes; **int8 selected** as the deployed form
+  to precision-match the LFM int8 lane).
+- Runtime (pinned): PyPI **moondream==0.0.6** — the last release containing the
+  OnnxVL `.mf` loader (onnxruntime ≥1.19.2). Verified: current `moondream` 1.3.0
+  + kestrel/Photon 0.4.2 cannot load `.mf` or the 0.5B at all, so 0.0.6 is the
+  only publicly runnable path and IS the as-shipped runtime. The version pin is
+  mandatory.
+- Skill API: `md.vl(model=path)` → `.query(image, question, settings)`,
+  `.detect(image, obj)`, `.point`, `.caption`. Decoding: greedy-only; the sole
+  sampler-adjacent setting is `max_tokens` (recorded; a reason this table is
+  separate).
+- LFM 450M shrunk-down lane: GGUF Q8_0 via llama.cpp selected as the standard
+  shipped path (to be built and pinned in Phase 3B; recorded there).
+
+**Interpretation guardrail:** numbers in the deployed-form table are
+int8/shrunk-down and are not directly comparable to the bf16 main table. Within
+the deployed-form table, the Moondream 0.5B and the LFM 450M are precision-
+matched to each other, so that head-to-head is fair; it shows how the two
+same-size models behave when deployed the way a buyer would run them. The reader
+weighs it.
+
+### License appendix (all verified from repo/vendor sources, 2026-07-02)
+
+| subject | license | source |
+|---|---|---|
+| LiquidAI/LFM2.5-VL-450M | LFM Open License v1.0 (`lfm1.0`; commercial use restricted to <$10M-revenue organizations; research exception) | huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/LICENSE |
+| HuggingFaceTB/SmolVLM2-500M-Video-Instruct | Apache-2.0 | HF API cardData @ 7b375e1b |
+| llava-hf/llava-onevision-qwen2-0.5b-ov-hf | Apache-2.0 | HF API cardData @ 74dd0bf8 |
+| OpenGVLab/InternVL3_5-1B | Apache-2.0 | HF API cardData @ 2f71cf52 |
+| Qwen/Qwen2.5-VL-7B-Instruct | Apache-2.0 | HF API cardData @ cc594898 |
+| vikhyatk/moondream2 | Apache-2.0 | HF API cardData @ 6b714b26 |
+| moondream/moondream3-preview (landscape note; not used) | BUSL-1.1 (Licensor M87 Labs; Change License Apache-2.0, 2 years) | huggingface.co/moondream/moondream3-preview/raw/main/LICENSE.md |
 
 ## Part 2 — Image-token-budget sweep
 
 ### Swept variable
-The number of image (visual) tokens per image — the encoder/projector speed-quality
-dial. Output length (`max_new_tokens`) is fixed and never swept.
 
-### Per-model knob definitions
-_To be filled at Gate A: parameter name, range, default, same-axis-as-LFM (yes/no/partial),
-exact API call, per model. Models lacking a true image-token knob are handled honestly:
-sweep-as-resolution clearly labeled, or single default point — never faked._
+The number of image (visual) tokens per image. Output length is fixed
+(`max_new_tokens=256` for grounding) and never swept.
+
+### Per-model knob definitions (Gate A knob table; full evidence in results/phase0/discovery_bundle.json)
+
+| model | parameter | axis | range | default | same axis as LFM? | true token budget? |
+|---|---|---|---|---|---|---|
+| lfm450m | `min_image_tokens`/`max_image_tokens` (+`do_image_splitting`) | direct per-image token budget (resize computed FROM token bounds) | positive int; trained envelope 64–256; card recommends min 32 | max 256 / min 64 / splitting ON | reference axis | **YES** — kwargs verified at transformers v5.12.1 release tag |
+| smolvlm2 | `size={"longest_edge": N}` | input resolution → 512px tile grid; 64 tokens/tile fixed | positive int (512 multiples recommended) | 2048 (≤1088 tokens) | **partial — different axis, labeled as such; never merged with LFM's** | NO — tile-count dial |
+| moondream 0.5B (own runtime) | none exposed | fixed pooled grid | n/a | 729 tokens/image (fixed; confirmed in both candidate codebases) | no | **NO KNOB — single default point, never a fake sweep** |
+
+Sweep points (configs/sweep/): LFM T ∈ {32, 64, 128, 256} with min=max=T and
+splitting OFF (monotone single-variable axis); the shipped default pipeline
+(max 256 + splitting ON) is the bench grounding cell and is the marked default
+point. T=32 is the card-recommended minimum but below the shipped config default
+of 64 — included, flagged as mild extrapolation. SmolVLM2 N ∈ {512, 1024, 1536,
+2048}; 2048 is the shipped default (marked). RefCOCO-M/COCO source images are
+typically ≤640px, so N ≥ 1024 up-samples: those points are annotated as
+compute-only (no added information) in every output table. Realized input-token
+counts are logged per item (`n_input_tokens`) — measured, never assumed.
+Approximate common token scale (from the knob table): LFM 64 ↔ SmolVLM 512
+(=64 tokens); LFM 256 ↔ SmolVLM 1024 (≤320); Moondream 0.5B is a fixed 729-token
+anchor comparable only to the ~640–729 row. Knob liveness proven on Modal before
+any full run (results/phase0/knob_check.json).
 
 ### Benchmark & rationale
-RefCOCO-M grounding only (same pinned revision and flattening as Part 1): grounding is
-where visual detail matters most, so it is where sweeping the image-token budget should
-produce a real accuracy curve. POPE and counting are not swept; an optional
-LFM lowest/highest-budget POPE flat-check may be reported as a two-row aside.
 
-### Budget points
-_To be filled at Gate A: 3–4 points per model from its real range (max, middle, low,
-default marked), with a common-scale column if feasible._
+RefCOCO-M grounding only, same pin and flattening as Part 1 (shared cell:
+the sweep's default point and the Part 1 grounding cell run identical code).
+Grounding is where visual detail matters most, so it is where sweeping the
+image-token budget should produce a real accuracy curve. Optional LFM POPE
+flat-check (lowest/highest budget) deferred; run only if trivially cheap after
+the main sweep.
 
 ### Metrics
-Acc@0.5; per cell also mean IoU on found, parse rate, mean wall-clock latency per item
-(latency is first-class here).
 
-## Shared harness principle
-
-One config-driven harness, one set of parsers/prompts/scoring, the same Modal Images,
-across both parts (fair-comparison directive). A cell config specifies
-`(model, task[, image_token_budget])`. The sweep's default-budget LFM grounding cell and
-the Part 1 LFM grounding cell run through identical code.
+Acc@0.5 headline; per cell also mean IoU on found, parse rate, and mean
+wall-clock latency per item (first-class here).
 
 ## Environments
-_Modal Image definitions in `envs/`, lockfiles exported per env. Plan to be fixed at
-Gate A._
+
+Modal Images defined in `envs/images.py`; full `pip freeze` lockfiles in
+`envs/locks/` (tf5, tf457, moondream2, datasets). A Phase 3B image (`md05-onnx`:
+moondream==0.0.6 + onnxruntime, `.mf` artifact baked in with sha256
+verification; CPU execution provider, held identical across both parts) is added
+before Phase 3B runs. Floating top-level deps are re-pinned from the lockfiles
+before the Phase 3 freeze (Gate C checklist).
+
+## Gate A audit record (2026-07-02, non-blocking per owner amendment)
+
+Audited: coverage matrix ✓, load matrix 6/6 ✓, dataset pins + exact counts ✓,
+bbox convention ✓ (empirical), licenses ✓, env plan ✓, Moondream 0.5B runtime
+plan ✓, knob table ✓, calibration anchors fetched live ✓. Decisions made and
+recorded above: custom-harness-primary (no flip); int8 deployed form;
+moondream2 @ 2025-06-21 everywhere incl. VLMEvalKit override; per-object
+flattening with sentences[0]; POPE dataset-level bare-question convention;
+InternVL custom-code repo (not the -HF twin; load-matrix-proven on 4.57.1);
+GPU hard-assert; SmolVLM2 upsampled points kept but annotated; LFM T=32 floor
+included (flagged). Known open items carried forward: LFM 81.28 RefCOCO-M
+protocol is unverifiable (no VLMEvalKit revision contains RefCOCO-M) — treated
+as a soft anchor in the calibration table with this caveat printed; CountBench
+73.31 (card) vs our CountBenchQA-491 is a dataset-version caveat in the
+calibration table; realized token counts to be measured at run time; parse_yes_no
+to be aligned to VLMEvalKit YOrN extraction before Gate B freeze.
 
 ## Change log
 

@@ -1,0 +1,10 @@
+part: bench
+model: moondream2
+task: grounding
+prompt_id: grounding_moondream2_v1
+max_new_tokens: 256
+image_token_budget: null
+seed: 0
+require_gpu_substrings:
+- A100
+- 40GB

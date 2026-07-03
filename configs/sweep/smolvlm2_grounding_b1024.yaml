@@ -1,0 +1,12 @@
+part: sweep
+model: smolvlm2
+task: grounding
+prompt_id: grounding_smolvlm2_v1
+max_new_tokens: 256
+image_token_budget: 1024
+is_shipped_default: false
+default_note: '2048'
+seed: 0
+require_gpu_substrings:
+- A100
+- 40GB

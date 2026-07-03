@@ -1,0 +1,358 @@
+{
+  "refcoco_m": {
+    "repo_id": "moondream/refcoco-m",
+    "resolved_sha": "45686f0eb7980ed4b70d3d5480a198775a26b4c1",
+    "splits_available": [
+      "validation"
+    ],
+    "validation_raw_rows": 1190,
+    "features": "{'image': Image(mode=None, decode=True), 'image_id': Value('int64'), 'file_name': Value('string'), 'samples': List({'id': Value('int64'), 'image_id': Value('int64'), 'category': Value('string'), 'supercategory': Value('string'), 'label': Value('string'), 'sentences': List(Value('string')), 'bbox': List(Value('float32')), 'mask': {'counts': Value('string'), 'size': List(Value('int32'))}})}",
+    "image_columns": [
+      "image"
+    ],
+    "sample_row": {
+      "image": {
+        "path": null,
+        "bytes": "<267973 bytes elided>"
+      },
+      "image_id": 458827,
+      "file_name": "COCO_train2014_000000458827.jpg",
+      "samples": [
+        {
+          "id": 424581,
+          "image_id": 458827,
+          "category": "person",
+          "supercategory": "person",
+          "label": null,
+          "sentences": [
+            "left guy",
+            "person on left",
+            "left person"
+          ],
+          "bbox": [
+            13.210000038146973,
+            1.1200000047683716,
+            183.6699981689453,
+            260.9700012207031
+          ],
+          "mask": {
+            "counts": "gk39j86L3L4L3M2N3N2M3M5K5K9F9\\Om0ZO=F7I6L3M2M4M2M3N2N1O2M3N101N10001O00000001iN_KTM11`4l2aKnL42]4o2VLkLl3[2ZKiM10h5U2l0L3O1N200O10000O1O2N1O2O00jNSNSKo1m4SNoJn1R5RNfJV2Z5kMbJW2_5jM^JW2c5jM[JV2f5kMXJV2",
+            "size": [
+              294,
+              500
+            ]
+          }
+        },
+        {
+          "id": 453347,
+          "image_id": 458827,
+          "category": "person",
+          "supercategory": "person",
+          "label": null,
+          "sentences": [
+            "right guy",
+            "right skater",
+            "right legs"
+          ],
+          "bbox": [
+            336.94000244140625,
+            0.6600000262260437,
+            157.24000549316406,
+            264.92999267578125
+          ],
+          "mask": {
+            "counts": "RQo24R91O1O1O001O001O0mKJVO6h0NVO3FLVM6R3N@9UMNZ3IXOe1g0\\NSOT2b0lMjNl2R1TMmNn2R1SMlNo2S1QMlNQ3S1PMkNR3T1oLjNR3V1nLiNT3V1mLhNT3X1lLgNV3X1jLgNW3Y1iLfNX3Z1iLdNX3\\1hLdNX3\\1hLcNY3]1gLbNY3_1gL`NZ3`1fL_Nd1kN",
+            "size": [
+              294,
+              500
+            ]
+          }
+        }
+      ]
+    },
+    "list_column_totals": {
+      "samples": 2080
+    },
+    "flattening_note": "Flatten to one (image, referring expression, gt box) instance per annotated object; candidate flattened counts are the list_column_totals above \u2014 the rule and exact count are fixed from this evidence at Gate A.",
+    "image_retrieval_check": [
+      {
+        "index": 0,
+        "size": [
+          500,
+          294
+        ],
+        "mode": "RGB"
+      },
+      {
+        "index": 1,
+        "size": [
+          640,
+          480
+        ],
+        "mode": "RGB"
+      },
+      {
+        "index": 2,
+        "size": [
+          500,
+          375
+        ],
+        "mode": "RGB"
+      }
+    ]
+  },
+  "pope": {
+    "repo_id": "lmms-lab/POPE",
+    "resolved_sha": "4db1276663dfa5eb8ad16a52d24c31a09e470896",
+    "configs": [
+      "Full",
+      "default"
+    ],
+    "per_config": {
+      "Full": {
+        "splits": {
+          "adversarial": {
+            "rows": 3000,
+            "features": "{'id': Value('string'), 'question_id': Value('string'), 'question': Value('string'), 'answer': Value('string'), 'image_source': Value('string'), 'image': Image(mode=None, decode=True), 'category': Value('string')}",
+            "composition_by_category": {
+              "adversarial": 3000
+            },
+            "sample_row": {
+              "id": "0",
+              "question_id": "1",
+              "question": "Is there a snowboard in the image?",
+              "answer": "yes",
+              "image_source": "COCO_val2014_000000310196",
+              "image": {
+                "path": null,
+                "bytes": "<89261 bytes elided>"
+              },
+              "category": "adversarial"
+            },
+            "image_retrieval_check": [
+              {
+                "index": 0,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 1,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 2,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              }
+            ]
+          },
+          "popular": {
+            "rows": 3000,
+            "features": "{'id': Value('string'), 'question_id': Value('string'), 'question': Value('string'), 'answer': Value('string'), 'image_source': Value('string'), 'image': Image(mode=None, decode=True), 'category': Value('string')}",
+            "composition_by_category": {
+              "popular": 3000
+            },
+            "sample_row": {
+              "id": "3000",
+              "question_id": "1",
+              "question": "Is there a snowboard in the image?",
+              "answer": "yes",
+              "image_source": "COCO_val2014_000000310196",
+              "image": {
+                "path": null,
+                "bytes": "<89261 bytes elided>"
+              },
+              "category": "popular"
+            },
+            "image_retrieval_check": [
+              {
+                "index": 0,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 1,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 2,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              }
+            ]
+          },
+          "random": {
+            "rows": 3000,
+            "features": "{'id': Value('string'), 'question_id': Value('string'), 'question': Value('string'), 'answer': Value('string'), 'image_source': Value('string'), 'image': Image(mode=None, decode=True), 'category': Value('string')}",
+            "composition_by_category": {
+              "random": 3000
+            },
+            "sample_row": {
+              "id": "6000",
+              "question_id": "1",
+              "question": "Is there a snowboard in the image?",
+              "answer": "yes",
+              "image_source": "COCO_val2014_000000310196",
+              "image": {
+                "path": null,
+                "bytes": "<89261 bytes elided>"
+              },
+              "category": "random"
+            },
+            "image_retrieval_check": [
+              {
+                "index": 0,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 1,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 2,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              }
+            ]
+          }
+        }
+      },
+      "default": {
+        "splits": {
+          "test": {
+            "rows": 9000,
+            "features": "{'id': Value('string'), 'question_id': Value('string'), 'question': Value('string'), 'answer': Value('string'), 'image_source': Value('string'), 'image': Image(mode=None, decode=True), 'category': Value('string')}",
+            "composition_by_category": {
+              "adversarial": 3000,
+              "popular": 3000,
+              "random": 3000
+            },
+            "sample_row": {
+              "id": "0",
+              "question_id": "1",
+              "question": "Is there a snowboard in the image?",
+              "answer": "yes",
+              "image_source": "COCO_val2014_000000310196",
+              "image": {
+                "path": null,
+                "bytes": "<89261 bytes elided>"
+              },
+              "category": "adversarial"
+            },
+            "image_retrieval_check": [
+              {
+                "index": 0,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 1,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              },
+              {
+                "index": 2,
+                "size": [
+                  640,
+                  427
+                ],
+                "mode": "RGB"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "countbenchqa": {
+    "repo_id": "vikhyatk/CountBenchQA",
+    "resolved_sha": "76d600309e9d6147bd3713b4cd431518ac1206c8",
+    "configs": [
+      "default"
+    ],
+    "per_split": {
+      "test": {
+        "rows": 491,
+        "features": "{'image': Image(mode=None, decode=True), 'text': Value('string'), 'question': Value('string'), 'number': Value('int32')}",
+        "missing_image_rows": {
+          "count": 0,
+          "indices_first_20": []
+        },
+        "usable_rows_candidate": 491,
+        "sample_row": {
+          "image": {
+            "path": null,
+            "bytes": "<63058 bytes elided>"
+          },
+          "text": "We review the ten best gaming headsets in the market",
+          "question": "How many headsets are there in the image?",
+          "number": 10
+        },
+        "image_retrieval_check": [
+          {
+            "index": 0,
+            "size": [
+              1024,
+              448
+            ],
+            "mode": "RGB"
+          },
+          {
+            "index": 1,
+            "size": [
+              1280,
+              533
+            ],
+            "mode": "RGB"
+          },
+          {
+            "index": 2,
+            "size": [
+              1500,
+              730
+            ],
+            "mode": "RGB"
+          }
+        ]
+      }
+    },
+    "exclusion_note": "Candidate exclusion rule: rows with missing/empty image payload (evidence above). The exact usable count and final rule are fixed from this evidence at Gate A."
+  }
+}

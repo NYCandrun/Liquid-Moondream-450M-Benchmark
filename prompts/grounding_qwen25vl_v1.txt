@@ -1,0 +1,1 @@
+Detect {expression} in the image and return its location in the form of coordinates. The format of output should be like {"bbox_2d": [x1, y1, x2, y2], "label": "..."}

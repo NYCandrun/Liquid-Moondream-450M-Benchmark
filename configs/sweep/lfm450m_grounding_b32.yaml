@@ -1,0 +1,12 @@
+part: sweep
+model: lfm450m
+task: grounding
+prompt_id: grounding_lfm450m_v1
+max_new_tokens: 256
+image_token_budget: 32
+is_shipped_default: false
+default_note: bench cell (splitting on, max=256)
+seed: 0
+require_gpu_substrings:
+- A100
+- 40GB

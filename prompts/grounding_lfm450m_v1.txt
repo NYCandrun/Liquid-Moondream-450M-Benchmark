@@ -1,0 +1,1 @@
+Detect all instances of: {expression}. Response must be a JSON array: [{"label": ..., "bbox": [x1, y1, x2, y2]}, ...]
