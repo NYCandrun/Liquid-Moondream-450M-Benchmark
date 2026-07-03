@@ -1,27 +1,27 @@
 # Phase 2 dump — bench_internvl35_pope.sample20s7
 
-source: `/Users/jacobnikolau/Desktop/Claude/results/raw/bench/bench_internvl35_pope.sample20s7.jsonl`  items: 20
+source: `results/raw/bench/bench_internvl35_pope.sample20s7.jsonl`  items: 20
 
-**cell summary: parse 20/20  correct 12/20**
+**cell summary: parse 18/20  correct 12/20**
 
 
 ---
 **item** `pope:197`  image `COCO_val2014_000000526321`  (500x333)
 **prompt:** 'Is there a cup in the image?'
-**raw output:** 'Yes, there is a cup in the image. It is located on the left'
+**raw output:** 'Yes, there is a cup in the image. It is located on the shelf'
 **parsed:** `True`
 **gt:** `{'answer_yes': False, 'category': 'adversarial'}`
 **score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 1246.5 ms
+**latency:** 1276.9 ms
 
 ---
 **item** `pope:296`  image `COCO_val2014_000000480122`  (640x640)
 **prompt:** 'Is there a spoon in the image?'
-**raw output:** 'Yes, there is a spoon in the image. It is placed on the wooden'
+**raw output:** 'Yes, there is a spoon in the image. It is located on the counter'
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'adversarial'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 640.9 ms
+**latency:** 705.0 ms
 
 ---
 **item** `pope:617`  image `COCO_val2014_000000580294`  (640x443)
@@ -30,43 +30,43 @@ source: `/Users/jacobnikolau/Desktop/Claude/results/raw/bench/bench_internvl35_p
 **parsed:** `True`
 **gt:** `{'answer_yes': False, 'category': 'adversarial'}`
 **score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 641.2 ms
+**latency:** 747.3 ms
 
 ---
 **item** `pope:1326`  image `COCO_val2014_000000287035`  (500x375)
 **prompt:** 'Is there a tv in the image?'
-**raw output:** 'Yes, there is a television on the desk. It is a monitor that is'
+**raw output:** 'Yes, there is a TV on the desk. The TV is a computer monitor'
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'adversarial'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 645.3 ms
+**latency:** 917.2 ms
 
 ---
 **item** `pope:1486`  image `COCO_val2014_000000377352`  (640x424)
 **prompt:** 'Is there a car in the image?'
-**raw output:** 'Yes, there is a car in the image. It is visible in the background'
+**raw output:** 'Yes, there is a blue van in the image. The van is located behind'
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'adversarial'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 660.4 ms
+**latency:** 720.0 ms
 
 ---
 **item** `pope:1617`  image `COCO_val2014_000000214244`  (640x427)
 **prompt:** 'Is there a car in the image?'
-**raw output:** 'Yes, there is a car in the image. It is located towards the left'
-**parsed:** `True`
+**raw output:** 'No, there is no car in the image. The image features a person skiing'
+**parsed:** `False`
 **gt:** `{'answer_yes': False, 'category': 'adversarial'}`
-**score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 663.7 ms
+**score:** `{'pred_yes': False, 'gt_yes': False}`  ✅
+**latency:** 723.2 ms
 
 ---
 **item** `pope:2666`  image `COCO_val2014_000000123570`  (640x425)
 **prompt:** 'Is there a car in the image?'
-**raw output:** 'Yes, there is a car visible in the image. It is located to the'
+**raw output:** 'Yes, there is a car visible in the image. It is parked on the'
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'adversarial'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 646.3 ms
+**latency:** 723.8 ms
 
 ---
 **item** `pope:3237`  image `COCO_val2014_000000500257`  (500x400)
@@ -75,43 +75,43 @@ source: `/Users/jacobnikolau/Desktop/Claude/results/raw/bench/bench_internvl35_p
 **parsed:** `True`
 **gt:** `{'answer_yes': False, 'category': 'popular'}`
 **score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 650.7 ms
+**latency:** 907.6 ms
 
 ---
 **item** `pope:3385`  image `COCO_val2014_000000350898`  (640x480)
 **prompt:** 'Is there a person in the image?'
-**raw output:** 'Yes, there is a person in the image. The person is visible near the'
-**parsed:** `True`
+**raw output:** 'There is no person visible in the image. The focus of the image is on'
+**parsed:** `False`
 **gt:** `{'answer_yes': False, 'category': 'popular'}`
-**score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 660.4 ms
+**score:** `{'pred_yes': False, 'gt_yes': False}`  ✅
+**latency:** 906.8 ms
 
 ---
 **item** `pope:3943`  image `COCO_val2014_000000111817`  (640x496)
 **prompt:** 'Is there a car in the image?'
-**raw output:** 'No, there is no car in the image. The image features a cake with'
+**raw output:** 'No, there is no car in the image. The image shows a cake with'
 **parsed:** `False`
 **gt:** `{'answer_yes': False, 'category': 'popular'}`
 **score:** `{'pred_yes': False, 'gt_yes': False}`  ✅
-**latency:** 637.3 ms
+**latency:** 906.2 ms
 
 ---
 **item** `pope:4497`  image `COCO_val2014_000000554328`  (640x499)
 **prompt:** 'Is there a car in the image?'
-**raw output:** 'Yes, there is a car visible in the image. It is located towards the'
-**parsed:** `True`
+**raw output:** 'The image does not show a car. It features three men standing on a baseball'
+**parsed:** `None`
 **gt:** `{'answer_yes': False, 'category': 'popular'}`
-**score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 686.6 ms
+**score:** `{'pred_yes': None, 'gt_yes': False}`  ❌
+**latency:** 969.6 ms
 
 ---
 **item** `pope:5078`  image `COCO_val2014_000000445200`  (640x427)
 **prompt:** 'Is there a broccoli in the image?'
-**raw output:** 'Yes, there is a broccoli in the image.'
-**parsed:** `True`
+**raw output:** 'No, there is no broccoli in the image. The image shows a plate with'
+**parsed:** `False`
 **gt:** `{'answer_yes': True, 'category': 'popular'}`
-**score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 478.4 ms
+**score:** `{'pred_yes': False, 'gt_yes': True}`  ❌
+**latency:** 746.7 ms
 
 ---
 **item** `pope:5194`  image `COCO_val2014_000000372819`  (640x426)
@@ -120,25 +120,25 @@ source: `/Users/jacobnikolau/Desktop/Claude/results/raw/bench/bench_internvl35_p
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'popular'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 664.7 ms
+**latency:** 733.3 ms
 
 ---
 **item** `pope:5387`  image `COCO_val2014_000000061507`  (640x480)
 **prompt:** 'Is there a chair in the image?'
-**raw output:** 'Yes, there is a chair in the image. It is located on the right'
+**raw output:** 'Yes, there is a chair in the image. It is located towards the bottom'
 **parsed:** `True`
 **gt:** `{'answer_yes': False, 'category': 'popular'}`
 **score:** `{'pred_yes': True, 'gt_yes': False}`  ❌
-**latency:** 644.8 ms
+**latency:** 916.9 ms
 
 ---
 **item** `pope:6153`  image `COCO_val2014_000000297078`  (500x375)
 **prompt:** 'Is there a cup in the image?'
-**raw output:** 'No, there is no cup in the image. The image shows a person skiing'
-**parsed:** `False`
+**raw output:** 'The image does not show any cup. It features a person skiing in a snowy'
+**parsed:** `None`
 **gt:** `{'answer_yes': False, 'category': 'random'}`
-**score:** `{'pred_yes': False, 'gt_yes': False}`  ✅
-**latency:** 626.1 ms
+**score:** `{'pred_yes': None, 'gt_yes': False}`  ❌
+**latency:** 922.4 ms
 
 ---
 **item** `pope:6286`  image `COCO_val2014_000000329717`  (500x358)
@@ -147,40 +147,40 @@ source: `/Users/jacobnikolau/Desktop/Claude/results/raw/bench/bench_internvl35_p
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'random'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 636.2 ms
+**latency:** 965.4 ms
 
 ---
 **item** `pope:6352`  image `COCO_val2014_000000084447`  (640x480)
 **prompt:** 'Is there a bicycle in the image?'
-**raw output:** 'No, there is no bicycle in the image. The image shows a person riding'
+**raw output:** 'No, there is no bicycle in the image. The image features a motorcycle and'
 **parsed:** `False`
 **gt:** `{'answer_yes': True, 'category': 'random'}`
 **score:** `{'pred_yes': False, 'gt_yes': True}`  ❌
-**latency:** 660.2 ms
+**latency:** 929.6 ms
 
 ---
 **item** `pope:6879`  image `COCO_val2014_000000467176`  (640x428)
 **prompt:** 'Is there a sink in the image?'
-**raw output:** 'No.'
+**raw output:** 'No, there is no sink in the image. The answer is no.'
 **parsed:** `False`
 **gt:** `{'answer_yes': False, 'category': 'random'}`
 **score:** `{'pred_yes': False, 'gt_yes': False}`  ✅
-**latency:** 146.1 ms
+**latency:** 749.2 ms
 
 ---
 **item** `pope:7712`  image `COCO_val2014_000000239773`  (500x344)
 **prompt:** 'Is there a person in the image?'
-**raw output:** 'Yes, there is a person in the image. The individual is a baseball player'
+**raw output:** 'Yes, there is a person in the image. The person is a baseball player'
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'random'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 645.7 ms
+**latency:** 740.7 ms
 
 ---
 **item** `pope:7776`  image `COCO_val2014_000000245448`  (640x480)
 **prompt:** 'Is there a truck in the image?'
-**raw output:** 'Yes.'
+**raw output:** 'Yes, there is a truck in the image. It is parked in the background'
 **parsed:** `True`
 **gt:** `{'answer_yes': True, 'category': 'random'}`
 **score:** `{'pred_yes': True, 'gt_yes': True}`  ✅
-**latency:** 143.1 ms
+**latency:** 929.4 ms

@@ -96,8 +96,65 @@ class ITTAdapter:
         return {"raw_output": text, "latency_ms": round(latency_ms, 1), "n_input_tokens": int(n_in)}
 
 
+def _internvl_find_closest_aspect_ratio(aspect_ratio, target_ratios, width, height, image_size):
+    """Verbatim port: VLMEvalKit v0.3rc1 vlmeval/vlm/internvl/utils.py L34-47."""
+    best_ratio_diff = float("inf")
+    best_ratio = (1, 1)
+    area = width * height
+    for ratio in target_ratios:
+        target_aspect_ratio = ratio[0] / ratio[1]
+        ratio_diff = abs(aspect_ratio - target_aspect_ratio)
+        if ratio_diff < best_ratio_diff:
+            best_ratio_diff = ratio_diff
+            best_ratio = ratio
+        elif ratio_diff == best_ratio_diff:
+            if area > 0.5 * image_size * image_size * ratio[0] * ratio[1]:
+                best_ratio = ratio
+    return best_ratio
+
+
+def _internvl_dynamic_preprocess(image, min_num=1, max_num=12, image_size=448, use_thumbnail=True):
+    """Verbatim port: VLMEvalKit v0.3rc1 vlmeval/vlm/internvl/utils.py L50-85,
+    with the MODEL CARD's shipped defaults (OpenGVLab/InternVL3_5-1B README
+    quickstart: max_num=12, use_thumbnail=True, input_size=448)."""
+    orig_width, orig_height = image.size
+    aspect_ratio = orig_width / orig_height
+    target_ratios = set(
+        (i, j)
+        for n in range(min_num, max_num + 1)
+        for i in range(1, n + 1)
+        for j in range(1, n + 1)
+        if i * j <= max_num and i * j >= min_num
+    )
+    target_ratios = sorted(target_ratios, key=lambda x: x[0] * x[1])
+    target_aspect_ratio = _internvl_find_closest_aspect_ratio(
+        aspect_ratio, target_ratios, orig_width, orig_height, image_size
+    )
+    target_width = image_size * target_aspect_ratio[0]
+    target_height = image_size * target_aspect_ratio[1]
+    blocks = target_aspect_ratio[0] * target_aspect_ratio[1]
+    resized_img = image.resize((target_width, target_height))
+    processed_images = []
+    for i in range(blocks):
+        box = (
+            (i % (target_width // image_size)) * image_size,
+            (i // (target_width // image_size)) * image_size,
+            ((i % (target_width // image_size)) + 1) * image_size,
+            ((i // (target_width // image_size)) + 1) * image_size,
+        )
+        processed_images.append(resized_img.crop(box))
+    assert len(processed_images) == blocks
+    if use_thumbnail and len(processed_images) != 1:
+        processed_images.append(image.resize((image_size, image_size)))
+    return processed_images
+
+
 class InternVLAdapter:
-    """InternVL3_5 remote-code path: AutoModel + model.chat(), 448x448 single tile."""
+    """InternVL3_5 remote-code path: AutoModel + model.chat() with the model's
+    SHIPPED-DEFAULT dynamic tiling (max_num=12 tiles + thumbnail, 448px), per
+    its model-card quickstart. Change-logged at Phase 3 start: an earlier
+    version used a single 448px tile, which under-fed InternVL relative to the
+    uniform rule (every model runs its shipped default preprocessing)."""
 
     def __init__(self, model_id, revision, image_token_budget=None):
         from transformers import AutoModel, AutoTokenizer
@@ -115,8 +172,10 @@ class InternVLAdapter:
         import torchvision.transforms as T
         from torchvision.transforms.functional import InterpolationMode
 
+        # build_transform, verbatim port: VLMEvalKit v0.3rc1 internvl/utils.py L23-31
         self.transform = T.Compose(
             [
+                T.Lambda(lambda img: img.convert("RGB") if img.mode != "RGB" else img),
                 T.Resize((448, 448), interpolation=InterpolationMode.BICUBIC),
                 T.ToTensor(),
                 T.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
@@ -126,14 +185,22 @@ class InternVLAdapter:
     def generate(self, image, prompt, max_new_tokens, task=None):
         import torch
 
-        pv = self.transform(image.convert("RGB")).unsqueeze(0).to(torch.bfloat16).cuda()
+        tiles = _internvl_dynamic_preprocess(
+            image.convert("RGB"), min_num=1, max_num=12, image_size=448, use_thumbnail=True
+        )
+        pv = torch.stack([self.transform(t) for t in tiles]).to(torch.bfloat16).cuda()
         t0 = time.monotonic()
         with torch.inference_mode():
             resp = self.model.chat(
                 self.tokenizer, pv, "<image>\n" + prompt, dict(max_new_tokens=max_new_tokens, do_sample=False)
             )
         latency_ms = (time.monotonic() - t0) * 1000
-        return {"raw_output": resp, "latency_ms": round(latency_ms, 1), "n_input_tokens": None}
+        return {
+            "raw_output": resp,
+            "latency_ms": round(latency_ms, 1),
+            "n_input_tokens": None,
+            "n_tiles": len(tiles),
+        }
 
 
 class MoondreamAdapter:

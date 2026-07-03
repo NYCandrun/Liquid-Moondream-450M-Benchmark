@@ -279,6 +279,44 @@ in results/phase2/dumps/, summary in results/phase2/summary.json. Audit:
 - No code edits during Phase 3 runs; failures are findings; one retry per
   item on infra errors only.
 
+## Comparability statement
+
+The uniform rule across every cell in both parts: **one runner, one dataset
+loader, one scoring pass, one prompt template per task (grounding excepted: each
+model's native box format, brief-mandated), one answer-parser implementation,
+and every model at its shipped-default preprocessing.** Irreducible variance and
+its justification: three adapter code paths (the models expose physically
+different APIs — 4 of 6 share the generic path); two transformers lanes (LFM
+requires ≥5.1, InternVL remote code is pinned known-good on 4.57.1; torch/CUDA
+identical); per-model grounding prompts (trained output conventions — forcing
+one format would advantage whichever model matches it).
+
 ## Change log
 
-(empty — nothing changed after freeze; that is the goal)
+1. **2026-07-02, Phase 3 start (runs launched, 3 affected cells re-run from
+   zero).** InternVL3_5 preprocessing corrected from a single 448px tile to the
+   model's shipped-default dynamic tiling (max_num=12 + thumbnail, 448px, code
+   ported verbatim from pinned VLMEvalKit v0.3rc1
+   `vlmeval/vlm/internvl/utils.py` L23-85 with the model-card quickstart
+   defaults). Reason: comparability audit under the owner's
+   fewest-variable-methodologies directive found the single-tile path violated
+   the uniform "shipped-default preprocessing" rule and under-fed InternVL
+   relative to the other five models. Affected cells: `bench_internvl35_*`
+   (grounding, pope, count) — stopped before completion, volume partials
+   deleted, functional sample re-checked with the new preprocessing, re-run
+   from zero. No other cell touched. In the same window (not results-affecting):
+   sample runs now persist to distinct volume filenames so a sample can never
+   clobber a full cell's resume state.
+
+2. **2026-07-02, during Phase 3 (policy split; no completed cell affected).**
+   GPU policy split after four systematic A100-80GB substitutions by Modal
+   under a 10-GPU workspace concurrency limit (strict-40GB cells repeatedly
+   refused substituted hardware and exhausted retries). New policy: **bench
+   (accuracy) cells require any A100** (same GA100 silicon / sm_80 kernels;
+   greedy accuracy unaffected by memory size; the exact device name is recorded
+   in every raw row's `meta.gpu`; Part 1 publishes no latency metric — wall
+   clock there is raw-capture only). **Sweep cells remain strict A100-40GB**,
+   because per-item latency is a first-class published output of the sweep and
+   80GB parts have different memory bandwidth. Cells completed before the split
+   all ran on A100-40GB and satisfy both policies — none re-run. Affected: only
+   cells that had failed on GPU_MISMATCH (relaunched under the new policy).

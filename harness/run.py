@@ -113,8 +113,12 @@ def _run_cell(config, prompt_template):
         "quantization": None,
     }
 
-    # incremental persistence + resume
-    out_path = RESULTS_DIR_IN_VOLUME / config["part"] / f"{cid}.jsonl"
+    # incremental persistence + resume. Sample runs get their OWN volume file
+    # so a Phase 2-style check can never clobber a full cell's resume state.
+    fname = cid
+    if config.get("sample"):
+        fname += f".sample{config['sample']['n']}s{config['sample']['seed']}"
+    out_path = RESULTS_DIR_IN_VOLUME / config["part"] / f"{fname}.jsonl"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     done_ids = set()
     if out_path.exists() and not config.get("sample"):

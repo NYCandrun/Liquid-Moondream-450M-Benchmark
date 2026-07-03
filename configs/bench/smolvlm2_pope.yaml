@@ -7,4 +7,3 @@ image_token_budget: null
 seed: 0
 require_gpu_substrings:
 - A100
-- 40GB

@@ -1,6 +1,6 @@
 # Phase 2 dump — bench_internvl35_count.sample20s7
 
-source: `/Users/jacobnikolau/Desktop/Claude/results/raw/bench/bench_internvl35_count.sample20s7.jsonl`  items: 20
+source: `results/raw/bench/bench_internvl35_count.sample20s7.jsonl`  items: 20
 
 **cell summary: parse 20/20  correct 10/20**
 

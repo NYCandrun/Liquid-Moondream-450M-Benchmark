@@ -56,7 +56,10 @@ def main():
                 "max_new_tokens": tcfg["max_new_tokens"],
                 "image_token_budget": None,
                 "seed": 0,
-                "require_gpu_substrings": ["A100", "40GB"],
+                # Split GPU policy (change log #2): bench cells accept any A100
+                # (accuracy unaffected by memory size; exact device recorded per
+                # item; Part 1 publishes no latency). Sweep stays strict 40GB.
+                "require_gpu_substrings": ["A100"],
             }
             p = outdir / f"{model}_{task}.yaml"
             p.write_text(yaml.safe_dump(cfg, sort_keys=False))
