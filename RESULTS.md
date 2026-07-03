@@ -31,29 +31,40 @@ stamped in every row), one setting at a time, dedicated CPU cores.
 
 ### LFM2.5-VL 450M — true image-token budget (min=max=T, tiling off)
 
-| Detail setting (tokens) | Accuracy (all 2080; crash = miss) | Accuracy (completed only) | Forced-budget crash rate | Median speed/item | Mean tokens actually used* |
-|---|---|---|---|---|---|
-| 32 (card-recommended floor) | 39.5% | 39.5% | 0.0% | 509 ms | 79 |
-| 64 (shipped minimum) | 60.3% | 60.4% | 0.1% (2/2080) | 522 ms | 110 |
-| 128 | 69.7% | 70.0% | 0.5% (10/2080) | 532 ms | 172 |
-| 256 (shipped cap) | 66.2% | **76.8%** | **13.9% (289/2080)** | 521 ms | 296 |
-| — factory-default pipeline (tiling ON, cap 256): see Part 1 row — | **76.9%** | 76.9% | 0.0% | — | — |
+Corrected curve (change log #14): every one of the 2,080 images now completes
+at every setting — zero crashes — via the disclosed local pre-upscale
+fallback (see METHODOLOGY #14 for the root cause: the pinned stack's
+upscale branch over-shoots the token cap and dies inside `generate`; a small
+local upscale reroutes the item through the stack's own downscale path).
+One physical A100-40GB for all four cells; raws in `results/raw/sweep_v2/`.
+
+| Detail setting (tokens) | Acc@0.5 (all 2,080) | Median speed/item | Mean input tokens* | Images rescued by fallback** |
+|---|---|---|---|---|
+| 32 (card-recommended floor) | 39.5% | 487 ms | 79 | 0 |
+| 64 (shipped minimum) | 60.4% | 504 ms | 110 | 2 |
+| 128 | 70.0% | 496 ms | 172 | 10 |
+| 256 (shipped cap) | **77.5%** | 504 ms | 296 | 289 |
+| — factory-default pipeline (tiling ON, cap 256): see Part 1 row — | **76.9%** | — | — | — |
 
 \* includes ~46 question-text tokens on top of the image tokens.
+\** images too small for the forced budget; upscaled locally so the pinned
+processor downscales instead of crashing. Rescued items score normally —
+b256 rises to 77.5% (from the old completed-only 76.8%), so the ~14% of
+small images the original run dropped as crashes were not systematically
+harder; forcing a budget above native resolution neither helps nor hurts.
 
-CORRECTED READING (change log #12 — supersedes the earlier "answers get less
-parseable at 256" interpretation): the model's answers parse at 100% at EVERY
-setting on rows that complete; what looked like unreadable answers were
-processor CRASHES — forcing min=max token budgets makes the pinned
-preprocessing stack (transformers 5.12.1) crash on images it must upscale,
-at a rate that grows with the setting (0% → 13.9%), and a crashed query
-scores as a miss. Two findings replace one: (1) the dial genuinely trades
-accuracy, monotonically — 39.5% → 76.8% on completed images, with 256
-matching the factory default; (2) the forced dial is UNRELIABLE at high
-settings in this stack, so the factory default (adaptive tiling, zero
-crashes, best accuracy) is strictly the right production choice. Per-item
-speed on an A100 stays flat across settings (overhead dominates at this
-model size).
+READING: (1) the dial trades accuracy monotonically, 39.5% → 77.5%, and the
+forced cap of 256 now lands essentially ON the factory default (77.5 vs
+76.9) — the adaptive tiling pipeline and a flat 256-token budget reach the
+same place on this task. (2) Per-item speed stays flat across the whole dial
+(overhead dominates at 450M). (3) SUPERSEDED HISTORY (change #12): the
+original run scored forced-budget crashes as misses, producing a spurious
+b256 drop to 66.2% and a dual "completed-only" column; that run is retained
+at `results/raw/sweep/` as the crash-discovery record. The reliability
+finding stands — the forced dial is unusable in the shipped stack WITHOUT
+this workaround (0% → 13.9% crash rate as the budget rises), so the factory
+default remains the right production choice; change #14 only recovers the
+clean research curve behind the crashes.
 
 ### SmolVLM2 500M — resolution dial, measured on COUNTING (change log #7:
 grounding is unsupported by this model; its dial is measured on a task it
@@ -182,8 +193,11 @@ the two instruments reproduce each other where conventions align. (2) The
 POPE gaps for SmolVLM2 (+30.6) and moondream2 (+14.0) are the change-#11
 prompt-convention finding: the tool's POPE data file bakes in the "Please
 answer yes or no." suffix; ours asks the bare question. LLaVA is
-convention-insensitive (+1.0). (3) The two counting disagreements point in
-OPPOSITE directions (our harness scores LLaVA-OV 41.5 pts higher, the tool
-scores SmolVLM2 13.5 pts higher than us) — answer-extraction differences,
-per-item diff analysis in Phase 4. (4) Calibration caveat: vendor-published
-Qwen numbers used flash-attn; this referee ran sdpa (change #13).
+convention-insensitive (+1.0). (3) The two counting disagreements go the
+SAME direction — our harness scores HIGHER than the tool for both LLaVA-OV
+(73.1 vs 31.6, +41.5) and SmolVLM2 (60.9 vs 47.4, +13.5); the count prompt
+is byte-identical between lanes, so this is an answer-extraction/scoring
+difference (our parser credits outputs the tool's marks wrong), not a
+prompt effect — per-item diff analysis in Phase 4. (4) Calibration caveat:
+vendor-published Qwen numbers used flash-attn; this referee ran sdpa
+(change #13).
