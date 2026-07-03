@@ -14,7 +14,7 @@ All model inference runs on **Modal** (workspace `jacob-4532`); local/cloud is c
 - **Modal auth is required.** A fresh cloud environment has no `~/.modal.toml`. Set Modal
   credentials as env vars in the cloud environment settings (or run `modal token set`):
   `MODAL_TOKEN_ID` / `MODAL_TOKEN_SECRET` for workspace **jacob-4532**. Verify with
-  `modal app list` — you must see app `ap-tpUsFU5KPad3XPvXC3dyqx` (see §2).
+  `modal app list` — you must see app `ap-F7KT4julH48UKMjAGw4j5m` (see §2).
 - **Python/venv:** local uses `.venv/bin/modal` (Python 3.12, modal 1.5.1). In a cloud VM,
   `pip install modal` and call `modal …` directly (drop the `.venv/bin/` prefix).
 - **Shared state lives on the Modal volume `edge-vlm-hf-cache`** (HF cache + all VLMEvalKit
@@ -49,9 +49,19 @@ Publication-grade edge-VLM benchmark. Repo: `NYCandrun/Liquid-Moondream-450M-Ben
 `main` == `origin/main`, tree clean (aside from this HANDOFF.md commit).
 
 **RUNNING remotely (detached, independent of any laptop):**
-- Referee app **`ap-tpUsFU5KPad3XPvXC3dyqx`** — surviving lane `referee_tf457` running the
-  POPE+CountBenchQA tail. Commits each cell to the volume; has `Retries(max_retries=4)` so
-  preemption auto-resumes from the volume.
+- Referee app **`ap-F7KT4julH48UKMjAGw4j5m`** — running the POPE+CountBenchQA tail. Commits
+  each cell to the volume; has `Retries(max_retries=4)` so preemption auto-resumes from the volume.
+
+> **KNOWN ISSUE (watch LLaVA counting cell):** a prior detached referee (`ap-tpUsFU…`, now
+> stopped) stalled ~30 min at 5/8 — the LLaVA `CountBenchQA` cell never completed, and its logs
+> showed `vlmeval.api.gpt` OpenAI-API-key errors (VLMEvalKit falling back to a GPT judge for
+> answer extraction, with no key in the image). It was likely aggravated by an abrupt local-process
+> kill leaving a tangled worker; a clean relaunch (current app) usually clears that. **If LLaVA
+> `CountBenchQA` (or moondream2 count) re-stalls on the same GPT-fallback retry loop, fix it before
+> continuing:** force rule-based extraction / disable the LLM judge (or set retry=0) in the
+> VLMEvalKit CountBenchQA config so scoring stays offline + reproducible — do NOT add a real GPT key
+> (would change methodology). LFM & SmolVLM2 count already scored fine offline, so the fix is to make
+> the other two use that same rule-based path.
 
 **Referee cells scored on the volume (`vlmeval2_out/<model>/…_score.csv` / `…_acc.csv`):**
 
