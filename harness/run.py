@@ -111,6 +111,8 @@ def _run_cell(config, prompt_template):
         "image_token_budget": config.get("image_token_budget"),
         "runtime": None,
         "quantization": None,
+        "cpu_reserved": RESOURCES["cpu"],
+        "memory_reserved_mb": RESOURCES["memory"],
     }
 
     # incremental persistence + resume. Sample runs get their OWN volume file
@@ -192,19 +194,25 @@ def _run_cell(config, prompt_template):
     }
 
 
-@app.function(image=TF5_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES,
+# cpu/memory: explicit dedicated reservation (change log #3) so host CPU
+# contention can never pollute wall-clock latency; one cell per container,
+# one dedicated GPU per cell, items strictly sequential within the cell.
+RESOURCES = dict(cpu=8.0, memory=32768)
+
+
+@app.function(image=TF5_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
               retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
 def run_cell_tf5(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
-@app.function(image=TF457_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES,
+@app.function(image=TF457_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
               retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
 def run_cell_tf457(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
-@app.function(image=MOONDREAM2_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES,
+@app.function(image=MOONDREAM2_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
               retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
 def run_cell_moondream(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)

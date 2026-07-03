@@ -320,3 +320,16 @@ one format would advantage whichever model matches it).
    80GB parts have different memory bandwidth. Cells completed before the split
    all ran on A100-40GB and satisfy both policies — none re-run. Affected: only
    cells that had failed on GPU_MISMATCH (relaunched under the new policy).
+
+3. **2026-07-02, during Phase 3 (sweep relaunched from zero; bench accuracy
+   unaffected).** Explicit dedicated resource reservation added to every runner
+   container (`cpu=8.0`, `memory=32768` MB, recorded per row in
+   `meta.cpu_reserved`/`meta.memory_reserved_mb`), owner directive: host CPU
+   contention must not pollute benchmark timing. Execution model is otherwise
+   unchanged (one cell per container, one dedicated GPU, items strictly
+   sequential). Impact analysis: bench cells publish accuracy only (greedy GPU
+   outputs unaffected by CPU allocation) — completed and in-flight bench cells
+   stand. The sweep publishes per-item latency as a first-class output, so ALL
+   8 sweep cells were stopped, their volume partials deleted, and relaunched
+   from zero under the pinned reservation — no mixed-condition rows exist in
+   any sweep cell.
