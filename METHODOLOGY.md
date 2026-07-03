@@ -328,20 +328,13 @@ early, killing SmolVLM grounding setting 512 at ~90% complete. No other cell
 was affected; LFM's full curve was already committed. The script pattern
 (silence-as-success fallback) is retired.
 
-## Change log #9 (2026-07-03, owner decision): VLMEvalKit agreement lane descoped
-
-The planned appendix lane (re-running supported cells through pinned VLMEvalKit
-v0.3rc1 to demonstrate instrument agreement) is NOT run. Rationale: the
-calibration anchors are themselves VLMEvalKit-produced — the LFM2.5-VL card
-states its vision scores were obtained with VLMEvalKit, so the published-vs-ours
-deltas (e.g. CountBench 73.31 published vs 71.5 ours; POPE 86.93 vs 84.8)
-already constitute an instrument-agreement comparison via the vendor's own run.
-A second, self-run copy of that evidence was judged not worth its cost by the
-owner. Consequence for readers: instrument agreement is evidenced indirectly
-(vendor-run VLMEvalKit vs this harness), with the known caveats recorded in the
-calibration table (dataset-version fuzz for CountBench; unspecified protocol
-for RefCOCO-M's 81.28). The VLMEvalKit pin (v0.3rc1 @ 8eb37bb9) remains the
-prompt-convention source regardless.
+## Change log #9 (2026-07-03): VLMEvalKit agreement lane — briefly descoped,
+then REINSTATED by the owner within minutes; it runs as originally planned
+(4 supported models × POPE + CountBenchQA at the pinned v0.3rc1 commit).
+One disclosed patch to the pinned tool: its Moondream2 adapter's revision
+default (2025-01-09) is overridden to the study pin 2025-06-21 by a one-line
+build-time substitution, so both instruments evaluate the identical checkpoint.
+No other modification to the pinned tool.
 
 ## Version-sensitivity finding (empirical, 2026-07-02)
 

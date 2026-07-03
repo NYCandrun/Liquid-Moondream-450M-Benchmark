@@ -150,6 +150,32 @@ MD05_IMAGE = (
     .add_local_python_source("envs", "harness")
 )
 
+# VLMEvalKit referee lane: the pinned community tool, same checkpoints, so the
+# report carries a same-instrument agreement table. One disclosed build-time
+# patch: Moondream2 adapter revision -> the study pin (2025-06-21).
+VLMEVAL_COMMIT = "8eb37bb96bc508bd016000318548854fdfa1bd30"
+
+VLMEVAL_IMAGE = (
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("git", "libvips-dev", "curl")
+    .pip_install("torch==2.12.1", "torchvision==0.27.1")
+    .run_commands(
+        "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",
+        f"cd /opt/VLMEvalKit && git checkout {VLMEVAL_COMMIT}",
+        "cd /opt/VLMEvalKit && pip install -e .",
+        # disclosed one-line patch: evaluate the SAME moondream2 revision we pin
+        "sed -i 's/2025-01-09/2025-06-21/g' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
+        "grep -n '2025-06-21' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
+    )
+    .pip_install(
+        "transformers==4.57.1", "huggingface_hub==0.36.2", "accelerate==1.14.0",
+        "num2words==0.5.14", "qwen-vl-utils==0.0.14", "pyvips==3.1.1",
+        "einops==0.8.2", "timm==1.0.27",
+    )
+    .env({"HF_HOME": HF_CACHE_PATH, "LMUData": HF_CACHE_PATH + "/lmudata"})
+    .add_local_python_source("envs", "harness")
+)
+
 DATASETS_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
     .pip_install(
