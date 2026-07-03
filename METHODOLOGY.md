@@ -229,6 +229,22 @@ verification; CPU execution provider, held identical across both parts) is added
 before Phase 3B runs. Floating top-level deps are re-pinned from the lockfiles
 before the Phase 3 freeze (Gate C checklist).
 
+## Gate C2 audit record (2026-07-03)
+
+- Change #6 (pre-C2, no completed cell affected): the shared cell loop
+  (cell_core.py) gained CPU-lane guards so the deployed-form box runs the SAME
+  loop as every other row (torch/transformers imports made conditional; GPU
+  assert skipped when the requirement list is empty; dtype/runtime/quantization
+  sourced from the model pin). Regression-proven before any use: a 3-item
+  re-run of a frozen bench cell on the edited loop produced byte-identical
+  rows (results/raw/bench/bench_lfm450m_grounding.sample3s7.jsonl vs the
+  frozen full run; 3/3 identical).
+- Deployed-form lanes, both driven by the shared loop in ONE CPU container
+  (same host, CPU model recorded): moondream05b_asshipped (int8 .mf,
+  moondream==0.0.6) and lfm450m_gguf (vendor Q8_0 + Q8_0 mmproj @ 1a3f51cd,
+  llama.cpp b9860). Functional 20-item samples and parser-verification dumps
+  reviewed before full runs (this section is completed by that audit).
+
 ## Gate A audit record (2026-07-02, non-blocking per owner amendment)
 
 Audited: coverage matrix ✓, load matrix 6/6 ✓, dataset pins + exact counts ✓,

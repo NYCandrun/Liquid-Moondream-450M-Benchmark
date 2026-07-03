@@ -235,6 +235,100 @@ class MoondreamAdapter:
         return {"raw_output": raw, "latency_ms": round(latency_ms, 1), "n_input_tokens": None}
 
 
+class MD05Adapter:
+    """Moondream 0.5B AS-SHIPPED: official int8 .mf in moondream==0.0.6 (CPU).
+
+    The runtime is greedy-only; its sole knob is max_tokens (mapped from the
+    task's max_new_tokens). detect() for grounding, query() otherwise —
+    mirroring the moondream2 main-table lane.
+    """
+
+    def __init__(self, mf_gz="/opt/moondream-0_5b-int8.mf.gz"):
+        import gzip
+        import os
+        import shutil
+
+        import moondream as md
+
+        mf = "/tmp/moondream-0_5b-int8.mf"
+        if not os.path.exists(mf):
+            with gzip.open(mf_gz, "rb") as fin, open(mf, "wb") as fout:
+                shutil.copyfileobj(fin, fout)
+        self.model = md.vl(model=mf)
+
+    def generate(self, image, prompt, max_new_tokens, task=None):
+        import json as _json
+
+        t0 = time.monotonic()
+        if task == "grounding":
+            result = self.model.detect(image, prompt)
+            raw = _json.dumps(result.get("objects", result), default=str)
+        else:
+            result = self.model.query(image, prompt, settings={"max_tokens": int(max_new_tokens)})
+            raw = result.get("answer", str(result))
+        latency_ms = (time.monotonic() - t0) * 1000
+        return {"raw_output": raw, "latency_ms": round(latency_ms, 1), "n_input_tokens": None}
+
+
+class LlamaServerAdapter:
+    """LFM 450M vendor-shipped GGUF Q8_0 via llama.cpp llama-server (CPU).
+
+    Starts the pinned llama-server once; each item is one OpenAI-style chat
+    request with the image inlined, temperature 0 / top_k 1 (greedy).
+    """
+
+    def __init__(self,
+                 model_path="/opt/LFM2.5-VL-450M-Q8_0.gguf",
+                 mmproj_path="/opt/mmproj-LFM2.5-VL-450m-Q8_0.gguf",
+                 server_bin="/opt/llama/bin/llama-server",
+                 port=8091):
+        import os
+        import subprocess
+
+        import requests
+
+        self.url = f"http://127.0.0.1:{port}"
+        env = {**os.environ,
+               "LD_LIBRARY_PATH": "/opt/llama/bin:/opt/llama/lib:" + os.environ.get("LD_LIBRARY_PATH", "")}
+        self.proc = subprocess.Popen(
+            [server_bin, "-m", model_path, "--mmproj", mmproj_path,
+             "--host", "127.0.0.1", "--port", str(port), "-c", "8192", "--threads", "8"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, env=env,
+        )
+        for _ in range(240):  # wait for model load
+            try:
+                if requests.get(self.url + "/health", timeout=2).status_code == 200:
+                    break
+            except Exception:
+                pass
+            time.sleep(1)
+        else:
+            raise RuntimeError("llama-server did not become healthy")
+
+    def generate(self, image, prompt, max_new_tokens, task=None):
+        import base64
+        import io
+
+        import requests
+
+        buf = io.BytesIO()
+        image.convert("RGB").save(buf, format="PNG")
+        data_uri = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+        payload = {
+            "messages": [{"role": "user", "content": [
+                {"type": "image_url", "image_url": {"url": data_uri}},
+                {"type": "text", "text": prompt},
+            ]}],
+            "temperature": 0, "top_k": 1, "max_tokens": int(max_new_tokens),
+        }
+        t0 = time.monotonic()
+        r = requests.post(self.url + "/v1/chat/completions", json=payload, timeout=600)
+        latency_ms = (time.monotonic() - t0) * 1000
+        r.raise_for_status()
+        raw = r.json()["choices"][0]["message"]["content"]
+        return {"raw_output": raw, "latency_ms": round(latency_ms, 1), "n_input_tokens": None}
+
+
 # ---------------------------------------------------------------------------
 # Registry: model key -> constructor. Revisions pinned by the Phase 0 load matrix.
 # ---------------------------------------------------------------------------
@@ -279,6 +373,25 @@ MODEL_PINS = {
         "adapter": "moondream",
         "trust_remote_code": True,
     },
+    # ---- deployed-form lanes (Phase 3B; separate table, never in the bf16 main table)
+    "moondream05b_asshipped": {
+        "model_id": "vikhyatk/moondream2 (0.5B .mf, branch onnx)",
+        "revision": "9dddae84d54db4ac56fe37817aeaeb502ed083e2",
+        "env": "md05",
+        "adapter": "md05_skills",
+        "runtime": "moondream==0.0.6 (OnnxVL/onnxruntime, CPU)",
+        "quantization": "int8",
+        "dtype": None,
+    },
+    "lfm450m_gguf": {
+        "model_id": "LiquidAI/LFM2.5-VL-450M-GGUF (Q8_0 + Q8_0 mmproj)",
+        "revision": "1a3f51cdc26f5d97d5d85cf6901fe5ac7da65a9a",
+        "env": "md05",
+        "adapter": "llama_server",
+        "runtime": "llama.cpp b9860 (CPU)",
+        "quantization": "Q8_0",
+        "dtype": None,
+    },
 }
 
 # Sweep budget wiring, fixed by the Gate A knob table (discovery_bundle.json):
@@ -315,4 +428,12 @@ def build_adapter(model_key, image_token_budget=None):
         return InternVLAdapter(pin["model_id"], pin["revision"], image_token_budget=image_token_budget)
     if pin["adapter"] == "moondream":
         return MoondreamAdapter(pin["model_id"], pin["revision"], image_token_budget=image_token_budget)
+    if pin["adapter"] == "md05_skills":
+        if image_token_budget is not None:
+            raise NotImplementedError("moondream 0.5B runtime exposes no image-token knob")
+        return MD05Adapter()
+    if pin["adapter"] == "llama_server":
+        if image_token_budget is not None:
+            raise NotImplementedError("deployed GGUF lane has no image-token budget wiring")
+        return LlamaServerAdapter()
     raise ValueError(f"unknown adapter for {model_key}")
