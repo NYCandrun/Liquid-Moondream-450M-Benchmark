@@ -200,12 +200,15 @@ def _run_cell(config, prompt_template):
 RESOURCES = dict(cpu=8.0, memory=32768)
 
 # GPU requests (change log #4). Modal DOCUMENTS automatic free upgrades of
-# A100 requests to 80GB, and documents the "!" suffix as the no-upgrade pin
-# ("for instance, benchmarking"). Bench (accuracy) cells accept upgrades
-# (any-A100 assert; device recorded per row); sweep (latency) cells use the
-# strict pin so Modal queues for real 40GB hardware instead of substituting.
-GPU_BENCH = GPU_TYPE            # "A100-40GB" — upgradable, free per Modal docs
-GPU_SWEEP_STRICT = GPU_TYPE + "!"  # documented no-upgrade pin
+# A100 requests to 80GB, and documents a "!" no-upgrade suffix — but the "!"
+# syntax is REJECTED by modal client 1.5.1 (probed empirically:
+# InvalidError('A100-40GB! is not a valid GPU type'); same for 'A100!').
+# Enforcement therefore rests on (a) the in-container device assert + retries
+# and (b) scheduling: sweep cells run at max 2 concurrent after the bench
+# backlog drains — every observed substitution occurred under 15-25 parallel
+# requests; low-pressure requests have landed true 40GB consistently.
+GPU_BENCH = GPU_TYPE         # "A100-40GB" — upgradable, free per Modal docs
+GPU_SWEEP_STRICT = GPU_TYPE  # same request; strictness enforced by assert+retry+low concurrency
 
 _RETRIES = modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0)
 

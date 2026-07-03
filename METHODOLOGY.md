@@ -340,11 +340,15 @@ one format would advantage whichever model matches it).
    upgrade a gpu=\"A100\" request to run on an 80 GB A100. This automatic
    upgrade does not change the cost," with a documented no-upgrade pin — the
    "!" suffix — recommended "for instance, benchmarking"
-   (https://modal.com/docs/guide/gpu). Fix: sweep cells now request
-   `A100-40GB!` (Modal queues for true 40GB hardware instead of substituting;
-   the in-container device assert remains as verification), bench cells keep
-   the upgradable request with the any-A100 assert of change #2. Scheduling
-   changed to remove the contention trigger: the sweep runs after the bench
-   backlog drains, max 2 concurrent, well under the 10-GPU workspace limit.
+   (https://modal.com/docs/guide/gpu). Empirical finding: the documented "!"
+   no-upgrade suffix is REJECTED by modal client 1.5.1 (probed:
+   InvalidError for both 'A100-40GB!' and 'A100!'; the suffix exists only in
+   newer clients). Fix as executed: sweep strictness is enforced by the
+   in-container device assert (A100 + 40GB) with up to 3 reschedule retries,
+   PLUS removal of the contention trigger — the sweep runs after the bench
+   backlog drains at max 2 concurrent, well under the 10-GPU workspace limit
+   (every observed substitution occurred under 15-25 parallel requests;
+   low-pressure requests landed true 40GB consistently all session). Bench
+   cells keep the upgradable request with the any-A100 assert of change #2.
    Sweep cells had produced no accepted rows (all relaunched from zero at
    change #3); bench cells were already policy-correct.
