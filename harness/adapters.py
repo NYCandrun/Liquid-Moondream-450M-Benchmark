@@ -69,31 +69,59 @@ class ITTAdapter:
             AutoModelForImageTextToText, model_id, revision,
             trust_remote_code=trust_remote_code, device_map="cuda",
         ).eval()
+        # upscale_fallback (change #14; opt-in via cell config, sweep_v2 only):
+        # under a forced min=max budget, the pinned stack's smart_resize UPSCALE
+        # branch (ceil rounding) can exceed max_image_tokens, producing pixel
+        # data longer than its own attention mask; the model then truncates to
+        # mask length and dies reshaping to the stale grid inside generate()
+        # (the change-#12 crash). When on, an item that dies with exactly that
+        # reshape signature is retried with a locally pre-upscaled copy: 2x
+        # area growth moves it into the floor-rounding DOWNSCALE branch, which
+        # can never exceed the cap — the same path every already-completing
+        # item uses. Items that don't crash never enter the retry (their
+        # processing is byte-identical to fallback-off).
+        self.upscale_fallback = False
+
+    @staticmethod
+    def _is_budget_reshape_crash(exc):
+        return isinstance(exc, RuntimeError) and "is invalid for input of size" in str(exc)
 
     def generate(self, image, prompt, max_new_tokens, task=None):
         import torch
+        from PIL import Image as PILImage
 
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "image", "image": image},
-                    {"type": "text", "text": prompt},
-                ],
-            }
-        ]
-        inputs = self.processor.apply_chat_template(
-            messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt",
-            **self.template_kwargs,
-        )
-        inputs = _cast_and_move(dict(inputs), self.model)
-        n_in = inputs["input_ids"].shape[1]
-        t0 = time.monotonic()
-        with torch.inference_mode():
-            out = self.model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
-        latency_ms = (time.monotonic() - t0) * 1000
-        text = self.processor.batch_decode(out[:, n_in:], skip_special_tokens=True)[0]
-        return {"raw_output": text, "latency_ms": round(latency_ms, 1), "n_input_tokens": int(n_in)}
+        factors = (1, 2, 4, 8, 16) if self.upscale_fallback else (1,)
+        for i, f in enumerate(factors):
+            img = image if f == 1 else image.resize(
+                (image.width * f, image.height * f), PILImage.Resampling.BICUBIC
+            )
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": img},
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ]
+            try:
+                inputs = self.processor.apply_chat_template(
+                    messages, add_generation_prompt=True, tokenize=True, return_dict=True,
+                    return_tensors="pt", **self.template_kwargs,
+                )
+                inputs = _cast_and_move(dict(inputs), self.model)
+                n_in = inputs["input_ids"].shape[1]
+                t0 = time.monotonic()
+                with torch.inference_mode():
+                    out = self.model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
+                latency_ms = (time.monotonic() - t0) * 1000
+                text = self.processor.batch_decode(out[:, n_in:], skip_special_tokens=True)[0]
+                return {"raw_output": text, "latency_ms": round(latency_ms, 1),
+                        "n_input_tokens": int(n_in),
+                        "pre_upscale_factor": None if f == 1 else f}
+            except Exception as exc:
+                if i == len(factors) - 1 or not self._is_budget_reshape_crash(exc):
+                    raise
 
 
 def _internvl_find_closest_aspect_ratio(aspect_ratio, target_ratios, width, height, image_size):

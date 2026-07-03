@@ -433,6 +433,63 @@ into the calibration table: vendor-published VLMEvalKit Qwen numbers were
 produced WITH flash-attn; greedy outputs can differ slightly across
 attention kernels at bf16.
 
+## Change log #14 (2026-07-03, owner-approved): corrected LFM sweep curve
+(sweep_v2) — local pre-upscale fallback for the forced-budget crash
+
+Change #12 established that the pinned LFM stack (transformers 5.12.1)
+crashes under forced min=max budgets on images needing upscaling, and that
+the crashed items are therefore systematically the small images. That makes
+the "completed-only" accuracy column a biased-subset number, and the
+"crash = miss" column an instrument artifact. Owner approved a corrected
+re-run rather than leaving the dual-view table.
+
+ROOT CAUSE (pinned down during this change's functional smoke, by reading
+the pinned source at the v5.12.1 tag — `image_processing_lfm2_vl.py` +
+`modeling_lfm2_vl.py`): `smart_resize`'s upscale branch rounds BOTH axes UP
+(`ceil`) to 32-px multiples, which can push the patch grid OVER
+`max_image_tokens` (e.g. 500×294 @ b256 → 416×672 = 1092 patches > the
+1024-patch cap). Preprocessing then emits pixel data for 1092 patches with
+an attention mask capped at 1024 — silently. The crash fires later, inside
+`model.generate()`: `get_image_features` truncates features to mask length
+(1024·768 = 786432, the exact number in the error) and reshapes to the
+stale 26×42 grid → `RuntimeError: shape '[1, 26, 42, -1]' is invalid for
+input of size 786432`. All 301 crash rows in the original sweep share this
+one signature. The bug is scale-DEPENDENT only through branch selection:
+only the upscale branch uses ceil; the downscale branch floors and can
+never exceed the cap. (Upstream-reportable transformers bug.)
+
+An earlier version of this change wrapped only preprocessing in the retry
+— falsified by the first smoke (the exception comes from generate); the
+smoke existed precisely to catch this, and did.
+
+Mechanism as executed (harness-side, opt-in, disclosed): `upscale_fallback`
+in the cell config. When ON, an item that dies with exactly the reshape
+signature above is retried with the image pre-upscaled locally (bicubic,
+integer factors 2→4→8→16, each resize from the ORIGINAL image, aspect
+ratio preserved exactly). Growing the area moves the item out of the ceil
+(upscale) branch into the floor (downscale) branch, which provably cannot
+exceed the cap — the identical code path every already-completing item
+uses. Items that don't crash never enter the retry: their processing is
+byte-identical to fallback-off, and any non-matching exception re-raises
+immediately. The processor's resize target depends only on budget + aspect
+ratio, so coordinate semantics (boxes scored against original dims) are
+unchanged. Cost: one extra interpolation step for rescued items only; a
+rescued item lands at the floor-branch token count (slightly under the
+forced budget — recorded per row via `n_input_tokens`).
+
+Provenance: rescued rows carry `pre_upscale_factor` (null for untouched
+items); cell meta carries `upscale_fallback: true`; results land under
+`results/raw/sweep_v2/` — the original crash-discovery run in
+`results/raw/sweep/` is retained untouched. The corrected curve re-runs ALL
+four budgets on ONE fresh die (fresh_start; single-die discipline is
+per-curve, not cross-run). Functional smoke before the full run: known
+crashers (first 5 per budget from the original raws) must complete, and
+completed-item controls (first 3 per budget) must reproduce the original
+run's greedy outputs. The crash finding itself STANDS — the forced dial
+remains unreliable in the shipped stack without this workaround; change #12's
+reliability conclusion is unaffected. Main-table, probe, deployed and SmolVLM
+cells never set the flag and are untouched.
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card

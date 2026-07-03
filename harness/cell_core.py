@@ -65,6 +65,10 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
 
     pin = MODEL_PINS[config["model"]]
     adapter = build_adapter(config["model"], image_token_budget=config.get("image_token_budget"))
+    if config.get("upscale_fallback"):
+        # change #14 (sweep_v2): disclosed local pre-upscale for forced-budget
+        # cells whose too-small images crash the pinned stack (change #12).
+        adapter.upscale_fallback = True
 
     items = hdata.load_items(config["task"])
     sample_meta = None
@@ -107,6 +111,7 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
         "dataset_revision": hdata.DATASET_PINS[hdata.TASK_TO_DATASET[config["task"]]]["revision"],
         "prompt_id": config["prompt_id"],
         "image_token_budget": config.get("image_token_budget"),
+        "upscale_fallback": bool(config.get("upscale_fallback")),
         "runtime": pin.get("runtime"),
         "quantization": pin.get("quantization"),
         "cpu_reserved": config.get("_cpu_reserved"),
@@ -159,6 +164,7 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
                     )
                     row.update(raw_output=gen["raw_output"], latency_ms=gen["latency_ms"])
                     row["n_input_tokens"] = gen.get("n_input_tokens")
+                    row["pre_upscale_factor"] = gen.get("pre_upscale_factor")
                     break
                 except Exception:
                     tb = traceback.format_exc()

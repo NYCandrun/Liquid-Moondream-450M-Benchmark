@@ -96,6 +96,48 @@ def export_sweepbox_locks():
 ALIGN_PAIRS = [("lfm450m", 64), ("smolvlm2", 512), ("lfm450m", 256), ("smolvlm2", 1024)]
 
 
+def _smoke_ids_for_budget(budget, n_crash=5, n_ok=3):
+    """First N crashed + first N completed item_ids (file order — deterministic)
+    from the ORIGINAL crash-discovery run, for the change-#14 functional smoke.
+    Completed controls double as a no-op check: fallback-off and fallback-on
+    preprocessing must be identical for items that fit, so greedy outputs
+    should reproduce the original run's."""
+    raw = REPO_ROOT / "results" / "raw" / "sweep" / f"sweep_lfm450m_grounding_b{budget}.jsonl"
+    crashed, completed = [], []
+    for line in raw.read_text().splitlines():
+        r = json.loads(line)
+        (crashed if r.get("error") else completed).append(r["item_id"])
+    return crashed[:n_crash] + completed[:n_ok]
+
+
+def _lfm_v2_specs(smoke=False):
+    """Corrected LFM curve (change #14): the SAME four budget configs — same
+    prompt, seed, decoding — plus the disclosed local pre-upscale fallback, so
+    forced budgets never hit the pinned stack's broken upscale path.
+    part=sweep_v2 -> results/raw/sweep_v2/; the original crash-discovery run in
+    results/raw/sweep/ stays untouched as provenance."""
+    import yaml
+
+    specs = []
+    for cfg_path in sorted((REPO_ROOT / "configs" / "sweep").glob("lfm450m_*.yaml"),
+                           key=lambda p: int(p.stem.rsplit("_b", 1)[1])):
+        cfg = yaml.safe_load(cfg_path.read_text())
+        cfg["part"] = "sweep_v2"
+        cfg["upscale_fallback"] = True
+        if smoke:
+            ids = _smoke_ids_for_budget(cfg["image_token_budget"])
+            if not ids:
+                continue
+            cfg["sample"] = {
+                "n": len(ids), "seed": 0, "item_ids": ids,
+                "derivation": "first-5 crashed + first-3 completed item_ids from the "
+                              "original run at this budget (change #14 smoke)",
+            }
+        prompt = (REPO_ROOT / "prompts" / f"{cfg['prompt_id']}.txt").read_text()
+        specs.append((cfg, prompt))
+    return specs
+
+
 def _load_specs(sample_n=0, sample_seed=7, align=False, smol_count=False):
     import yaml
 
@@ -131,7 +173,8 @@ def _load_specs(sample_n=0, sample_seed=7, align=False, smol_count=False):
 
 
 @app.local_entrypoint()
-def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, align: bool = False, smol_count: bool = False):
+def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, align: bool = False,
+         smol_count: bool = False, lfm_upscale: bool = False, lfm_upscale_smoke: bool = False):
     if export_locks:
         locks = export_sweepbox_locks.remote()
         for venv, text in locks.items():
@@ -140,11 +183,14 @@ def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, al
             print(f"wrote {out} ({len(text.splitlines())} packages)")
         return
 
-    result = sweep_onebox.remote(_load_specs(sample_n, sample_seed, align=align, smol_count=smol_count))
+    if lfm_upscale or lfm_upscale_smoke:
+        specs = _lfm_v2_specs(smoke=lfm_upscale_smoke)
+    else:
+        specs = _load_specs(sample_n, sample_seed, align=align, smol_count=smol_count)
+    result = sweep_onebox.remote(specs)
     print("SWEEP GPU (single die for all cells):", result["gpu"])
-    for summary in result["cells"]:
-        suffix = f".sample{sample_n}s{sample_seed}" if sample_n else ""
-        out = REPO_ROOT / "results" / "raw" / "sweep" / f"{summary['cell_id']}{suffix}.jsonl"
+    for (config, _prompt), summary in zip(specs, result["cells"]):
+        out = compute_out_path(config, REPO_ROOT / "results" / "raw")
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(summary.pop("rows_jsonl"))
         print(json.dumps({k: v for k, v in summary.items() if k != "sample"}, default=str))
