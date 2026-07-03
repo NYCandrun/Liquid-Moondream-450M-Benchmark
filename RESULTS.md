@@ -131,6 +131,12 @@ cells (UUID stamped per row). Energy is MEASURED from the GPU's cumulative
 NVML energy counter over the answering window only (model load excluded);
 "net" subtracts each cell's own 15 s idle-power baseline (~53 W).
 
+Note (change #14): this probe handles the forced-budget crash by EXCLUSION
+(the eligibility filter above), NOT by the local pre-upscale fallback used in
+the Part 2 sweep. Exclusion is the right choice here — energy/latency must be
+compared across LFM and SmolVLM2 on byte-identical items — so the probe's LFM
+numbers are on the crash-free eligible subset, not the full pool.
+
 | Model @ setting | Count acc (this 100) | Median ms/answer | Mean input tokens | J/answer raw | J/answer net-of-idle |
 |---|---|---|---|---|---|
 | LFM @ 32 | 59.0% | **38** | 67 | 3.51 | 0.54 |
