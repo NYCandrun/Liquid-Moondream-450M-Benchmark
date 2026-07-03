@@ -171,6 +171,12 @@ VLMEVAL_IMAGE = (
         # disclosed one-line patch: evaluate the SAME moondream2 revision we pin
         "sed -i 's/2025-01-09/2025-06-21/g' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
         "grep -n '2025-06-21' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
+        # disclosed one-line patch #2 (change #13): the tool's Qwen adapter
+        # hardcodes flash_attention_2, which the pinned tool does not install;
+        # sdpa instead — which also matches OUR Qwen lane's kernels.
+        "sed -i \"s/attn_implementation='flash_attention_2'/attn_implementation='sdpa'/\" "
+        "/opt/VLMEvalKit/vlmeval/vlm/qwen2_vl/model.py",
+        "grep -n \"attn_implementation='sdpa'\" /opt/VLMEvalKit/vlmeval/vlm/qwen2_vl/model.py",
     )
     .pip_install(
         "transformers==4.57.1", "huggingface_hub==0.36.2", "accelerate==1.14.0",

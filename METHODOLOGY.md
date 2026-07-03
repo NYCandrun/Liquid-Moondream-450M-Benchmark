@@ -417,6 +417,22 @@ unchanged code). (3) J/item divides by completed answers in the measurement
 window, never by the row count. (4) Preflight results are committed as
 provenance (results/probe_preflight.json).
 
+## Change log #13 (2026-07-03): referee Qwen cells — second disclosed patch
+
+Both Qwen2.5-VL-7B referee cells failed at model load: the pinned tool's
+Qwen adapter hardcodes `attn_implementation='flash_attention_2'` while the
+tool's own dependency set does not install flash-attn (it assumes an
+environment we don't ship). Options weighed: compiling flash-attn into the
+referee image (30-90 min uncertain build; faithful to the tool's intended
+kernels) vs a one-line disclosed patch to `sdpa`. Chose the patch: it is the
+same disclosure mechanism as the moondream revision pin, and it ALIGNS the
+referee's Qwen kernels with our own Qwen lane (transformers default sdpa,
+no flash-attn in TF457) — so referee-vs-ours differences for Qwen reflect
+prompt/parsing conventions, not attention-kernel numerics. Caveat carried
+into the calibration table: vendor-published VLMEvalKit Qwen numbers were
+produced WITH flash-attn; greedy outputs can differ slightly across
+attention kernels at bf16.
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card
