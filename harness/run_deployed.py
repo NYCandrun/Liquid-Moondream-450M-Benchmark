@@ -44,17 +44,32 @@ ORDER = [("moondream05b_asshipped", t) for t in ("grounding", "pope", "count")] 
 
 
 @app.function(image=MD05_IMAGE, timeout=24 * 3600, volumes={HF_CACHE_PATH: hf_cache_volume},
-              cpu=8.0, memory=32768)
+              cpu=8.0, memory=8192)
 def deployed_onebox(cells: list, prompts: dict, sample: dict | None):
+    import os
+    os.environ["OMP_NUM_THREADS"] = "8"  # onnxruntime thread pool
     from harness.cell_core import run_cell_core
 
-    cpu_model = ""
-    for line in open("/proc/cpuinfo"):
-        if line.startswith("model name"):
-            cpu_model = line.split(":", 1)[1].strip()
-            break
+    cpu_model = "unknown"
+    try:
+        for line in open("/proc/cpuinfo"):
+            if line.startswith("model name"):
+                cpu_model = line.split(":", 1)[1].strip()
+                break
+    except Exception:
+        pass
 
-    out = {"cpu_model": cpu_model, "cells": []}
+    # hardware self-test: Modal hides the CPU name, so record measured proxies —
+    # memory copy bandwidth + single-core loop time — for cross-box comparability
+    import time as _t
+    buf = bytearray(200 * 1024 * 1024)
+    t0 = _t.monotonic(); b2 = bytes(buf); bw = 200 / (_t.monotonic() - t0)  # MB/s copy
+    t0 = _t.monotonic(); x = 0
+    for i in range(10_000_000): x += i
+    loop_s = _t.monotonic() - t0
+    hw_probe = {"mem_copy_mb_s": round(bw), "single_core_loop_s": round(loop_s, 3)}
+
+    out = {"cpu_model": cpu_model, "hw_probe": hw_probe, "cells": []}
     for model, task in cells:
         config = {
             "part": "deployed",
@@ -67,7 +82,7 @@ def deployed_onebox(cells: list, prompts: dict, sample: dict | None):
             "require_gpu_substrings": [],  # CPU box — no GPU assert
             "fresh_start": True,
             "_cpu_reserved": 8.0,
-            "_memory_reserved_mb": 32768,
+            "_memory_reserved_mb": 8192,
         }
         if sample:
             config["sample"] = sample
@@ -79,13 +94,17 @@ def deployed_onebox(cells: list, prompts: dict, sample: dict | None):
 
 
 @app.local_entrypoint()
-def main(sample_n: int = 0, sample_seed: int = 7):
+def main(sample_n: int = 0, sample_seed: int = 7, model: str = ""):
     prompts = {pid: (REPO_ROOT / "prompts" / f"{pid}.txt").read_text()
                for m in PROMPT_ID.values() for pid in m.values()}
     sample = {"n": sample_n, "seed": sample_seed} if sample_n else None
 
-    result = deployed_onebox.remote(ORDER, prompts, sample)
-    print("DEPLOYED BOX CPU:", result["cpu_model"])
+    cells = [(m, t) for m, t in ORDER if not model or m == model]
+    result = deployed_onebox.remote(cells, prompts, sample)
+    print("DEPLOYED BOX CPU:", result["cpu_model"], "| hw self-test:", result["hw_probe"])
+    import json as _j
+    (REPO_ROOT / "results" / "raw" / "deployed").mkdir(parents=True, exist_ok=True)
+    (REPO_ROOT / "results" / "raw" / "deployed" / f"boxinfo_{model or 'all'}.json").write_text(_j.dumps(result["hw_probe"] | {"cpu_model": result["cpu_model"], "cores": 8, "memory_mb": 8192}))
     for summary in result["cells"]:
         suffix = f".sample{sample_n}s{sample_seed}" if sample_n else ""
         out = REPO_ROOT / "results" / "raw" / "deployed" / f"{summary['cell_id']}{suffix}.jsonl"

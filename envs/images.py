@@ -124,8 +124,11 @@ LLAMA_CPP_RELEASE = "b9860"
 MD05_IMAGE = (
     modal.Image.debian_slim(python_version="3.11")  # moondream 0.0.6 supports 3.10-3.12
     .apt_install("curl", "libgomp1")
-    .pip_install("moondream==0.0.6", "datasets==5.0.0", "pillow==12.3.0",
-                 "huggingface_hub==1.21.0", "requests")
+    # Inside the as-shipped box the RUNTIME'S OWN dependency constraints win
+    # (moondream 0.0.6 pins pillow<11 etc. — it ships that way). Only moondream
+    # itself is version-pinned; the resolved set is recorded via lock export.
+    .pip_install("moondream==0.0.6", "requests")
+    .pip_install("datasets", "huggingface_hub")
     .run_commands(
         # Moondream 0.5B artifact, checksum-verified
         f"curl -L -o /opt/moondream-0_5b-int8.mf.gz '{MD05_ARTIFACT_URL}'",
@@ -133,10 +136,15 @@ MD05_IMAGE = (
         # LFM 450M vendor-shipped GGUF (Q8_0) + vision projector, commit-pinned
         f"curl -L -o /opt/LFM2.5-VL-450M-Q8_0.gguf '{_LFM_GGUF_BASE}/LFM2.5-VL-450M-Q8_0.gguf'",
         f"curl -L -o /opt/mmproj-LFM2.5-VL-450m-Q8_0.gguf '{_LFM_GGUF_BASE}/mmproj-LFM2.5-VL-450m-Q8_0.gguf'",
-        # llama.cpp official CPU binaries, pinned release
+        # llama.cpp official CPU binaries, pinned release. The tarball's inner
+        # layout varies by release — locate the binary instead of assuming, and
+        # leave stable signposts: /usr/local/bin/llama-server + /opt/llama-bin
         f"curl -L -o /tmp/llama.tar.gz 'https://github.com/ggml-org/llama.cpp/releases/download/{LLAMA_CPP_RELEASE}/llama-{LLAMA_CPP_RELEASE}-bin-ubuntu-x64.tar.gz'",
-        "mkdir -p /opt/llama && tar -xzf /tmp/llama.tar.gz -C /opt/llama --strip-components=1",
-        "ls /opt/llama/bin/llama-server",
+        "mkdir -p /opt/llama && tar -xzf /tmp/llama.tar.gz -C /opt/llama",
+        "find /opt/llama -maxdepth 5 | head -40",
+        "BIN=$(find /opt/llama -type f -name llama-server | head -1) && test -n \"$BIN\" "
+        "&& ln -sf \"$BIN\" /usr/local/bin/llama-server && ln -sfn \"$(dirname $BIN)\" /opt/llama-bin "
+        "&& ls -la /opt/llama-bin/ | head -20",
     )
     .env({"HF_HOME": HF_CACHE_PATH})
     .add_local_python_source("envs", "harness")

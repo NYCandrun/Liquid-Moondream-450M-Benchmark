@@ -309,6 +309,25 @@ in results/phase2/dumps/, summary in results/phase2/summary.json. Audit:
 - No code edits during Phase 3 runs; failures are findings; one retry per
   item on infra errors only.
 
+## Change log #7 (2026-07-03, owner decision after brainstorm)
+
+SmolVLM2's detail sweep re-scoped: its grounding sweep is CANCELLED (settings
+1024/1536/2048 never ran; setting 512 was lost mid-run — see incident note) and
+REPLACED by the same four-setting sweep on COUNTING, a task SmolVLM2 supports
+(60.9% at default). Rationale: SmolVLM2 does not support bounding boxes (no
+vendor claim, no trained format; main-table row 0.0% with the "no boxes"
+finding + the token-matched probe already established detail cannot change
+this). Sweeping an unsupported task adds no information on the accuracy axis.
+The counting sweep gives the dial a live accuracy axis plus the per-setting
+latency the demo table needs. LFM's grounding curve (complete, single die) is
+unaffected and remains the sweep headline; the two models' curves are different
+task axes and are never overlaid. Incident note, recorded honestly: during the
+owner's requested decision pause, an automated transition script misread one
+failed container status-check as "cell finished" and stopped the sweep app
+early, killing SmolVLM grounding setting 512 at ~90% complete. No other cell
+was affected; LFM's full curve was already committed. The script pattern
+(silence-as-success fallback) is retired.
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card

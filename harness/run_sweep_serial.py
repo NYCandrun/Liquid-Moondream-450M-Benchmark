@@ -96,8 +96,24 @@ def export_sweepbox_locks():
 ALIGN_PAIRS = [("lfm450m", 64), ("smolvlm2", 512), ("lfm450m", 256), ("smolvlm2", 1024)]
 
 
-def _load_specs(sample_n=0, sample_seed=7, align=False):
+def _load_specs(sample_n=0, sample_seed=7, align=False, smol_count=False):
     import yaml
+
+    if smol_count:
+        # Owner decision (change log #7): SmolVLM2 does not support bounding —
+        # its detail sweep runs on COUNTING (a task it supports) instead of the
+        # cancelled grounding settings 1024/1536/2048.
+        prompt = (REPO_ROOT / "prompts" / "count_vlmevalkit_v1.txt").read_text()
+        specs = []
+        for b in (512, 1024, 1536, 2048):
+            cfg = {"part": "sweep", "model": "smolvlm2", "task": "count",
+                   "prompt_id": "count_vlmevalkit_v1", "max_new_tokens": 16,
+                   "image_token_budget": b, "is_shipped_default": b == 2048,
+                   "seed": 0, "require_gpu_substrings": ["A100", "40GB"]}
+            if sample_n:
+                cfg["sample"] = {"n": sample_n, "seed": sample_seed}
+            specs.append((cfg, prompt))
+        return specs
 
     wanted = ALIGN_PAIRS if align else None
     specs = []
@@ -115,7 +131,7 @@ def _load_specs(sample_n=0, sample_seed=7, align=False):
 
 
 @app.local_entrypoint()
-def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, align: bool = False):
+def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, align: bool = False, smol_count: bool = False):
     if export_locks:
         locks = export_sweepbox_locks.remote()
         for venv, text in locks.items():
@@ -124,7 +140,7 @@ def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, al
             print(f"wrote {out} ({len(text.splitlines())} packages)")
         return
 
-    result = sweep_onebox.remote(_load_specs(sample_n, sample_seed, align=align))
+    result = sweep_onebox.remote(_load_specs(sample_n, sample_seed, align=align, smol_count=smol_count))
     print("SWEEP GPU (single die for all cells):", result["gpu"])
     for summary in result["cells"]:
         suffix = f".sample{sample_n}s{sample_seed}" if sample_n else ""

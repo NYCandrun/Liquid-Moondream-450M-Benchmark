@@ -280,7 +280,7 @@ class LlamaServerAdapter:
     def __init__(self,
                  model_path="/opt/LFM2.5-VL-450M-Q8_0.gguf",
                  mmproj_path="/opt/mmproj-LFM2.5-VL-450m-Q8_0.gguf",
-                 server_bin="/opt/llama/bin/llama-server",
+                 server_bin="/usr/local/bin/llama-server",
                  port=8091):
         import os
         import subprocess
@@ -289,7 +289,7 @@ class LlamaServerAdapter:
 
         self.url = f"http://127.0.0.1:{port}"
         env = {**os.environ,
-               "LD_LIBRARY_PATH": "/opt/llama/bin:/opt/llama/lib:" + os.environ.get("LD_LIBRARY_PATH", "")}
+               "LD_LIBRARY_PATH": "/opt/llama-bin:" + os.environ.get("LD_LIBRARY_PATH", "")}
         self.proc = subprocess.Popen(
             [server_bin, "-m", model_path, "--mmproj", mmproj_path,
              "--host", "127.0.0.1", "--port", str(port), "-c", "8192", "--threads", "8"],

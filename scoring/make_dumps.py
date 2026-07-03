@@ -30,11 +30,13 @@ from scoring.metrics import grounding_item_scores
 
 BOX_PARSERS = {
     "lfm450m": parse_lfm,
+    "lfm450m_gguf": parse_lfm,  # deployed small form speaks the same format
     "qwen25vl": parse_qwen25vl,
     "internvl35": parse_internvl,
     "smolvlm2": parse_smolvlm2,
     "llava_ov": parse_llava_ov,
 }
+MOONDREAM_MODELS = {"moondream2", "moondream05b_asshipped"}
 
 
 def parse_moondream_raw(raw, w, h):
@@ -53,7 +55,7 @@ def parse_item(row):
         return None
     if task == "grounding":
         w, h = row["image_width"], row["image_height"]
-        fn = parse_moondream_raw if model == "moondream2" else BOX_PARSERS[model]
+        fn = parse_moondream_raw if model in MOONDREAM_MODELS else BOX_PARSERS[model]
         return fn(raw, w, h)
     if task == "pope":
         return parse_yes_no(raw)
