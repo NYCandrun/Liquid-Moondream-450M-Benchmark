@@ -91,9 +91,45 @@ def power_probe(cell_specs: list):
         ["nvidia-smi", "--query-gpu=timestamp,power.draw,temperature.gpu",
          "--format=csv,noheader,nounits", "-lms", "100"], stdout=trace)
 
-    results = {"gpu": gpu, "cells": []}
+    # Preflight (change #12): fix the shared question set to items EVERY cell
+    # completes — the pinned LFM processor crashes on forced-budget upscales
+    # (sweep finding: 13.9% at b256 on grounding) and SmolVLM2 rejects
+    # grayscale inputs; the efficiency curve must compare identical work.
+    pool_n, seed, n_target = cell_specs[0]["_pool_n"], cell_specs[0]["_seed"], cell_specs[0]["_n_target"]
+    preflight = {}
+    for model_key, venv in (("lfm450m", "tf5"), ("smolvlm2", "tf457")):
+        budgets = [c["image_token_budget"] for c, _ in cell_specs[1] if c["model"] == model_key]
+        pf = subprocess.run(
+            [f"/opt/{venv}/bin/python", "/root/harness/probe_preflight.py"],
+            input=json.dumps({"model": model_key, "budgets": budgets,
+                              "pool_n": pool_n, "seed": seed}),
+            capture_output=True, text=True, env={**os.environ, "PYTHONPATH": "/root"},
+        )
+        if pf.returncode != 0:
+            raise RuntimeError(f"preflight {model_key} failed:\n{pf.stderr[-3000:]}")
+        marker = [l for l in pf.stdout.splitlines() if l.startswith("PREFLIGHT_JSON:")][-1]
+        preflight[model_key] = json.loads(marker[len("PREFLIGHT_JSON:"):])
+
+    pool_order = preflight["lfm450m"]["pool"]
+    eligible = [iid for iid in pool_order
+                if all(preflight[m]["pass"][iid] for m in preflight)]
+    if len(eligible) < n_target:
+        raise RuntimeError(f"preflight found only {len(eligible)}/{n_target} items that "
+                           f"complete at every setting (pool {pool_n}) — enlarge the pool")
+    item_ids = eligible[:n_target]
+    derivation = (f"first {n_target} of fixed_sample(n={pool_n}, seed={seed}) completing "
+                  "a 1-token generate at all dial settings for BOTH probe models "
+                  "(preflight, change #12)")
+
+    results = {"gpu": gpu, "cells": [], "preflight": {
+        "pool_n": pool_n, "seed": seed, "eligible": len(eligible), "item_ids": item_ids,
+        "per_model": {m: {"fail_count": sum(1 for v in preflight[m]["pass"].values() if not all(v)),
+                          "fail_examples": preflight[m]["fail_examples"]} for m in preflight},
+    }}
     try:
-        for config, prompt in cell_specs:
+        for config, prompt in cell_specs[1]:
+            config = dict(config)
+            config["sample"] = dict(config["sample"], item_ids=item_ids, derivation=derivation)
             out_path = Path(compute_out_path(config, RESULTS_BASE))
             if out_path.exists():
                 out_path.unlink()  # fresh even in sample mode: energy windows never mix runs
@@ -151,7 +187,10 @@ def power_probe(cell_specs: list):
             summary = json.loads(marker[len("SUMMARY_JSON:"):])
             summary["rows_jsonl"] = out_path.read_text()
 
-            n_window = n_target - 1  # energy window covers rows 2..N exactly
+            # J/item divides by COMPLETED answers inside the window (rows 2..N);
+            # error rows consume ~no energy and must not dilute the number.
+            rows = [json.loads(l) for l in summary["rows_jsonl"].splitlines()]
+            n_window = max(1, sum(1 for r in rows[1:] if not r.get("error")))
             e_window = e_last - e_first
             wall_window = t_last - t_first
             summary["energy"] = {
@@ -175,7 +214,7 @@ def power_probe(cell_specs: list):
     return results
 
 
-def _probe_specs(sample_n=100, sample_seed=7):
+def _probe_specs(sample_n=100, sample_seed=7, pool_n=300):
     prompt = (REPO_ROOT / "prompts" / "count_vlmevalkit_v1.txt").read_text()
     specs = []
     for model, budgets in DIALS:
@@ -186,12 +225,12 @@ def _probe_specs(sample_n=100, sample_seed=7):
                    "require_gpu_substrings": ["A100", "40GB"],
                    "sample": {"n": sample_n, "seed": sample_seed}}
             specs.append((cfg, prompt))
-    return specs
+    return [{"_pool_n": pool_n, "_seed": sample_seed, "_n_target": sample_n}, specs]
 
 
 @app.local_entrypoint()
-def main(sample_n: int = 100, sample_seed: int = 7):
-    result = power_probe.remote(_probe_specs(sample_n, sample_seed))
+def main(sample_n: int = 100, sample_seed: int = 7, pool_n: int = 300):
+    result = power_probe.remote(_probe_specs(sample_n, sample_seed, pool_n))
     print("PROBE GPU (single die for all cells):", result["gpu"])
     out_dir = REPO_ROOT / "results" / "raw" / "probe"
     out_dir.mkdir(parents=True, exist_ok=True)

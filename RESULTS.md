@@ -31,21 +31,29 @@ stamped in every row), one setting at a time, dedicated CPU cores.
 
 ### LFM2.5-VL 450M — true image-token budget (min=max=T, tiling off)
 
-| Detail setting (tokens) | Accuracy | Readable answers | Median speed/item | Mean tokens actually used* |
-|---|---|---|---|---|
-| 32 (card-recommended floor) | 39.5% | 100.0% | 509 ms | 79 |
-| 64 (shipped minimum) | 60.3% | 99.9% | 522 ms | 110 |
-| 128 | **69.7%** | 99.5% | 532 ms | 172 |
-| 256 (shipped cap) | 66.2% | 86.1% | 521 ms | 296 |
-| — factory-default pipeline (tiling ON, cap 256): see Part 1 row — | 76.9% | 100% | — | — |
+| Detail setting (tokens) | Accuracy (all 2080; crash = miss) | Accuracy (completed only) | Forced-budget crash rate | Median speed/item | Mean tokens actually used* |
+|---|---|---|---|---|---|
+| 32 (card-recommended floor) | 39.5% | 39.5% | 0.0% | 509 ms | 79 |
+| 64 (shipped minimum) | 60.3% | 60.4% | 0.1% (2/2080) | 522 ms | 110 |
+| 128 | 69.7% | 70.0% | 0.5% (10/2080) | 532 ms | 172 |
+| 256 (shipped cap) | 66.2% | **76.8%** | **13.9% (289/2080)** | 521 ms | 296 |
+| — factory-default pipeline (tiling ON, cap 256): see Part 1 row — | **76.9%** | 76.9% | 0.0% | — | — |
 
 \* includes ~46 question-text tokens on top of the image tokens.
 
-Readings the data supports: the dial genuinely trades accuracy (39.5% → 69.7%);
-the best fixed setting is 128, NOT the maximum — at 256 answers get less
-parseable (86.1% readable) and accuracy drops; per-item speed on an A100 is
-nearly flat across settings (the model is small enough that overhead dominates);
-the factory default (adaptive tiling) beats every fixed setting.
+CORRECTED READING (change log #12 — supersedes the earlier "answers get less
+parseable at 256" interpretation): the model's answers parse at 100% at EVERY
+setting on rows that complete; what looked like unreadable answers were
+processor CRASHES — forcing min=max token budgets makes the pinned
+preprocessing stack (transformers 5.12.1) crash on images it must upscale,
+at a rate that grows with the setting (0% → 13.9%), and a crashed query
+scores as a miss. Two findings replace one: (1) the dial genuinely trades
+accuracy, monotonically — 39.5% → 76.8% on completed images, with 256
+matching the factory default; (2) the forced dial is UNRELIABLE at high
+settings in this stack, so the factory default (adaptive tiling, zero
+crashes, best accuracy) is strictly the right production choice. Per-item
+speed on an A100 stays flat across settings (overhead dominates at this
+model size).
 
 ### SmolVLM2 500M — resolution dial, measured on COUNTING (change log #7:
 grounding is unsupported by this model; its dial is measured on a task it
@@ -65,6 +73,9 @@ costing ~40% speed — opposite in character to LFM's find-object curve (which
 gains ~30 points from the same kind of dial). SmolVLM2's grounding sweep was
 cancelled: the model does not support bounding boxes (main-table row 0.0%,
 "no boxes" finding; token-matched probe confirmed detail cannot change it).
+One item (countbench:116, a 100×100 grayscale image) errors in SmolVLM2's
+shipped processor at every setting ("Unsupported number of image dimensions:
+2") and scores as a miss — a uniform −0.2 pt on all four rows (change #12).
 
 ### Moondream 0.5B — no dial exists
 
@@ -83,6 +94,10 @@ curves above.
 | ~250–330 | LFM 450M @ 256 | 295 | **62%** | 88% | 524 ms |
 | | SmolVLM2 @ 1024px | 374 | 0% | 60% | 720 ms |
 
+LFM @256 note (change #12): its 12% unreadable = 6/50 forced-budget processor
+crashes, not model output; on the 44 completed items accuracy is 70.5%.
+SmolVLM2's 60% readable is genuine degenerate output, not crashes.
+
 ## Deployed-form table (as-shipped small forms; int8-class; CPU; SEPARATE — never comparable to the tables above)
 
 Header disclosure: Moondream 0.5B appears in the ONLY form it exists in
@@ -92,9 +107,25 @@ match it; LFM's canonical full-precision form is the Part 1 row, and its delta
 column below prices the compression. Moondream 0.5B cannot have a delta column
 — no full-precision 0.5B exists.
 
-_Safety checks in progress; full runs follow._
+Hardware: two Modal boxes, 8 dedicated cores + 8 GB each, verified by an
+in-container self-test (the sandbox hides the CPU model): single-core loop
+0.255 s vs 0.272 s (within 7%); memory-copy bandwidth 5,040 vs 2,848 MB/s —
+the LFM box drew the ~43% lower-bandwidth host, and llama.cpp CPU inference
+is memory-bound, so LFM's speed numbers below are if anything understated.
+Latency is measured compute time on matched boxes — never labeled energy.
 
-| Model (as deployed) | Runtime | Precision | Find-object | Yes/No acc | Count | Δ vs own full-precision |
-|---|---|---|---|---|---|---|
-| Moondream 0.5B | moondream 0.0.6 | int8 | — | — | — | n/a (no full-precision form exists) |
-| LFM 450M (Q8_0) | llama.cpp b9860 | Q8_0 | — | — | — | — |
+| Model (as deployed) | Runtime | Precision | Find-object | Yes/No acc (F1) | Count | Median s/item (find / yn / count) | Δ vs own full-precision |
+|---|---|---|---|---|---|---|---|
+| Moondream 0.5B | moondream 0.0.6 | int8 | 21.3% (parse 85.8%) | 55.1% (0.689) | 31.6% | 2.21 / 2.82 / 1.14 | n/a (no full-precision form exists) |
+| LFM 450M (Q8_0) | llama.cpp b9860 | Q8_0 | **76.9%** | **85.3%** (0.860) | **69.7%** | **1.36 / 1.05 / 0.65** | find ±0.0, yes/no +0.5, count −1.8 |
+
+Readings the data supports: (1) LFM's vendor Q8_0 loses essentially nothing
+to its own bf16 — find-object is IDENTICAL at 76.9%, counting −1.8, yes/no
++0.5; the llama.cpp lane independently reproducing the transformers lane
+also cross-validates both stacks. (2) The as-shipped head-to-head is
+one-sided: +55.6 points find-object, +38.1 counting, +30.2 yes/no, at
+~2-4× lower latency, from the slower-memory box. (3) Moondream 0.5B's
+yes/no answer is dominated by yes-bias (94% "yes" under the bare-question
+convention; moondream2 gains +14 pts with the community suffix — change
+log #11 — and its 0.5B distillation plausibly shares that sensitivity,
+untestable in VLMEvalKit, which has no .mf runner).

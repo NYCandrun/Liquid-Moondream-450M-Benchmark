@@ -1,0 +1,181 @@
+{
+ "gpu": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b, NVIDIA A100-SXM4-40GB",
+ "cells": [
+  {
+   "cell_id": "probe_lfm450m_count_b32",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 0,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.06,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 12.28,
+    "window_s": 0.16,
+    "j_per_item_raw": 6.138,
+    "j_per_item_net_of_idle": 2.075,
+    "whole_cell_j_incl_load": 1116.11,
+    "whole_cell_s_incl_load": 20.69,
+    "mean_power_w": 78.64
+   }
+  },
+  {
+   "cell_id": "probe_lfm450m_count_b64",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 1,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.61,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 41.01,
+    "window_s": 0.66,
+    "j_per_item_raw": 20.505,
+    "j_per_item_net_of_idle": 3.039,
+    "whole_cell_j_incl_load": 893.07,
+    "whole_cell_s_incl_load": 16.51,
+    "mean_power_w": 61.76
+   }
+  },
+  {
+   "cell_id": "probe_lfm450m_count_b128",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 3,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.47,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 0.0,
+    "window_s": 0.05,
+    "j_per_item_raw": 0.0,
+    "j_per_item_net_of_idle": -1.434,
+    "whole_cell_j_incl_load": 918.59,
+    "whole_cell_s_incl_load": 16.98,
+    "mean_power_w": 0.0
+   }
+  },
+  {
+   "cell_id": "probe_lfm450m_count_b256",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 3,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.6,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 0.0,
+    "window_s": 0.05,
+    "j_per_item_raw": 0.0,
+    "j_per_item_net_of_idle": -1.42,
+    "whole_cell_j_incl_load": 934.39,
+    "whole_cell_s_incl_load": 17.38,
+    "mean_power_w": 0.0
+   }
+  },
+  {
+   "cell_id": "probe_smolvlm2_count_b512",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 0,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.4,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 25.32,
+    "window_s": 0.41,
+    "j_per_item_raw": 12.659,
+    "j_per_item_net_of_idle": 1.828,
+    "whole_cell_j_incl_load": 1255.06,
+    "whole_cell_s_incl_load": 22.96,
+    "mean_power_w": 61.25
+   }
+  },
+  {
+   "cell_id": "probe_smolvlm2_count_b1024",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 0,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.51,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 45.94,
+    "window_s": 0.66,
+    "j_per_item_raw": 22.968,
+    "j_per_item_net_of_idle": 5.542,
+    "whole_cell_j_incl_load": 957.87,
+    "whole_cell_s_incl_load": 17.42,
+    "mean_power_w": 69.2
+   }
+  },
+  {
+   "cell_id": "probe_smolvlm2_count_b1536",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 0,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.69,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 59.63,
+    "window_s": 0.92,
+    "j_per_item_raw": 29.815,
+    "j_per_item_net_of_idle": 5.663,
+    "whole_cell_j_incl_load": 1000.72,
+    "whole_cell_s_incl_load": 18.1,
+    "mean_power_w": 65.04
+   }
+  },
+  {
+   "cell_id": "probe_smolvlm2_count_b2048",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "gpu_uuid": "GPU-b920fe54-c188-b174-8bd7-0c6040b7a19b",
+   "n_items": 3,
+   "n_errors": 0,
+   "energy": {
+    "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
+    "idle_w": 52.26,
+    "window_rows": [
+     2,
+     3
+    ],
+    "window_j": 88.56,
+    "window_s": 1.37,
+    "j_per_item_raw": 44.279,
+    "j_per_item_net_of_idle": 8.37,
+    "whole_cell_j_incl_load": 1044.52,
+    "whole_cell_s_incl_load": 18.74,
+    "mean_power_w": 64.44
+   }
+  }
+ ]
+}

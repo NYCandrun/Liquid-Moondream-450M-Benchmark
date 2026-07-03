@@ -69,10 +69,20 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
     items = hdata.load_items(config["task"])
     sample_meta = None
     if config.get("sample"):
-        items, chosen = hdata.fixed_sample(
-            items, int(config["sample"]["n"]), int(config["sample"]["seed"]), config["task"]
-        )
-        sample_meta = {"n": len(items), "seed": config["sample"]["seed"], "indices": chosen}
+        if config["sample"].get("item_ids"):
+            # Explicit fixed item set (probe preflight, change #12): the caller
+            # provides the exact item_ids; n/seed in the sample dict name the
+            # file and record how the set was derived (see "derivation").
+            wanted = set(config["sample"]["item_ids"])
+            items = [i for i in items if i["item_id"] in wanted]
+            sample_meta = {"n": len(items), "seed": config["sample"].get("seed"),
+                           "explicit_item_ids": sorted(wanted),
+                           "derivation": config["sample"].get("derivation")}
+        else:
+            items, chosen = hdata.fixed_sample(
+                items, int(config["sample"]["n"]), int(config["sample"]["seed"]), config["task"]
+            )
+            sample_meta = {"n": len(items), "seed": config["sample"]["seed"], "indices": chosen}
 
     try:
         gpu_uuid = subprocess.run(

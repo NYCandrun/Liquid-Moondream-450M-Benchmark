@@ -386,6 +386,37 @@ against the disclosed bare-question convention; if all models swing
 materially, the bare-question main-table POPE column systematically
 underreads and an owner decision on a suffixed re-run is required.
 
+## Change log #12 (2026-07-03): forced-budget crashes — sweep table corrected,
+probe hardened
+
+The probe's functional smoke (3 counting images) crashed LFM cells at
+budgets ≥64: `RuntimeError: shape ... is invalid for input of size ...`
+inside the pinned stack when min=max image-token budgets force an UPSCALE.
+Auditing the already-published sweep raw rows (the per-row `error` field had
+recorded everything all along) found the same failure at full scale:
+0 / 2 / 10 / 289 crashes out of 2080 at budgets 32/64/128/256 — 13.9% at
+b256. The published interpretation was wrong in one place: b256's "86.1%
+readable answers" was EXACTLY the crash complement; the model's completed
+answers parse at 100% at every setting. Corrections applied to RESULTS.md
+(both accuracy views now shown): completed-only accuracy is monotonic
+39.5→60.4→70.0→76.8, i.e. b256 ≈ factory default; the accuracy "drop at
+256" was crashes scored as misses. The finding splits in two: the dial
+works; FORCING it is unreliable at high settings in the pinned stack —
+strengthening the factory-default conclusion (same accuracy, zero crashes).
+Related: SmolVLM2's shipped processor rejects one grayscale pool image
+(countbench:116) at every resolution — uniform −0.2 pt, disclosed.
+
+Probe changes (before any probe number existed): (1) an in-container
+PREFLIGHT dry-runs a 1-token generate for a fixed_sample(300, seed 7) pool
+through BOTH models at ALL settings on the probe's own die, and the probe's
+fixed 100 questions are the first 100 completing everywhere — every cell
+then measures identical work; crash-proneness is reported separately (the
+full-scale sweep rates above). (2) cell_core gains an ADDITIVE
+`sample.item_ids` branch for explicit fixed sets (existing configs traverse
+unchanged code). (3) J/item divides by completed answers in the measurement
+window, never by the row count. (4) Preflight results are committed as
+provenance (results/probe_preflight.json).
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card
