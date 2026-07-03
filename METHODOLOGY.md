@@ -328,6 +328,21 @@ early, killing SmolVLM grounding setting 512 at ~90% complete. No other cell
 was affected; LFM's full curve was already committed. The script pattern
 (silence-as-success fallback) is retired.
 
+## Change log #9 (2026-07-03, owner decision): VLMEvalKit agreement lane descoped
+
+The planned appendix lane (re-running supported cells through pinned VLMEvalKit
+v0.3rc1 to demonstrate instrument agreement) is NOT run. Rationale: the
+calibration anchors are themselves VLMEvalKit-produced — the LFM2.5-VL card
+states its vision scores were obtained with VLMEvalKit, so the published-vs-ours
+deltas (e.g. CountBench 73.31 published vs 71.5 ours; POPE 86.93 vs 84.8)
+already constitute an instrument-agreement comparison via the vendor's own run.
+A second, self-run copy of that evidence was judged not worth its cost by the
+owner. Consequence for readers: instrument agreement is evidenced indirectly
+(vendor-run VLMEvalKit vs this harness), with the known caveats recorded in the
+calibration table (dataset-version fuzz for CountBench; unspecified protocol
+for RefCOCO-M's 81.28). The VLMEvalKit pin (v0.3rc1 @ 8eb37bb9) remains the
+prompt-convention source regardless.
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card
