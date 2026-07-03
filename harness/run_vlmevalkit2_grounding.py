@@ -60,8 +60,10 @@ _RETRIES = modal.Retries(max_retries=4, initial_delay=20.0, backoff_coefficient=
 GROUND_PROMPT = ("Please provide the bounding box coordinate of the region this "
                  "sentence describes: {expr}")
 
+# Qwen2.5-VL-7B-Instruct dropped from scope 2026-07-03 (runtime bottleneck; edge-VLM
+# framing tightened to <=2B params). Excluded from the grounding referee lane.
 TF457_MODELS = ["SmolVLM2-500M", "llava-onevision-qwen2-0.5b-ov-hf",
-                "Qwen2.5-VL-7B-Instruct", "Moondream2"]
+                "Moondream2"]
 TF5_MODELS = ["LFM2.5-VL-450M"]
 SMOKE_N = 24
 

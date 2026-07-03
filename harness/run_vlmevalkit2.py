@@ -44,8 +44,11 @@ VOL = {HF_CACHE_PATH: hf_cache_volume}
 # resumes from its per-cell xlsx on the volume, so restarts re-use predictions.
 _RETRIES = modal.Retries(max_retries=4, initial_delay=20.0, backoff_coefficient=2.0)
 
+# Qwen2.5-VL-7B-Instruct dropped from scope 2026-07-03 (runtime bottleneck; edge-VLM
+# framing tightened to <=2B params). Its main-harness results are retained on disk as
+# archived provenance but excluded from the referee lane and from reporting.
 TF457_MODELS = ["SmolVLM2-500M", "llava-onevision-qwen2-0.5b-ov-hf",
-                "Qwen2.5-VL-7B-Instruct", "Moondream2"]
+                "Moondream2"]
 TF5_MODELS = ["LFM2.5-VL-450M"]
 DATASETS = ["POPE", "CountBenchQA"]
 
