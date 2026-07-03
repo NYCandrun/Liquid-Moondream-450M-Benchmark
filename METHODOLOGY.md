@@ -336,6 +336,32 @@ default (2025-01-09) is overridden to the study pin 2025-06-21 by a one-line
 build-time substitution, so both instruments evaluate the identical checkpoint.
 No other modification to the pinned tool.
 
+## Change log #10 (2026-07-03, owner request): latency column + energy probe
+
+Two additions, no change to any existing number:
+
+1. **Median per-item latency added to the Part 1 main table** — computed from
+   the latency_ms field already present in every committed raw row (no new
+   runs). It is same-A100-class wall time inside the shared harness per model
+   per task, excluding model load.
+2. **Energy + latency probe at the Part 2 dial settings**
+   (harness/run_power_probe.py): LFM (budgets 32/64/128/256) vs SmolVLM2
+   (longest edge 512/1024/1536/2048), the SAME fixed 100 CountBenchQA
+   questions per cell (fixed_sample n=100 seed=7). COUNTING, not grounding —
+   owner directive: the probe task must be one both models perform (SmolVLM2
+   grounding = 0%, "no boxes"). Energy is MEASURED from the GPU's cumulative
+   NVML energy counter read at inference-window boundaries (window = rows
+   2..N exactly, excluding model load; 15 s idle baseline per cell for a
+   net-of-idle variant; 10 Hz power trace kept as provenance; the probe
+   REFUSES to run if the counter is absent rather than substitute an
+   estimate). Probe discipline mirrors the sweep: one container, one
+   physical A100-40GB (strict assert, UUID per row), SWEEPBOX dual-venv
+   image, cells strictly serial, queued behind the running referee lane (one
+   GPU at a time). A rejected alternative is recorded: a six-model
+   whole-table energy probe was proposed and declined by the owner.
+   Labeling rule: GPU probe numbers are measured energy; the CPU
+   deployed-form lanes report measured compute time only, never energy.
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card

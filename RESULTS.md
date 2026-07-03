@@ -9,14 +9,20 @@ Six models, three tests, full precision, one A100-40GB per test, greedy
 decoding. Find-object = RefCOCO-M Acc@0.5 over 2,080 instances; Yes/No = POPE
 over 9,000 items; Count = CountBenchQA exact match over 491 items.
 
-| Model | Find-object | Yes/No acc | Yes/No F1 | Count | Parse rate (find / yn / count) |
-|---|---|---|---|---|---|
-| Qwen2.5-VL 7B | **91.7%** | 83.7% | 0.808 | **85.9%** | 100% / 100% / 100% |
-| InternVL3.5 1B | 89.4% | 79.1% | 0.849 | 49.9% | 100% / 96% / 100% |
-| LFM2.5-VL 450M | 76.9% | 84.8% | **0.857** | 71.5% | 100% / 100% / 100% |
-| moondream2 2B | 76.4% | 76.7% | 0.803 | 83.5% | 99% / 100% / 100% |
-| LLaVA-OV 0.5B | 3.6% | **85.5%** | 0.837 | 73.1% | 100% / 100% / 100% |
-| SmolVLM2 500M | 0.0% | 55.0% | 0.801 | 60.9% | 48% / 78% / 100% |
+| Model | Find-object | Yes/No acc | Yes/No F1 | Count | Parse rate (find / yn / count) | Median ms/item (find / yn / count) |
+|---|---|---|---|---|---|---|
+| Qwen2.5-VL 7B | **91.7%** | 83.7% | 0.808 | **85.9%** | 100% / 100% / 100% | 1198 / 508 / 108 |
+| InternVL3.5 1B | 89.4% | 79.1% | 0.849 | 49.9% | 100% / 96% / 100% | 1356 / 937 / 221 |
+| LFM2.5-VL 450M | 76.9% | 84.8% | **0.857** | 71.5% | 100% / 100% / 100% | 709 / 324 / **40** |
+| moondream2 2B | 76.4% | 76.7% | 0.803 | 83.5% | 99% / 100% / 100% | **203** / 316 / 100 |
+| LLaVA-OV 0.5B | 3.6% | **85.5%** | 0.837 | 73.1% | 100% / 100% / 100% | 578 / 247 / 321 |
+| SmolVLM2 500M | 0.0% | 55.0% | 0.801 | 60.9% | 48% / 78% / 100% | 857 / **141** / 138 |
+
+Latency is the median per-item wall time on the same A100 class, measured inside
+the shared harness (image already decoded, greedy decoding; excludes model load).
+It compares each model's full shipped pipeline — preprocessing included — not
+FLOPs. Grounding latency partly tracks answer length and preprocessing (e.g.
+InternVL's tiling); moondream2's fast grounding is its compiled `detect` skill.
 
 ## Part 2 — Image-detail dial (sweep)
 
