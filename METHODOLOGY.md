@@ -141,8 +141,22 @@ components) on the `onnx` branch of vikhyatk/moondream2.
   `.detect(image, obj)`, `.point`, `.caption`. Decoding: greedy-only; the sole
   sampler-adjacent setting is `max_tokens` (recorded; a reason this table is
   separate).
-- LFM 450M shrunk-down lane: GGUF Q8_0 via llama.cpp selected as the standard
-  shipped path (to be built and pinned in Phase 3B; recorded there).
+- LFM 450M shrunk-down lane: the VENDOR'S OWN published GGUF Q8_0 variant
+  (LiquidAI/LFM2.5-VL-450M-GGUF @ `1a3f51cdc26f5d97d5d85cf6901fe5ac7da65a9a`,
+  model + Q8_0 vision projector), run by llama.cpp (pinned release b9860, the
+  runtime the vendor's own card instructs), CPU.
+
+**Asymmetry disclosure (owner-raised, recorded verbatim in the table header):**
+this table is NOT symmetric "as-shipped vs as-shipped." For Moondream 0.5B the
+int8 `.mf` in its own runtime is the ONLY form that exists — the buyer has no
+choice. For LFM 450M the canonical ship is bf16 (the main-table row); the Q8_0
+GGUF is one of several vendor-published small variants, and we selected it
+specifically to precision-match Moondream's int8. The honest framing: "the only
+form Moondream 0.5B comes in, versus LFM's vendor-published small variant
+selected to match it." Consequences carried in the table: LFM gets a
+delta-vs-its-own-bf16 column; Moondream 0.5B cannot have one (no full-precision
+0.5B exists — stated in the table, not glossed). The forced-vs-optional
+compression is itself a reported finding.
 
 **Interpretation guardrail:** numbers in the deployed-form table are
 int8/shrunk-down and are not directly comparable to the bf16 main table. Within

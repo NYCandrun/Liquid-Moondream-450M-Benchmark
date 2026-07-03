@@ -103,6 +103,45 @@ SWEEPBOX_IMAGE = (
     .add_local_python_source("envs", "harness")
 )
 
+# Phase 3B: Moondream 0.5B as-shipped runtime (Gate A pins). CPU-only —
+# moondream==0.0.6 is the LAST release able to load .mf archives (onnxruntime
+# backend); the pinned int8 artifact is baked in with its sha256 verified at
+# build time. Deployed-form rows are tagged runtime+quantization and reported
+# ONLY in the separate deployed-form table.
+MD05_ARTIFACT_URL = ("https://huggingface.co/vikhyatk/moondream2/resolve/"
+                     "9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int8.mf.gz")
+MD05_SHA256 = "355c534d5f71fff8524dfeb41ba65f7d07948f910f754de4df242d0037d8be4a"
+
+# ONE BOX for the whole deployed-form comparison (owner directive): both
+# as-shipped models live in a single CPU container so the head-to-head runs on
+# the same physical machine, serially. LFM lane: the VENDOR'S OWN shipped GGUF
+# (Q8_0 + Q8_0 vision projector, commit-pinned) run by llama.cpp release b9860
+# (official CPU binary). Moondream lane: official int8 .mf + moondream==0.0.6.
+LFM_GGUF_COMMIT = "1a3f51cdc26f5d97d5d85cf6901fe5ac7da65a9a"
+_LFM_GGUF_BASE = f"https://huggingface.co/LiquidAI/LFM2.5-VL-450M-GGUF/resolve/{LFM_GGUF_COMMIT}"
+LLAMA_CPP_RELEASE = "b9860"
+
+MD05_IMAGE = (
+    modal.Image.debian_slim(python_version="3.11")  # moondream 0.0.6 supports 3.10-3.12
+    .apt_install("curl", "libgomp1")
+    .pip_install("moondream==0.0.6", "datasets==5.0.0", "pillow==12.3.0",
+                 "huggingface_hub==1.21.0", "requests")
+    .run_commands(
+        # Moondream 0.5B artifact, checksum-verified
+        f"curl -L -o /opt/moondream-0_5b-int8.mf.gz '{MD05_ARTIFACT_URL}'",
+        f"echo '{MD05_SHA256}  /opt/moondream-0_5b-int8.mf.gz' | sha256sum -c -",
+        # LFM 450M vendor-shipped GGUF (Q8_0) + vision projector, commit-pinned
+        f"curl -L -o /opt/LFM2.5-VL-450M-Q8_0.gguf '{_LFM_GGUF_BASE}/LFM2.5-VL-450M-Q8_0.gguf'",
+        f"curl -L -o /opt/mmproj-LFM2.5-VL-450m-Q8_0.gguf '{_LFM_GGUF_BASE}/mmproj-LFM2.5-VL-450m-Q8_0.gguf'",
+        # llama.cpp official CPU binaries, pinned release
+        f"curl -L -o /tmp/llama.tar.gz 'https://github.com/ggml-org/llama.cpp/releases/download/{LLAMA_CPP_RELEASE}/llama-{LLAMA_CPP_RELEASE}-bin-ubuntu-x64.tar.gz'",
+        "mkdir -p /opt/llama && tar -xzf /tmp/llama.tar.gz -C /opt/llama --strip-components=1",
+        "ls /opt/llama/bin/llama-server",
+    )
+    .env({"HF_HOME": HF_CACHE_PATH})
+    .add_local_python_source("envs", "harness")
+)
+
 DATASETS_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
     .pip_install(

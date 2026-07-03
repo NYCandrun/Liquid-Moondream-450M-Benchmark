@@ -26,6 +26,9 @@ def compute_out_path(config, results_base):
 
 
 def assert_gpu(required_substrings):
+    """Empty/None requirement (CPU deployed-form cells) -> no GPU assert."""
+    if not required_substrings:
+        return None
     import torch
 
     name = torch.cuda.get_device_name(0)
@@ -44,15 +47,21 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
     import time
     import traceback
 
-    import torch
-    import transformers
+    try:  # absent in the deployed-form (CPU, non-transformers) image
+        import torch
+        import transformers
+        _torch_version, _tf_version = torch.__version__, transformers.__version__
+    except ImportError:
+        torch = None
+        _torch_version = _tf_version = None
 
     from harness import data as hdata
     from harness.adapters import MODEL_PINS, build_adapter
 
     cid = cell_id(config)
     gpu_name = assert_gpu(config.get("require_gpu_substrings", ["A100", "40GB"]))
-    torch.manual_seed(int(config.get("seed", 0)))
+    if torch is not None:
+        torch.manual_seed(int(config.get("seed", 0)))
 
     pin = MODEL_PINS[config["model"]]
     adapter = build_adapter(config["model"], image_token_budget=config.get("image_token_budget"))
@@ -65,10 +74,13 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
         )
         sample_meta = {"n": len(items), "seed": config["sample"]["seed"], "indices": chosen}
 
-    gpu_uuid = subprocess.run(
-        ["nvidia-smi", "--query-gpu=uuid", "--format=csv,noheader"],
-        capture_output=True, text=True,
-    ).stdout.strip()
+    try:
+        gpu_uuid = subprocess.run(
+            ["nvidia-smi", "--query-gpu=uuid", "--format=csv,noheader"],
+            capture_output=True, text=True,
+        ).stdout.strip()
+    except FileNotFoundError:  # CPU container
+        gpu_uuid = None
 
     meta = {
         "gpu_uuid": gpu_uuid,
@@ -76,17 +88,17 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
         "revision": pin["revision"],
         "resolved_sha": pin.get("resolved_sha", pin["revision"]),
         "env": pin["env"],
-        "transformers": transformers.__version__,
-        "torch": torch.__version__,
+        "transformers": _tf_version,
+        "torch": _torch_version,
         "gpu": gpu_name,
-        "dtype": "bfloat16",
+        "dtype": pin.get("dtype", "bfloat16"),
         "loader": pin["adapter"],
         "decoding": {"do_sample": False, "max_new_tokens": int(config["max_new_tokens"])},
         "dataset_revision": hdata.DATASET_PINS[hdata.TASK_TO_DATASET[config["task"]]]["revision"],
         "prompt_id": config["prompt_id"],
         "image_token_budget": config.get("image_token_budget"),
-        "runtime": None,
-        "quantization": None,
+        "runtime": pin.get("runtime"),
+        "quantization": pin.get("quantization"),
         "cpu_reserved": config.get("_cpu_reserved"),
         "memory_reserved_mb": config.get("_memory_reserved_mb"),
     }
@@ -143,7 +155,8 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
                     infra = any(m in tb for m in INFRA_ERROR_MARKERS)
                     row["error"] = tb.strip().splitlines()[-1][:500]
                     if infra and attempt == 1:
-                        torch.cuda.empty_cache()
+                        if torch is not None:
+                            torch.cuda.empty_cache()
                         time.sleep(2)
                         continue  # one retry on infrastructure failure only
                     n_err += 1
