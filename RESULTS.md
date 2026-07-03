@@ -11,18 +11,50 @@ over 9,000 items; Count = CountBenchQA exact match over 491 items.
 
 | Model | Find-object | Yes/No acc | Yes/No F1 | Count | Parse rate (find / yn / count) | Median ms/item (find / yn / count) |
 |---|---|---|---|---|---|---|
-| Qwen2.5-VL 7B | **91.7%** | 83.7% | 0.808 | **85.9%** | 100% / 100% / 100% | 1198 / 508 / 108 |
-| InternVL3.5 1B | 89.4% | 79.1% | 0.849 | 49.9% | 100% / 96% / 100% | 1356 / 937 / 221 |
-| LFM2.5-VL 450M | 76.9% | 84.8% | **0.857** | 71.5% | 100% / 100% / 100% | 709 / 324 / **40** |
-| moondream2 2B | 76.4% | 76.7% | 0.803 | 83.5% | 99% / 100% / 100% | **203** / 316 / 100 |
-| LLaVA-OV 0.5B | 3.6% | **85.5%** | 0.837 | 73.1% | 100% / 100% / 100% | 578 / 247 / 321 |
-| SmolVLM2 500M | 0.0% | 55.0% | 0.801 | 60.9% | 48% / 78% / 100% | 857 / **141** / 138 |
+| Qwen2.5-VL 7B | **91.7%** | 88.1% | 0.869 | **85.9%** | 100% / 100% / 100% | 1198 / 508 / 108 |
+| InternVL3.5 1B | 89.4% | 86.5% | 0.874 | 49.9% | 100% / 100% / 100% | 1356 / 937 / 221 |
+| LFM2.5-VL 450M | 76.9% | 87.9% | 0.876 | 71.5% | 100% / 100% / 100% | 709 / 324 / **40** |
+| moondream2 2B | 76.4% | **91.2%** | **0.910** | 83.5% | 99% / 100% / 100% | **203** / 316 / 100 |
+| LLaVA-OV 0.5B | 3.6% | 87.0% | 0.858 | 73.1% | 100% / 100% / 100% | 578 / 247 / 321 |
+| SmolVLM2 500M | 0.0% | 85.1% | 0.855 | 60.9% | 48% / 100% / 100% | 857 / **141** / 138 |
+
+Yes/No uses the STANDARD POPE protocol — question + "Please answer yes or no."
+(prompt id `pope_vlmevalkit_v2`) — so the column aligns with the community
+convention and published/referee numbers. This supersedes an earlier
+bare-question run; see the yes/no-convention note below. Yes/No accuracy, F1
+and parse rate are from the suffixed run; yes/no latency stays from the
+original 40GB bare run (the two prompts differ by ~5 tokens — immaterial to
+per-item wall time, and keeping it preserves a single 40GB latency basis).
 
 Latency is the median per-item wall time on the same A100 class, measured inside
 the shared harness (image already decoded, greedy decoding; excludes model load).
 It compares each model's full shipped pipeline — preprocessing included — not
 FLOPs. Grounding latency partly tracks answer length and preprocessing (e.g.
 InternVL's tiling); moondream2's fast grounding is its compiled `detect` skill.
+
+### Yes/No prompt-convention finding (change #11, retained)
+
+The bare question (no instruction) is a real and large error source for small
+VLMs. Measured effect of adding the standard "Please answer yes or no."
+suffix, same 9,000 POPE items, same greedy decoding, same parser (only the
+prompt differs):
+
+| Model | Bare acc | +Suffix acc | Δ | Parse (bare→suffix) |
+|---|---|---|---|---|
+| SmolVLM2 500M | 55.0 | **85.1** | **+30.1** | 78% → 100% |
+| moondream2 2B | 76.7 | 91.2 | +14.5 | 100% → 100% |
+| InternVL3.5 1B | 79.1 | 86.5 | +7.4 | 96% → 100% |
+| Qwen2.5-VL 7B | 83.7 | 88.1 | +4.4 | 100% → 100% |
+| LFM2.5-VL 450M | 84.8 | 87.9 | +3.1 | 100% → 100% |
+| LLaVA-OV 0.5B | 85.5 | 87.0 | +1.5 | 100% → 100% |
+
+Reading: the smaller/weaker the model's instruction-following, the more the
+missing convention hurt — SmolVLM2 loses **30 points** without it (much of it
+unparseable rambling, parse 78%→100%). The suffixed numbers match the
+independent VLMEvalKit referee within ~0.5 pt (SmolVLM2 85.1 vs 85.6,
+moondream2 91.2 vs 90.7, Qwen 88.1 vs 87.8, LLaVA 87.0 vs 86.5), cross-
+validating the convention. Both runs are kept under `results/raw/`
+(`bench/` bare, `bench_suffixed/` standard).
 
 ## Part 2 — Image-detail dial (sweep)
 

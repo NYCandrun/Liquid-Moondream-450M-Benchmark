@@ -368,7 +368,7 @@ Two additions, no change to any existing number:
    Labeling rule: GPU probe numbers are measured energy; the CPU
    deployed-form lanes report measured compute time only, never energy.
 
-## Change log #11 (2026-07-03, referee lane finding — disposition PENDING)
+## Change log #11 (2026-07-03, referee lane finding — DISPOSITION RESOLVED, change #16)
 
 The referee's first POPE cell exposed a prompt-convention divergence between
 the two instruments. Our lane feeds POPE the RAW question from the pinned HF
@@ -385,6 +385,19 @@ SmolVLM2-specific, it is reported as an instruction-dependence finding
 against the disclosed bare-question convention; if all models swing
 materially, the bare-question main-table POPE column systematically
 underreads and an owner decision on a suffixed re-run is required.
+
+DISPOSITION (change #16, owner-approved 2026-07-03): ALL SIX models swing
+materially with the standard suffix (+1.5 LLaVA, +3.1 LFM, +4.4 Qwen, +7.4
+InternVL, +14.5 moondream2, +30.1 SmolVLM2), so the bare-question column was
+a systematic underread, not a SmolVLM2 quirk. Resolution: adopt the STANDARD
+POPE protocol (prompt id `pope_vlmevalkit_v2` = question + "Please answer yes
+or no.") as the main-table Yes/No headline — it is the documented benchmark
+convention and matches the independent referee within ~0.5 pt. The
+bare-question run is RETAINED (results/raw/bench/) and reported as the
+prompt-convention finding (RESULTS Part 1 sub-table). Only the prompt
+changed; parser, decoding, checkpoints, dataset identical, so the deltas
+isolate the single variable. Re-run executed via harness/run_pope_suffixed.py
+(part=bench_suffixed), all 6 models, 9,000 items, greedy, A100.
 
 ## Change log #12 (2026-07-03): forced-budget crashes — sweep table corrected,
 probe hardened
