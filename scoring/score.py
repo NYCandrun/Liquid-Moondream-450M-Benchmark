@@ -57,6 +57,23 @@ KNOWN_TASKS = ("count", "grounding", "pope")
 # Normalizers: return None on unusable input, NEVER raise.
 # ---------------------------------------------------------------------------
 
+def _gt_field(item: dict, key: str) -> Any:
+    """The published schema stores gt as a labeled dict (e.g. {"box_xyxy": ...});
+    accept both the dict form and a bare value for backward compatibility."""
+    gt = item.get("gt")
+    if isinstance(gt, dict):
+        return gt.get(key)
+    return gt
+
+
+def _first_box(value: Any) -> Any:
+    """Grounding parsers return a LIST of boxes; the headline metric scores the
+    first predicted box. Accept both list-of-boxes and a bare box."""
+    if isinstance(value, (list, tuple)) and value and isinstance(value[0], (list, tuple)):
+        return value[0]
+    return value
+
+
 def normalize_box(value: Any) -> Optional[list[float]]:
     """Normalize a value to a pixel box ``[x1, y1, x2, y2]`` of floats.
 
@@ -129,7 +146,7 @@ def _score_grounding(items: list[dict]) -> tuple[list[dict], dict]:
     n_invalid_gt = 0
 
     for item in items:
-        gt_box = normalize_box(item.get("gt"))
+        gt_box = normalize_box(_gt_field(item, "box_xyxy"))
         record: dict[str, Any] = {"item_id": item.get("item_id")}
         if gt_box is None:
             # Dataset bug: ground truth is not a valid box. Record, exclude.
@@ -138,7 +155,7 @@ def _score_grounding(items: list[dict]) -> tuple[list[dict], dict]:
             per_item.append(record)
             continue
 
-        parsed_box = normalize_box(item.get("parsed"))
+        parsed_box = normalize_box(_first_box(item.get("parsed")))
         scores = metrics.grounding_item_scores(parsed_box, gt_box)
         scorable.append(scores)
         record.update({"parsed": parsed_box, "gt": gt_box, **scores})
@@ -156,7 +173,7 @@ def _score_pope(items: list[dict]) -> tuple[list[dict], dict]:
     n_invalid_gt = 0
 
     for item in items:
-        gt_yes = normalize_yes_no(item.get("gt"))
+        gt_yes = normalize_yes_no(_gt_field(item, "answer_yes"))
         record: dict[str, Any] = {"item_id": item.get("item_id")}
         if gt_yes is None:
             n_invalid_gt += 1
@@ -189,7 +206,7 @@ def _score_count(items: list[dict]) -> tuple[list[dict], dict]:
     n_invalid_gt = 0
 
     for item in items:
-        gt_int = normalize_int(item.get("gt"))
+        gt_int = normalize_int(_gt_field(item, "number"))
         record: dict[str, Any] = {"item_id": item.get("item_id")}
         if gt_int is None:
             n_invalid_gt += 1
