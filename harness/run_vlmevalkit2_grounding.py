@@ -49,6 +49,10 @@ app = modal.App("edge-vlm-referee2-grounding")
 WORKDIR = HF_CACHE_PATH + "/vlmeval2_out"
 LMUDATA = HF_CACHE_PATH + "/lmudata"
 VOL = {HF_CACHE_PATH: hf_cache_volume}
+# Auto-restart on Modal worker PREEMPTION (spot-GPU reclaim, observed even at 3
+# concurrent containers). VLMEvalKit resumes from its per-cell xlsx on the
+# volume, so a restarted container re-uses completed predictions.
+_RETRIES = modal.Retries(max_retries=4, initial_delay=20.0, backoff_coefficient=2.0)
 
 # Uniform grounding prompt (VLMEvalKit-style; one prompt for every model — the
 # independent-instrument protocol). The tool's parser reads [x1,y1,x2,y2] or the
@@ -124,13 +128,13 @@ def _run_cells(models, data):
 
 
 @app.function(image=VLMEVAL2_TF457_IMAGE, gpu=GPU_TYPE, timeout=12 * 3600,
-              volumes=VOL, cpu=8.0, memory=32768)
+              volumes=VOL, cpu=8.0, memory=32768, retries=_RETRIES)
 def ground_tf457(data, models=None):
     return _run_cells(models or TF457_MODELS, data)
 
 
 @app.function(image=VLMEVAL2_TF5_IMAGE, gpu=GPU_TYPE, timeout=12 * 3600,
-              volumes=VOL, cpu=8.0, memory=32768)
+              volumes=VOL, cpu=8.0, memory=32768, retries=_RETRIES)
 def ground_tf5(data, models=None):
     return _run_cells(models or TF5_MODELS, data)
 
@@ -172,8 +176,19 @@ def smoke():
 
 @app.local_entrypoint()
 def full():
-    c5 = ground_tf5.spawn("RefCOCO-M")
-    c457 = ground_tf457.spawn("RefCOCO-M")
-    log = list(c5.get()) + list(c457.get())
+    # Fan out to ONE container per model (5 concurrent: LFM on tf5, the four on
+    # tf457) — combined with the referee lane this peaks at 6 GPU containers, a
+    # deliberate test of a higher concurrency ceiling. Failure-tolerant: each
+    # call is gathered under try/except so a preemption doesn't lose the rest,
+    # and collect() salvages whatever committed to the volume.
+    calls = [("LFM2.5-VL-450M", ground_tf5.spawn("RefCOCO-M", models=["LFM2.5-VL-450M"]))]
+    for m in TF457_MODELS:
+        calls.append((m, ground_tf457.spawn("RefCOCO-M", models=[m])))
+    log = []
+    for name, c in calls:
+        try:
+            log += list(c.get())
+        except Exception as exc:
+            print(f"[{name} FAILED] {exc!r} — partial cells remain on the volume")
     _save(log, collect.remote(), "")
     print(f"grounding referee done: {sum(e['returncode'] == 0 for e in log)}/{len(log)} cells")

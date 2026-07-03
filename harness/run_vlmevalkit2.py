@@ -40,6 +40,9 @@ from envs.images import (
 app = modal.App("edge-vlm-referee2")
 WORKDIR = HF_CACHE_PATH + "/vlmeval2_out"
 VOL = {HF_CACHE_PATH: hf_cache_volume}
+# Auto-restart on Modal worker preemption (spot-GPU reclaim). VLMEvalKit
+# resumes from its per-cell xlsx on the volume, so restarts re-use predictions.
+_RETRIES = modal.Retries(max_retries=4, initial_delay=20.0, backoff_coefficient=2.0)
 
 TF457_MODELS = ["SmolVLM2-500M", "llava-onevision-qwen2-0.5b-ov-hf",
                 "Qwen2.5-VL-7B-Instruct", "Moondream2"]
@@ -75,13 +78,13 @@ def _run_cells(models, datasets):
 
 
 @app.function(image=VLMEVAL2_TF457_IMAGE, gpu=GPU_TYPE, timeout=12 * 3600,
-              volumes=VOL, cpu=8.0, memory=32768)
+              volumes=VOL, cpu=8.0, memory=32768, retries=_RETRIES)
 def referee_tf457(datasets=None):
     return _run_cells(TF457_MODELS, datasets or DATASETS)
 
 
 @app.function(image=VLMEVAL2_TF5_IMAGE, gpu=GPU_TYPE, timeout=12 * 3600,
-              volumes=VOL, cpu=8.0, memory=32768)
+              volumes=VOL, cpu=8.0, memory=32768, retries=_RETRIES)
 def referee_tf5(datasets=None):
     return _run_cells(TF5_MODELS, datasets or DATASETS)
 
