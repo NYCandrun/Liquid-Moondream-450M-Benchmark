@@ -99,6 +99,11 @@ SWEEPBOX_IMAGE = (
         "/opt/tf457/bin/pip install --no-cache-dir torch==2.12.1 torchvision==0.27.1",
         f"/opt/tf457/bin/pip install --no-cache-dir {_TF457_PKGS}",
     )
+    # DRIVER layer only (system python — the model venvs above are untouched):
+    # NVML bindings for the energy probe (change #10). The GPU's cumulative
+    # energy counter is live on Modal's A100/driver 580.95.05 but the
+    # nvidia-smi CLI omits the field, so the probe reads NVML directly.
+    .pip_install("nvidia-ml-py==13.610.43")
     .env({"HF_HOME": HF_CACHE_PATH})
     .add_local_python_source("envs", "harness")
 )

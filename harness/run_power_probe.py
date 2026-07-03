@@ -58,16 +58,22 @@ def power_probe(cell_specs: list):
     import subprocess
     import time
 
-    def energy_j():
-        """Cumulative GPU energy (J) from the NVML counter; None if absent."""
-        out = subprocess.run(["nvidia-smi", "-q", "-d", "POWER"],
-                             capture_output=True, text=True).stdout
-        for line in out.splitlines():
-            if "Total Energy Consumption" in line:
-                val = line.split(":", 1)[1].strip()
-                if val.endswith("J"):
-                    return float(val[:-1].strip())
-        return None
+    # NVML direct read: the counter is live on Modal's driver (verified:
+    # 2 s idle delta = 60.04 W vs 59.69 W instantaneous) but the nvidia-smi
+    # CLI omits the field. Sub-ms reads also shrink window-boundary fuzz.
+    try:
+        import pynvml
+        pynvml.nvmlInit()
+        _nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+
+        def energy_j():
+            """Cumulative GPU energy (J) from the NVML mJ counter."""
+            return pynvml.nvmlDeviceGetTotalEnergyConsumption(_nvml_handle) / 1000.0
+
+        energy_j()
+    except Exception:
+        def energy_j():
+            return None
 
     gpu = subprocess.run(
         ["nvidia-smi", "--query-gpu=uuid,name", "--format=csv,noheader"],
@@ -149,7 +155,7 @@ def power_probe(cell_specs: list):
             e_window = e_last - e_first
             wall_window = t_last - t_first
             summary["energy"] = {
-                "counter": "nvidia-smi Total Energy Consumption (NVML, cumulative J)",
+                "counter": "NVML nvmlDeviceGetTotalEnergyConsumption (nvidia-ml-py 13.610.43, cumulative mJ)",
                 "idle_w": round(idle_w, 2),
                 "window_rows": [2, n_target],
                 "window_j": round(e_window, 2),

@@ -354,7 +354,13 @@ Two additions, no change to any existing number:
    2..N exactly, excluding model load; 15 s idle baseline per cell for a
    net-of-idle variant; 10 Hz power trace kept as provenance; the probe
    REFUSES to run if the counter is absent rather than substitute an
-   estimate). Probe discipline mirrors the sweep: one container, one
+   estimate). Counter access note (as-executed): Modal's driver (580.95.05)
+   omits the "Total Energy Consumption" field from the nvidia-smi CLI, so
+   the probe reads the counter via the NVML API directly (nvidia-ml-py
+   13.610.43, installed in the SWEEPBOX driver layer ONLY — the model venvs
+   are untouched). Verified live before use: 2 s idle counter delta = 60.04 W
+   vs 59.69 W instantaneous reading. Probe discipline mirrors the sweep: one
+   container, one
    physical A100-40GB (strict assert, UUID per row), SWEEPBOX dual-venv
    image, cells strictly serial, queued behind the running referee lane (one
    GPU at a time). A rejected alternative is recorded: a six-model
