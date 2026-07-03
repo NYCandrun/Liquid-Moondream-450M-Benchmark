@@ -110,7 +110,7 @@ def _smoke_ids_for_budget(budget, n_crash=5, n_ok=3):
     return crashed[:n_crash] + completed[:n_ok]
 
 
-def _lfm_v2_specs(smoke=False):
+def _lfm_v2_specs(smoke=False, sample_n=0, sample_seed=7):
     """Corrected LFM curve (change #14): the SAME four budget configs — same
     prompt, seed, decoding — plus the disclosed local pre-upscale fallback, so
     forced budgets never hit the pinned stack's broken upscale path.
@@ -133,6 +133,8 @@ def _lfm_v2_specs(smoke=False):
                 "derivation": "first-5 crashed + first-3 completed item_ids from the "
                               "original run at this budget (change #14 smoke)",
             }
+        elif sample_n:
+            cfg["sample"] = {"n": sample_n, "seed": sample_seed}
         prompt = (REPO_ROOT / "prompts" / f"{cfg['prompt_id']}.txt").read_text()
         specs.append((cfg, prompt))
     return specs
@@ -184,7 +186,7 @@ def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, al
         return
 
     if lfm_upscale or lfm_upscale_smoke:
-        specs = _lfm_v2_specs(smoke=lfm_upscale_smoke)
+        specs = _lfm_v2_specs(smoke=lfm_upscale_smoke, sample_n=sample_n, sample_seed=sample_seed)
     else:
         specs = _load_specs(sample_n, sample_seed, align=align, smol_count=smol_count)
     result = sweep_onebox.remote(specs)

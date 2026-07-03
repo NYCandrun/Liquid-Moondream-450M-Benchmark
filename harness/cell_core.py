@@ -111,12 +111,17 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
         "dataset_revision": hdata.DATASET_PINS[hdata.TASK_TO_DATASET[config["task"]]]["revision"],
         "prompt_id": config["prompt_id"],
         "image_token_budget": config.get("image_token_budget"),
-        "upscale_fallback": bool(config.get("upscale_fallback")),
         "runtime": pin.get("runtime"),
         "quantization": pin.get("quantization"),
         "cpu_reserved": config.get("_cpu_reserved"),
         "memory_reserved_mb": config.get("_memory_reserved_mb"),
     }
+    if config.get("upscale_fallback"):
+        # change #14: row-schema additions are GATED on the flag so every
+        # fallback-off lane keeps emitting the exact pre-#14 row schema
+        # (review finding: an unconditional write would leak new null fields
+        # into resumed/re-run cells of untouched lanes).
+        meta["upscale_fallback"] = True
 
     out_path = compute_out_path(config, results_base)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -157,6 +162,8 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
                 "error": None,
                 "meta": meta,
             }
+            if config.get("upscale_fallback"):
+                row["pre_upscale_factor"] = None  # every sweep_v2 row carries the key
             for attempt in (1, 2):
                 try:
                     gen = adapter.generate(
@@ -164,7 +171,8 @@ def run_cell_core(config, prompt_template, results_base, commit_cb=None):
                     )
                     row.update(raw_output=gen["raw_output"], latency_ms=gen["latency_ms"])
                     row["n_input_tokens"] = gen.get("n_input_tokens")
-                    row["pre_upscale_factor"] = gen.get("pre_upscale_factor")
+                    if config.get("upscale_fallback"):
+                        row["pre_upscale_factor"] = gen.get("pre_upscale_factor")
                     break
                 except Exception:
                     tb = traceback.format_exc()
