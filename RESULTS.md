@@ -77,7 +77,39 @@ One item (countbench:116, a 100×100 grayscale image) errors in SmolVLM2's
 shipped processor at every setting ("Unsupported number of image dimensions:
 2") and scores as a miss — a uniform −0.2 pt on all four rows (change #12).
 
-### Moondream 0.5B — no dial exists
+### Efficiency probe — measured energy + latency at every dial setting
+
+The SAME 100 counting questions for all 8 cells (drawn from a seeded
+300-image pool, keeping only items every cell completes — the forced-budget
+crash finding, change #12, made this filter necessary; the subset runs
+~2 pts easier than the full set but preserves the curve shapes, validated
+against SmolVLM2's full-491 curve above). One physical A100-40GB die for all
+cells (UUID stamped per row). Energy is MEASURED from the GPU's cumulative
+NVML energy counter over the answering window only (model load excluded);
+"net" subtracts each cell's own 15 s idle-power baseline (~53 W).
+
+| Model @ setting | Count acc (this 100) | Median ms/answer | Mean input tokens | J/answer raw | J/answer net-of-idle |
+|---|---|---|---|---|---|
+| LFM @ 32 | 59.0% | **38** | 67 | 3.51 | 0.54 |
+| LFM @ 64 | 69.0% | **37** | 100 | 3.49 | 0.62 |
+| LFM @ 128 | **72.0%** | **37** | 160 | 3.61 | 0.71 |
+| LFM @ 256 | 68.0% | **38** | 288 | 4.20 | 1.01 |
+| SmolVLM2 @ 512px | 63.0% | 84 | 106 | 9.07 | 1.54 |
+| SmolVLM2 @ 1024px | 61.0% | 96 | 366 | 16.19 | 3.75 |
+| SmolVLM2 @ 1536px | 64.0% | 113 | 636 | 24.35 | 6.16 |
+| SmolVLM2 @ 2048px (default) | 62.0% | 131 | 1023 | 47.86 | 13.99 |
+
+Readings the data supports: (1) LFM's entire dial lives in a 3.5–4.2 J
+band — at 450M scale, extra image detail is nearly free in both time and
+energy (fixed overhead dominates). (2) SmolVLM2's dial multiplies energy
+5.3× (9.1→47.9 J) and latency 1.6× for an accuracy change inside the
+noise — consistent with its flat full-set curve. (3) At shipped defaults on
+identical questions, SmolVLM2 spends **11–13× the energy** and 3.4× the
+time per answer of LFM at any setting, and scores lower. (4) Per CORRECT
+answer at defaults-vs-best: SmolVLM2 @2048 ≈ 77 J/correct vs LFM @128 ≈
+5.0 J/correct — ~15×. (5) LFM's counting dial peaks at 128 (72%); 128 vs
+256 is within n=100 noise (±5 pts), but 32 is clearly worse — same
+more-detail-is-not-better character as its grounding curve.
 
 _Single fixed point (729 tokens); runs in the deployed-form lane._
 

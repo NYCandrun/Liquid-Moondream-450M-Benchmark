@@ -1,0 +1,168 @@
+{
+ "pool_n": 300,
+ "seed": 7,
+ "eligible": 114,
+ "item_ids": [
+  "countbench:0",
+  "countbench:2",
+  "countbench:7",
+  "countbench:13",
+  "countbench:19",
+  "countbench:24",
+  "countbench:25",
+  "countbench:26",
+  "countbench:34",
+  "countbench:39",
+  "countbench:42",
+  "countbench:43",
+  "countbench:46",
+  "countbench:47",
+  "countbench:57",
+  "countbench:60",
+  "countbench:70",
+  "countbench:74",
+  "countbench:76",
+  "countbench:83",
+  "countbench:84",
+  "countbench:85",
+  "countbench:86",
+  "countbench:88",
+  "countbench:90",
+  "countbench:92",
+  "countbench:102",
+  "countbench:105",
+  "countbench:106",
+  "countbench:109",
+  "countbench:114",
+  "countbench:119",
+  "countbench:127",
+  "countbench:128",
+  "countbench:135",
+  "countbench:147",
+  "countbench:153",
+  "countbench:156",
+  "countbench:158",
+  "countbench:159",
+  "countbench:175",
+  "countbench:179",
+  "countbench:190",
+  "countbench:192",
+  "countbench:194",
+  "countbench:200",
+  "countbench:201",
+  "countbench:202",
+  "countbench:203",
+  "countbench:207",
+  "countbench:214",
+  "countbench:215",
+  "countbench:218",
+  "countbench:228",
+  "countbench:233",
+  "countbench:234",
+  "countbench:238",
+  "countbench:248",
+  "countbench:250",
+  "countbench:254",
+  "countbench:259",
+  "countbench:272",
+  "countbench:280",
+  "countbench:282",
+  "countbench:289",
+  "countbench:291",
+  "countbench:295",
+  "countbench:297",
+  "countbench:299",
+  "countbench:309",
+  "countbench:310",
+  "countbench:311",
+  "countbench:312",
+  "countbench:319",
+  "countbench:321",
+  "countbench:324",
+  "countbench:335",
+  "countbench:336",
+  "countbench:340",
+  "countbench:342",
+  "countbench:353",
+  "countbench:359",
+  "countbench:361",
+  "countbench:362",
+  "countbench:367",
+  "countbench:369",
+  "countbench:373",
+  "countbench:388",
+  "countbench:397",
+  "countbench:398",
+  "countbench:399",
+  "countbench:405",
+  "countbench:406",
+  "countbench:409",
+  "countbench:412",
+  "countbench:415",
+  "countbench:417",
+  "countbench:418",
+  "countbench:420",
+  "countbench:421"
+ ],
+ "per_model": {
+  "lfm450m": {
+   "fail_count": 186,
+   "fail_examples": [
+    {
+     "item_id": "countbench:162",
+     "budget": 32,
+     "error": "RuntimeError(\"shape '[1, 12, 12, -1]' is invalid for input of size 98304\")"
+    },
+    {
+     "item_id": "countbench:243",
+     "budget": 32,
+     "error": "RuntimeError(\"shape '[1, 12, 12, -1]' is invalid for input of size 98304\")"
+    },
+    {
+     "item_id": "countbench:262",
+     "budget": 32,
+     "error": "RuntimeError(\"shape '[1, 12, 12, -1]' is invalid for input of size 98304\")"
+    },
+    {
+     "item_id": "countbench:370",
+     "budget": 32,
+     "error": "RuntimeError(\"shape '[1, 12, 12, -1]' is invalid for input of size 98304\")"
+    },
+    {
+     "item_id": "countbench:466",
+     "budget": 32,
+     "error": "RuntimeError(\"shape '[1, 12, 14, -1]' is invalid for input of size 98304\")"
+    },
+    {
+     "item_id": "countbench:6",
+     "budget": 64,
+     "error": "RuntimeError(\"shape '[1, 18, 16, -1]' is invalid for input of size 196608\")"
+    },
+    {
+     "item_id": "countbench:37",
+     "budget": 64,
+     "error": "RuntimeError(\"shape '[1, 18, 16, -1]' is invalid for input of size 196608\")"
+    },
+    {
+     "item_id": "countbench:52",
+     "budget": 64,
+     "error": "RuntimeError(\"shape '[1, 14, 20, -1]' is invalid for input of size 196608\")"
+    },
+    {
+     "item_id": "countbench:56",
+     "budget": 64,
+     "error": "RuntimeError(\"shape '[1, 18, 16, -1]' is invalid for input of size 196608\")"
+    },
+    {
+     "item_id": "countbench:63",
+     "budget": 64,
+     "error": "RuntimeError(\"shape '[1, 18, 16, -1]' is invalid for input of size 196608\")"
+    }
+   ]
+  },
+  "smolvlm2": {
+   "fail_count": 0,
+   "fail_examples": []
+  }
+ }
+}
