@@ -333,3 +333,18 @@ one format would advantage whichever model matches it).
    8 sweep cells were stopped, their volume partials deleted, and relaunched
    from zero under the pinned reservation — no mixed-condition rows exist in
    any sweep cell.
+
+4. **2026-07-02, during Phase 3 (root cause of GPU substitution found and
+   fixed; no completed cell affected).** Modal's documentation confirms the
+   substitutions are deliberate platform behavior: "Modal may automatically
+   upgrade a gpu=\"A100\" request to run on an 80 GB A100. This automatic
+   upgrade does not change the cost," with a documented no-upgrade pin — the
+   "!" suffix — recommended "for instance, benchmarking"
+   (https://modal.com/docs/guide/gpu). Fix: sweep cells now request
+   `A100-40GB!` (Modal queues for true 40GB hardware instead of substituting;
+   the in-container device assert remains as verification), bench cells keep
+   the upgradable request with the any-A100 assert of change #2. Scheduling
+   changed to remove the contention trigger: the sweep runs after the bench
+   backlog drains, max 2 concurrent, well under the 10-GPU workspace limit.
+   Sweep cells had produced no accepted rows (all relaunched from zero at
+   change #3); bench cells were already policy-correct.

@@ -3,21 +3,7 @@
     "cell": "bench_internvl35_count.sample20s7",
     "n": 20,
     "parsed": 20,
-    "correct": 10,
+    "correct": 9,
     "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_internvl35_count.sample20s7.md"
-  },
-  {
-    "cell": "bench_internvl35_grounding.sample20s7",
-    "n": 20,
-    "parsed": 20,
-    "correct": 17,
-    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_internvl35_grounding.sample20s7.md"
-  },
-  {
-    "cell": "bench_internvl35_pope.sample20s7",
-    "n": 20,
-    "parsed": 18,
-    "correct": 12,
-    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/bench_internvl35_pope.sample20s7.md"
   }
 ]

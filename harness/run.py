@@ -199,26 +199,50 @@ def _run_cell(config, prompt_template):
 # one dedicated GPU per cell, items strictly sequential within the cell.
 RESOURCES = dict(cpu=8.0, memory=32768)
 
+# GPU requests (change log #4). Modal DOCUMENTS automatic free upgrades of
+# A100 requests to 80GB, and documents the "!" suffix as the no-upgrade pin
+# ("for instance, benchmarking"). Bench (accuracy) cells accept upgrades
+# (any-A100 assert; device recorded per row); sweep (latency) cells use the
+# strict pin so Modal queues for real 40GB hardware instead of substituting.
+GPU_BENCH = GPU_TYPE            # "A100-40GB" — upgradable, free per Modal docs
+GPU_SWEEP_STRICT = GPU_TYPE + "!"  # documented no-upgrade pin
 
-@app.function(image=TF5_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
-              retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
+_RETRIES = modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0)
+
+
+@app.function(image=TF5_IMAGE, gpu=GPU_BENCH, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
+              retries=_RETRIES)
 def run_cell_tf5(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
-@app.function(image=TF457_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
-              retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
+@app.function(image=TF457_IMAGE, gpu=GPU_BENCH, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
+              retries=_RETRIES)
 def run_cell_tf457(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
-@app.function(image=MOONDREAM2_IMAGE, gpu=GPU_TYPE, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
-              retries=modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0))
+@app.function(image=MOONDREAM2_IMAGE, gpu=GPU_BENCH, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
+              retries=_RETRIES)
 def run_cell_moondream(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
+# Strict-pinned variants for the sweep (LFM + SmolVLM only run there).
+@app.function(image=TF5_IMAGE, gpu=GPU_SWEEP_STRICT, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
+              retries=_RETRIES)
+def run_cell_tf5_strict(config: dict, prompt_template: str):
+    return _run_cell(config, prompt_template)
+
+
+@app.function(image=TF457_IMAGE, gpu=GPU_SWEEP_STRICT, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
+              retries=_RETRIES)
+def run_cell_tf457_strict(config: dict, prompt_template: str):
+    return _run_cell(config, prompt_template)
+
+
 ENV_TO_FN = {"tf5": run_cell_tf5, "tf457": run_cell_tf457, "moondream2": run_cell_moondream}
+ENV_TO_FN_STRICT = {"tf5": run_cell_tf5_strict, "tf457": run_cell_tf457_strict}
 
 
 # --------------------------------------------------------------------------
@@ -239,8 +263,10 @@ def main(config: str, sample_n: int = 0, sample_seed: int = 0):
     prompt_template = prompt_path.read_text()
 
     env = MODEL_PINS[cfg["model"]]["env"]
-    fn = ENV_TO_FN[env]
-    print(f"dispatching cell={cell_id(cfg)} env={env} model={cfg['model']} task={cfg['task']}")
+    # sweep cells (latency first-class) dispatch to the strict-pinned GPU variant
+    fn = ENV_TO_FN_STRICT[env] if cfg["part"] == "sweep" else ENV_TO_FN[env]
+    print(f"dispatching cell={cell_id(cfg)} env={env} model={cfg['model']} task={cfg['task']} "
+          f"gpu={'strict' if cfg['part'] == 'sweep' else 'upgradable'}")
     result = fn.remote(cfg, prompt_template)
 
     suffix = f".sample{sample_n}s{sample_seed}" if sample_n else ""
