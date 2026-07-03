@@ -89,14 +89,24 @@ def export_sweepbox_locks():
     }
 
 
-def _load_specs(sample_n=0, sample_seed=7):
+# Token-aligned pairs (Gate A common scale): settings where the two models'
+# REALIZED token counts overlap, so rows compare like-for-like:
+#   ~64 tokens:   LFM T=64   <->  SmolVLM longest_edge=512 (single 64-token tile)
+#   ~256-320:     LFM T=256  <->  SmolVLM longest_edge=1024 (<=320 tokens)
+ALIGN_PAIRS = [("lfm450m", 64), ("smolvlm2", 512), ("lfm450m", 256), ("smolvlm2", 1024)]
+
+
+def _load_specs(sample_n=0, sample_seed=7, align=False):
     import yaml
 
+    wanted = ALIGN_PAIRS if align else None
     specs = []
     for model in ("lfm450m", "smolvlm2"):  # LFM curve first, then SmolVLM
         for cfg_path in sorted((REPO_ROOT / "configs" / "sweep").glob(f"{model}_*.yaml"),
                                key=lambda p: int(p.stem.rsplit("_b", 1)[1])):
             cfg = yaml.safe_load(cfg_path.read_text())
+            if wanted is not None and (model, cfg["image_token_budget"]) not in wanted:
+                continue
             if sample_n:
                 cfg["sample"] = {"n": sample_n, "seed": sample_seed}
             prompt = (REPO_ROOT / "prompts" / f"{cfg['prompt_id']}.txt").read_text()
@@ -105,7 +115,7 @@ def _load_specs(sample_n=0, sample_seed=7):
 
 
 @app.local_entrypoint()
-def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False):
+def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False, align: bool = False):
     if export_locks:
         locks = export_sweepbox_locks.remote()
         for venv, text in locks.items():
@@ -114,7 +124,7 @@ def main(sample_n: int = 0, sample_seed: int = 7, export_locks: bool = False):
             print(f"wrote {out} ({len(text.splitlines())} packages)")
         return
 
-    result = sweep_onebox.remote(_load_specs(sample_n, sample_seed))
+    result = sweep_onebox.remote(_load_specs(sample_n, sample_seed, align=align))
     print("SWEEP GPU (single die for all cells):", result["gpu"])
     for summary in result["cells"]:
         suffix = f".sample{sample_n}s{sample_seed}" if sample_n else ""
