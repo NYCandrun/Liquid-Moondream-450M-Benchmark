@@ -161,3 +161,29 @@ yes/no answer is dominated by yes-bias (94% "yes" under the bare-question
 convention; moondream2 gains +14 pts with the community suffix — change
 log #11 — and its 0.5B distillation plausibly shares that sensitivity,
 untestable in VLMEvalKit, which has no .mf runner).
+
+## Referee lane — same checkpoints re-scored by VLMEvalKit @ 8eb37bb9 (8/8 cells)
+
+The pinned community tool, run by us on Modal (A100), same model revisions,
+its own prompts/parsers — an independent instrument over the same weights.
+Two disclosed build patches (METHODOLOGY: moondream revision pin; Qwen
+attn to sdpa, change #13). POPE acc/F1 = the tool's "acc"/"Overall" columns
+(Overall row); Count = the tool's exact-match accuracy.
+
+| Model | POPE acc: ours / referee | POPE F1: ours / referee | Count: ours / referee |
+|---|---|---|---|
+| Qwen2.5-VL 7B | 83.7 / 87.8 | 0.808 / 0.865 | 85.9 / **89.7** |
+| moondream2 2B | 76.7 / 90.7 | 0.803 / 0.904 | 83.5 / 84.0 ✓ |
+| LLaVA-OV 0.5B | 85.5 / 86.5 ✓ | 0.837 / 0.852 | **73.1 / 31.6** |
+| SmolVLM2 500M | 55.0 / 85.6 | 0.801 / 0.858 | **60.9 / 47.4** |
+
+Readings: (1) counting agrees to 0.5 pt for moondream2 and ~4 pts for Qwen —
+the two instruments reproduce each other where conventions align. (2) The
+POPE gaps for SmolVLM2 (+30.6) and moondream2 (+14.0) are the change-#11
+prompt-convention finding: the tool's POPE data file bakes in the "Please
+answer yes or no." suffix; ours asks the bare question. LLaVA is
+convention-insensitive (+1.0). (3) The two counting disagreements point in
+OPPOSITE directions (our harness scores LLaVA-OV 41.5 pts higher, the tool
+scores SmolVLM2 13.5 pts higher than us) — answer-extraction differences,
+per-item diff analysis in Phase 4. (4) Calibration caveat: vendor-published
+Qwen numbers used flash-attn; this referee ran sdpa (change #13).
