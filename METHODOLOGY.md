@@ -279,6 +279,19 @@ in results/phase2/dumps/, summary in results/phase2/summary.json. Audit:
 - No code edits during Phase 3 runs; failures are findings; one retry per
   item on infra errors only.
 
+## Version-sensitivity finding (empirical, 2026-07-02)
+
+SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card
+pins nothing beyond the 4.50.0 floor and recommends "latest". Probed whether
+the pin is load-bearing: the exact Phase 2 fixed sample (n=20, seed 7,
+grounding, greedy) run on transformers 5.12.1 produced **different raw outputs
+on 8 of 20 items** vs the frozen 4.57.1 run (both versions emit SmolVLM's
+characteristic degenerate boxes; the tokens differ). Conclusion: small-VLM
+greedy outputs are NOT portable across transformers major versions; the
+per-lane version pins are mandatory, and the sweep's dual-venv single
+container (change #5) is necessary — not merely conservative — to keep each
+model's sweep environment byte-identical to its bench environment.
+
 ## Comparability statement
 
 The uniform rule across every cell in both parts: **one runner, one dataset
