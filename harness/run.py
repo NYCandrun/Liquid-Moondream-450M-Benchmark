@@ -95,7 +95,15 @@ def _run_cell(config, prompt_template):
         )
         sample_meta = {"n": len(items), "seed": config["sample"]["seed"], "indices": chosen}
 
+    import subprocess
+
+    gpu_uuid = subprocess.run(
+        ["nvidia-smi", "--query-gpu=uuid", "--format=csv,noheader"],
+        capture_output=True, text=True,
+    ).stdout.strip()
+
     meta = {
+        "gpu_uuid": gpu_uuid,
         "model_id": pin["model_id"],
         "revision": pin["revision"],
         "resolved_sha": pin.get("resolved_sha", pin["revision"]),
@@ -122,6 +130,8 @@ def _run_cell(config, prompt_template):
         fname += f".sample{config['sample']['n']}s{config['sample']['seed']}"
     out_path = RESULTS_DIR_IN_VOLUME / config["part"] / f"{fname}.jsonl"
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    if config.get("fresh_start") and out_path.exists():
+        out_path.unlink()  # sweep serial mode: a curve never resumes across devices
     done_ids = set()
     if out_path.exists() and not config.get("sample"):
         for line in out_path.read_text().splitlines():
@@ -265,11 +275,14 @@ def main(config: str, sample_n: int = 0, sample_seed: int = 0):
     prompt_path = REPO_ROOT / "prompts" / f"{cfg['prompt_id']}.txt"
     prompt_template = prompt_path.read_text()
 
+    if cfg["part"] == "sweep":
+        raise SystemExit(
+            "sweep cells run ONLY via harness/run_sweep_serial.py (single container, "
+            "single physical GPU per model curve, strictly serial — change log #5)"
+        )
     env = MODEL_PINS[cfg["model"]]["env"]
-    # sweep cells (latency first-class) dispatch to the strict-pinned GPU variant
-    fn = ENV_TO_FN_STRICT[env] if cfg["part"] == "sweep" else ENV_TO_FN[env]
-    print(f"dispatching cell={cell_id(cfg)} env={env} model={cfg['model']} task={cfg['task']} "
-          f"gpu={'strict' if cfg['part'] == 'sweep' else 'upgradable'}")
+    fn = ENV_TO_FN[env]
+    print(f"dispatching cell={cell_id(cfg)} env={env} model={cfg['model']} task={cfg['task']}")
     result = fn.remote(cfg, prompt_template)
 
     suffix = f".sample{sample_n}s{sample_seed}" if sample_n else ""

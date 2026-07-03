@@ -352,3 +352,18 @@ one format would advantage whichever model matches it).
    cells keep the upgradable request with the any-A100 assert of change #2.
    Sweep cells had produced no accepted rows (all relaunched from zero at
    change #3); bench cells were already policy-correct.
+
+5. **2026-07-02, during Phase 3, before any sweep row existed (owner
+   directive).** Sweep execution mode fixed to maximum hardware constancy:
+   the sweep now runs on ONE GPU, the SAME physical GPU, ONE cell at a time —
+   all 4 LFM cells strictly serial inside a single container on a single
+   physical A100-40GB (GPU UUID recorded in every row), then all 4 SmolVLM
+   cells the same way in a second single container, strictly after, never
+   concurrent (harness/run_sweep_serial.py; the generic per-cell dispatch now
+   refuses sweep configs). Constraint disclosed: LFM and SmolVLM cannot share
+   a container (transformers 5.12.1 vs 4.57.1), so same-physical-die holds
+   within each model's curve — where latency points are compared — and across
+   the two models it is same-SKU-asserted (A100 + 40GB) on two recorded dies.
+   No resume in this mode: a curve that dies mid-run restarts from zero on a
+   fresh single GPU, so no curve ever mixes devices. Also added `meta.gpu_uuid`
+   to all future raw rows. No sweep rows existed before this change.
