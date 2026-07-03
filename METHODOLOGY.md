@@ -362,6 +362,24 @@ Two additions, no change to any existing number:
    Labeling rule: GPU probe numbers are measured energy; the CPU
    deployed-form lanes report measured compute time only, never energy.
 
+## Change log #11 (2026-07-03, referee lane finding — disposition PENDING)
+
+The referee's first POPE cell exposed a prompt-convention divergence between
+the two instruments. Our lane feeds POPE the RAW question from the pinned HF
+dataset, identically for all six models; the provenance audit of the pinned
+VLMEvalKit CODE correctly found it appends no POPE suffix — but the tool's
+distributed POPE.tsv DATA FILE ships with " Please answer yes or no." baked
+into every question string, so the community instrument's effective input is
+question+instruction. Measured effect on SmolVLM2-500M: 55.0% POPE accuracy
+bare (ours) vs 85.8% suffixed (referee) — a +30.8 pt swing consistent with
+its low bare-question parse rate (78%): the model needs the instruction to
+emit a parseable yes/no at all. prompts/PROVENANCE.md corrected. Disposition
+deferred until the remaining referee POPE cells land: if the swing is
+SmolVLM2-specific, it is reported as an instruction-dependence finding
+against the disclosed bare-question convention; if all models swing
+materially, the bare-question main-table POPE column systematically
+underreads and an owner decision on a suffixed re-run is required.
+
 ## Version-sensitivity finding (empirical, 2026-07-02)
 
 SmolVLM2's transformers pin (4.57.1) is a study-set anchor — the vendor card
