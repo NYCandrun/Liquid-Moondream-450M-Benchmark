@@ -102,12 +102,19 @@ def collect():
 
 @app.local_entrypoint()
 def main():
-    # The two images share the volume WORKDIR. Run them CONCURRENTLY (each its
-    # own container/GPU; one model at a time within each) — independent lanes,
-    # so no reason to serialize LFM behind the other four.
+    # Two containers (LFM on tf5 + the four on tf457, one model at a time in
+    # each) — within the 3-container cap. FAILURE-TOLERANT: each lane's result
+    # is gathered under try/except so one lane dying (e.g. a preemption) neither
+    # tears down the other nor loses the per-cell artifacts already committed to
+    # the volume; collect() then salvages everything present.
     call5 = referee_tf5.spawn()
     call457 = referee_tf457.spawn()
-    log = list(call5.get()) + list(call457.get())
+    log = []
+    for name, call in (("tf5/LFM", call5), ("tf457/4-models", call457)):
+        try:
+            log += list(call.get())
+        except Exception as exc:
+            print(f"[{name} lane FAILED] {exc!r} — partial cells remain on the volume")
 
     results = collect.remote()
     dest = REPO_ROOT / "calibration" / "vlmevalkit2"

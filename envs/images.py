@@ -168,6 +168,14 @@ VLMEVAL_IMAGE = (
         "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",
         f"cd /opt/VLMEvalKit && git checkout {VLMEVAL_COMMIT}",
         "cd /opt/VLMEvalKit && pip install -e .",
+        # register RefCOCO-M (OUR items) as a RefCOCODataset variant so
+        # `--data RefCOCO-M` resolves; the TSV is written to the volume at
+        # LMUData by build_refcoco_m_tsv, so no remote download is attempted.
+        "echo \"RefCOCODataset.DATASET_FILES['RefCOCO-M'] = 'RefCOCO-M'\" "
+        ">> /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
+        "echo \"RefCOCODataset.DATASET_FILES['RefCOCO-M-smoke'] = 'RefCOCO-M-smoke'\" "
+        ">> /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
+        "grep -n \"RefCOCO-M\" /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
         # disclosed one-line patch: evaluate the SAME moondream2 revision we pin
         "sed -i 's/2025-01-09/2025-06-21/g' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
         "grep -n '2025-06-21' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
@@ -225,6 +233,14 @@ VLMEVAL2_TF457_IMAGE = (
         "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",
         f"cd /opt/VLMEvalKit && git checkout {VLMEVAL2_COMMIT}",
         "cd /opt/VLMEvalKit && pip install -e .",
+        # register RefCOCO-M (OUR items) as a RefCOCODataset variant so
+        # `--data RefCOCO-M` resolves; the TSV is written to the volume at
+        # LMUData by build_refcoco_m_tsv, so no remote download is attempted.
+        "echo \"RefCOCODataset.DATASET_FILES['RefCOCO-M'] = 'RefCOCO-M'\" "
+        ">> /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
+        "echo \"RefCOCODataset.DATASET_FILES['RefCOCO-M-smoke'] = 'RefCOCO-M-smoke'\" "
+        ">> /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
+        "grep -n \"RefCOCO-M\" /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
         "sed -i 's/2025-01-09/2025-06-21/g' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
         "grep -n '2025-06-21' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
         "sed -i \"s/attn_implementation='flash_attention_2'/attn_implementation='sdpa'/\" "
@@ -257,6 +273,14 @@ VLMEVAL2_TF5_IMAGE = (
         "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",
         f"cd /opt/VLMEvalKit && git checkout {VLMEVAL2_COMMIT}",
         "cd /opt/VLMEvalKit && pip install -e .",
+        # register RefCOCO-M (OUR items) as a RefCOCODataset variant so
+        # `--data RefCOCO-M` resolves; the TSV is written to the volume at
+        # LMUData by build_refcoco_m_tsv, so no remote download is attempted.
+        "echo \"RefCOCODataset.DATASET_FILES['RefCOCO-M'] = 'RefCOCO-M'\" "
+        ">> /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
+        "echo \"RefCOCODataset.DATASET_FILES['RefCOCO-M-smoke'] = 'RefCOCO-M-smoke'\" "
+        ">> /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
+        "grep -n \"RefCOCO-M\" /opt/VLMEvalKit/vlmeval/dataset/refcoco.py",
         # (a) register LFM2.5-VL-450M into the LFM series dict (this commit
         # references the class as `vlm.LFM2VL`, not bare `LFM2VL`)
         "sed -i '/^lfm2vl_series = {/a\\    \"LFM2.5-VL-450M\": partial(vlm.LFM2VL, "
