@@ -157,7 +157,7 @@ VLMEVAL_COMMIT = "8eb37bb96bc508bd016000318548854fdfa1bd30"
 
 VLMEVAL_IMAGE = (
     modal.Image.debian_slim(python_version="3.11")
-    .apt_install("git", "libvips-dev", "curl")
+    .apt_install("git", "libvips-dev", "curl", "libgl1", "libglib2.0-0")
     .pip_install("torch==2.12.1", "torchvision==0.27.1")
     .run_commands(
         "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",

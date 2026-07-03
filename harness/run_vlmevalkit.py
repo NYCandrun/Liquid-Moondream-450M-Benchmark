@@ -42,24 +42,41 @@ def referee():
     log = []
 
     def run_cell(model, data):
+        import re
+
         proc = subprocess.run(
             ["python", "run.py", "--model", model, "--data", data,
              "--work-dir", WORKDIR, "--verbose"],
             cwd="/opt/VLMEvalKit", capture_output=True, text=True,
         )
+        combined = proc.stdout + "\n" + proc.stderr
+        # Full per-cell output kept on the volume: for VQA-type datasets
+        # (CountBenchQA) the tool RETURNS accuracy as a dict that run.py only
+        # logs — no score file is ever written — so the log IS the result.
+        os.makedirs(f"{WORKDIR}/logs", exist_ok=True)
+        with open(f"{WORKDIR}/logs/{model}__{data}.log", "w") as fh:
+            fh.write(combined)
+        acc = re.search(r'"accuracy"\s*:\s*([0-9.]+)', combined)
         entry = {"model": model, "data": data, "returncode": proc.returncode,
-                 "stderr_tail": proc.stderr[-1500:] if proc.returncode else ""}
+                 "accuracy_from_log": float(acc.group(1)) if acc else None,
+                 "eval_failed": "combination failed" in combined,
+                 "stdout_tail": proc.stdout[-1500:], "stderr_tail": proc.stderr[-1500:]}
         log.append(entry)
         hf_cache_volume.commit()
         return entry
 
-    # functional check first: cheapest cell must produce a score file
+    def score_files():
+        return glob.glob(f"{WORKDIR}/**/*acc*.csv", recursive=True) + \
+            glob.glob(f"{WORKDIR}/**/*_score.csv", recursive=True) + \
+            glob.glob(f"{WORKDIR}/**/*rating*", recursive=True)
+
+    # functional check first: cheapest cell must yield a score — either a
+    # score file OR an accuracy dict in the log (CountBenchQA does the latter)
     first = run_cell("SmolVLM2-500M", "CountBenchQA")
-    score_files = glob.glob(f"{WORKDIR}/**/*acc*.csv", recursive=True) + \
-        glob.glob(f"{WORKDIR}/**/*score*", recursive=True) + \
-        glob.glob(f"{WORKDIR}/**/*rating*", recursive=True)
-    if first["returncode"] != 0 or not score_files:
-        return {"fatal": "functional cell failed or produced no score file",
+    ok = (first["returncode"] == 0 and not first["eval_failed"]
+          and (first["accuracy_from_log"] is not None or score_files()))
+    if not ok:
+        return {"fatal": "functional cell failed or produced no score",
                 "log": log, "files": glob.glob(f"{WORKDIR}/**/*", recursive=True)[:50]}
 
     # remaining cells, strictly serial
