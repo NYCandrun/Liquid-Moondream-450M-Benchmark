@@ -245,3 +245,6 @@ def main(sample_n: int = 100, sample_seed: int = 7, pool_n: int = 300):
     ej = REPO_ROOT / "results" / "probe_energy.json"
     ej.write_text(json.dumps(energy_summary, indent=1))
     print(f"wrote {ej}")
+    pf = REPO_ROOT / "results" / "probe_preflight.json"
+    pf.write_text(json.dumps(result["preflight"], indent=1))
+    print(f"wrote {pf} (eligible {result['preflight']['eligible']}/{result['preflight']['pool_n']})")
