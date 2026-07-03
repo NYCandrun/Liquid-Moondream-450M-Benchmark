@@ -187,6 +187,101 @@ VLMEVAL_IMAGE = (
     .add_local_python_source("envs", "harness")
 )
 
+# --------------------------------------------------------------------------
+# Referee lane RE-PIN (change log #15, owner directive 2026-07-03): move the
+# WHOLE referee to ONE newer VLMEvalKit commit that ships vlmeval/vlm/liquid.py
+# (LFM support) so LFM 450M — LiquidAI's own eval harness per their model card —
+# gets a same-instrument agreement number alongside the four existing models.
+# The commit also adds RefCOCO grounding support (used for the RefCOCO-M
+# grounding referee, on OUR items).
+#
+# Commit choice: LFM requires transformers >=5.1 (its model card), but the
+# closest-to-original commit with LFM support (19c0e386, Nov 2025) is
+# transformers-4.x-only — its granite_vision adapter eagerly imports
+# AutoModelForVision2Seq, removed in transformers 5.x, so `import vlmeval`
+# dies on the tf5 image (proven empirically by referee2_smoke). The chosen
+# commit 401916c (Mar 2026) refactored those adapters for transformers 5.x
+# while keeping the POPE scorer, CountBenchQA scoring, and the four existing
+# adapters materially intact. Because 401916c is >400 commits past the old pin
+# (GitHub's compare diff truncates), the four models' reproduction is verified
+# EMPIRICALLY against the v1 referee numbers rather than by static diff. LFM
+# runs in the tf5 variant; the other four keep transformers 4.57.1 to match
+# both their original referee run and our main-harness lanes.
+VLMEVAL2_COMMIT = "401916c00a4769884aeca865a77674abe0c62a26"  # 2026-03-25
+LFM_REVISION = "fc6221ca597f3315e4f82fc2df606783267b34ba"  # our pinned LFM 450M
+
+_VLMEVAL2_BASE = (
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("git", "libvips-dev", "curl", "libgl1", "libglib2.0-0")
+    .pip_install("torch==2.12.1", "torchvision==0.27.1")
+)
+
+# tf457 variant: the four existing models (SmolVLM2, LLaVA-OV, Qwen, moondream2).
+# Same two disclosed patches as the v1 referee (both target files verified
+# unchanged at this commit, so the patches still apply and are still needed).
+VLMEVAL2_TF457_IMAGE = (
+    _VLMEVAL2_BASE
+    .run_commands(
+        "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",
+        f"cd /opt/VLMEvalKit && git checkout {VLMEVAL2_COMMIT}",
+        "cd /opt/VLMEvalKit && pip install -e .",
+        "sed -i 's/2025-01-09/2025-06-21/g' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
+        "grep -n '2025-06-21' /opt/VLMEvalKit/vlmeval/vlm/moondream.py",
+        "sed -i \"s/attn_implementation='flash_attention_2'/attn_implementation='sdpa'/\" "
+        "/opt/VLMEvalKit/vlmeval/vlm/qwen2_vl/model.py",
+        "grep -n \"attn_implementation='sdpa'\" /opt/VLMEvalKit/vlmeval/vlm/qwen2_vl/model.py",
+    )
+    .pip_install(
+        "transformers==4.57.1", "huggingface_hub==0.36.2", "accelerate==1.14.0",
+        "num2words==0.5.14", "qwen-vl-utils==0.0.14", "pyvips==3.1.1",
+        "einops==0.8.2", "timm==1.0.27",
+        # newer VLMEvalKit eagerly imports these at package load but does NOT
+        # declare them in requirements.txt (verified by referee2_deps.py, which
+        # installed until `import vlmeval` succeeded): datasets (chartmuseum),
+        # scikit-learn (vlrmbench). pyav is only for video funcs we never call.
+        "datasets==5.0.0", "scikit-learn==1.7.2", "rouge==1.0.1",
+    )
+    .env({"HF_HOME": HF_CACHE_PATH, "LMUData": HF_CACHE_PATH + "/lmudata"})
+    .add_local_python_source("envs", "harness")
+)
+
+# tf5 variant: LFM 450M via the tool's own LFM2VL adapter (liquid.py). Disclosed
+# patches, all confined to LFM: (a) register OUR exact model+revision — the
+# config ships LFM2-VL / LFM2.5-VL-1.6B but not LFM2.5-VL-450M; (b) pin the
+# revision in liquid.py (the adapter calls from_pretrained without one); (c)
+# torch_dtype -> dtype for the transformers-5.x kwarg rename. liquid.py already
+# uses sdpa (flash-attn commented out upstream), so no attn patch is needed.
+VLMEVAL2_TF5_IMAGE = (
+    _VLMEVAL2_BASE
+    .run_commands(
+        "git clone https://github.com/open-compass/VLMEvalKit /opt/VLMEvalKit",
+        f"cd /opt/VLMEvalKit && git checkout {VLMEVAL2_COMMIT}",
+        "cd /opt/VLMEvalKit && pip install -e .",
+        # (a) register LFM2.5-VL-450M into the LFM series dict (this commit
+        # references the class as `vlm.LFM2VL`, not bare `LFM2VL`)
+        "sed -i '/^lfm2vl_series = {/a\\    \"LFM2.5-VL-450M\": partial(vlm.LFM2VL, "
+        "model_path=\"LiquidAI/LFM2.5-VL-450M\"),' /opt/VLMEvalKit/vlmeval/config.py",
+        "grep -n 'LFM2.5-VL-450M' /opt/VLMEvalKit/vlmeval/config.py",
+        # (b) pin the revision on both from_pretrained calls in liquid.py
+        f"sed -i 's|from_pretrained(model_path)|from_pretrained(model_path, revision=\"{LFM_REVISION}\")|' "
+        "/opt/VLMEvalKit/vlmeval/vlm/liquid.py",
+        f"sed -i 's|^                model_path,$|                model_path, revision=\"{LFM_REVISION}\",|' "
+        "/opt/VLMEvalKit/vlmeval/vlm/liquid.py",
+        # (c) transformers 5.x kwarg rename
+        "sed -i 's|torch_dtype=torch.bfloat16|dtype=torch.bfloat16|' /opt/VLMEvalKit/vlmeval/vlm/liquid.py",
+        f"grep -n 'revision=\"{LFM_REVISION}\"' /opt/VLMEvalKit/vlmeval/vlm/liquid.py",
+    )
+    .pip_install(
+        "transformers==5.12.1", "huggingface_hub==1.21.0", "accelerate==1.14.0",
+        "num2words==0.5.14", "qwen-vl-utils==0.0.14", "pyvips==3.1.1",
+        "einops==0.8.2", "timm==1.0.27",
+        # newer VLMEvalKit eager imports not in its requirements (see tf457 note).
+        "datasets==5.0.0", "scikit-learn==1.7.2", "rouge==1.0.1",
+    )
+    .env({"HF_HOME": HF_CACHE_PATH, "LMUData": HF_CACHE_PATH + "/lmudata"})
+    .add_local_python_source("envs", "harness")
+)
+
 DATASETS_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
     .pip_install(
