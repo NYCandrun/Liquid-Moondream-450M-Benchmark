@@ -112,14 +112,14 @@ def power_probe(cell_specs: list):
                 "prompt": prompt,
                 "results_base": RESULTS_BASE,
             })
+            Path("/tmp/cell_payload.json").write_text(payload)
             e_cell_start, t_cell_start = energy_j(), time.time()
-            proc = subprocess.Popen(
-                [f"/opt/{venv}/bin/python", "/root/harness/sweep_cell_main.py"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                text=True, env={**os.environ, "PYTHONPATH": "/root"},
-            )
-            proc.stdin.write(payload)
-            proc.stdin.close()
+            with open("/tmp/cell_payload.json") as stdin_fh:
+                proc = subprocess.Popen(
+                    [f"/opt/{venv}/bin/python", "/root/harness/sweep_cell_main.py"],
+                    stdin=stdin_fh, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    text=True, env={**os.environ, "PYTHONPATH": "/root"},
+                )
 
             # watch the row-by-row flushed output file for window boundaries
             def lines():
