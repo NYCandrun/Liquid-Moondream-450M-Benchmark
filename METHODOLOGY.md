@@ -354,16 +354,20 @@ one format would advantage whichever model matches it).
    change #3); bench cells were already policy-correct.
 
 5. **2026-07-02, during Phase 3, before any sweep row existed (owner
-   directive).** Sweep execution mode fixed to maximum hardware constancy:
-   the sweep now runs on ONE GPU, the SAME physical GPU, ONE cell at a time —
-   all 4 LFM cells strictly serial inside a single container on a single
-   physical A100-40GB (GPU UUID recorded in every row), then all 4 SmolVLM
-   cells the same way in a second single container, strictly after, never
-   concurrent (harness/run_sweep_serial.py; the generic per-cell dispatch now
-   refuses sweep configs). Constraint disclosed: LFM and SmolVLM cannot share
-   a container (transformers 5.12.1 vs 4.57.1), so same-physical-die holds
-   within each model's curve — where latency points are compared — and across
-   the two models it is same-SKU-asserted (A100 + 40GB) on two recorded dies.
-   No resume in this mode: a curve that dies mid-run restarts from zero on a
-   fresh single GPU, so no curve ever mixes devices. Also added `meta.gpu_uuid`
-   to all future raw rows. No sweep rows existed before this change.
+   directive, twice-strengthened).** Sweep execution mode fixed to maximum
+   hardware constancy: THE ENTIRE SWEEP RUNS IN ONE CONTAINER on ONE physical
+   A100-40GB, one cell at a time, nothing concurrent. The environment-pin
+   conflict (LFM needs transformers 5.12.1, SmolVLM 4.57.1) is resolved
+   without weakening any pin: the SWEEPBOX image carries both pinned
+   environments as virtualenvs (/opt/tf5, /opt/tf457; identical version pins
+   to the standalone lane images; per-venv lockfiles committed as
+   envs/locks/sweepbox-*.lock.txt), and each cell executes as a subprocess in
+   its matching venv, running the SAME shared cell core as the bench
+   (harness/cell_core.py — extracted verbatim from run.py in this change;
+   bench behavior identical). Order: LFM b32→b256 then SmolVLM 512→2048. The
+   GPU UUID is recorded in every row — a single die for the whole sweep. No
+   resume (fresh_start): a dead container restarts the sweep from zero on a
+   fresh single GPU, so the dataset never mixes devices. The generic per-cell
+   dispatch refuses sweep configs. `meta.gpu_uuid` added to all future raw
+   rows. No sweep rows existed before this change; the new path passed a
+   functional smoke (sample mode) before the full run.

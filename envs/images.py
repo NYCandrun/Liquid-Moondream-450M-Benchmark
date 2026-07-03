@@ -76,6 +76,33 @@ MOONDREAM2_IMAGE = (
     .add_local_python_source("envs", "harness")
 )
 
+# SWEEPBOX (change log #5 as-executed): ONE container for the WHOLE sweep.
+# Both pinned environments live side by side as virtualenvs; each sweep cell
+# runs as a subprocess in its matching venv, strictly serially, so every cell
+# of both curves executes on the SAME physical GPU. Version pins identical to
+# TF5_IMAGE / TF457_IMAGE; lockfiles exported per venv (sweepbox-tf5 /
+# sweepbox-tf457).
+_TF5_PKGS = ("transformers==5.12.1 huggingface_hub==1.21.0 accelerate==1.14.0 "
+             "pillow==12.3.0 einops==0.8.2 timm==1.0.27 sentencepiece==0.2.1 "
+             "protobuf==7.35.1 datasets==5.0.0")
+_TF457_PKGS = ("transformers==4.57.1 huggingface_hub==0.36.2 accelerate==1.14.0 "
+               "pillow==12.3.0 einops==0.8.2 timm==1.0.27 sentencepiece==0.2.1 "
+               "protobuf==7.35.1 datasets==5.0.0 num2words==0.5.14")
+
+SWEEPBOX_IMAGE = (
+    modal.Image.debian_slim(python_version=PYTHON_VERSION)
+    .run_commands(
+        "python -m venv /opt/tf5",
+        "/opt/tf5/bin/pip install --no-cache-dir torch==2.12.1 torchvision==0.27.1",
+        f"/opt/tf5/bin/pip install --no-cache-dir {_TF5_PKGS}",
+        "python -m venv /opt/tf457",
+        "/opt/tf457/bin/pip install --no-cache-dir torch==2.12.1 torchvision==0.27.1",
+        f"/opt/tf457/bin/pip install --no-cache-dir {_TF457_PKGS}",
+    )
+    .env({"HF_HOME": HF_CACHE_PATH})
+    .add_local_python_source("envs", "harness")
+)
+
 DATASETS_IMAGE = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
     .pip_install(

@@ -43,165 +43,14 @@ TIMEOUT = 12 * 3600
 VOLUMES = {HF_CACHE_PATH: hf_cache_volume}
 RESULTS_DIR_IN_VOLUME = Path(HF_CACHE_PATH) / "results"
 
-INFRA_ERROR_MARKERS = ("CUDA", "out of memory", "device-side", "NCCL", "cudnn")
-
-
-def cell_id(config):
-    base = f"{config['part']}_{config['model']}_{config['task']}"
-    if config.get("image_token_budget") is not None:
-        base += f"_b{config['image_token_budget']}"
-    return base
-
-
-# --------------------------------------------------------------------------
-# In-container cell execution
-# --------------------------------------------------------------------------
-
-def _assert_gpu(required_substrings):
-    import torch
-
-    name = torch.cuda.get_device_name(0)
-    for sub in required_substrings:
-        if sub not in name:
-            raise RuntimeError(
-                f"GPU_MISMATCH: got '{name}', required substrings {required_substrings}. "
-                "Refusing to run a main-table cell on substituted hardware."
-            )
-    return name
+from harness.cell_core import cell_id, run_cell_core  # one shared loop for both parts
 
 
 def _run_cell(config, prompt_template):
-    import time
-    import traceback
-
-    import torch
-    import transformers
-
-    from harness import data as hdata
-    from harness.adapters import MODEL_PINS, build_adapter
-
-    cid = cell_id(config)
-    gpu_name = _assert_gpu(config.get("require_gpu_substrings", ["A100", "40GB"]))
-    torch.manual_seed(int(config.get("seed", 0)))
-
-    pin = MODEL_PINS[config["model"]]
-    adapter = build_adapter(config["model"], image_token_budget=config.get("image_token_budget"))
-
-    items = hdata.load_items(config["task"])
-    sample_meta = None
-    if config.get("sample"):
-        items, chosen = hdata.fixed_sample(
-            items, int(config["sample"]["n"]), int(config["sample"]["seed"]), config["task"]
-        )
-        sample_meta = {"n": len(items), "seed": config["sample"]["seed"], "indices": chosen}
-
-    import subprocess
-
-    gpu_uuid = subprocess.run(
-        ["nvidia-smi", "--query-gpu=uuid", "--format=csv,noheader"],
-        capture_output=True, text=True,
-    ).stdout.strip()
-
-    meta = {
-        "gpu_uuid": gpu_uuid,
-        "model_id": pin["model_id"],
-        "revision": pin["revision"],
-        "resolved_sha": pin.get("resolved_sha", pin["revision"]),
-        "env": pin["env"],
-        "transformers": transformers.__version__,
-        "torch": torch.__version__,
-        "gpu": gpu_name,
-        "dtype": "bfloat16",
-        "loader": pin["adapter"],
-        "decoding": {"do_sample": False, "max_new_tokens": int(config["max_new_tokens"])},
-        "dataset_revision": hdata.DATASET_PINS[hdata.TASK_TO_DATASET[config["task"]]]["revision"],
-        "prompt_id": config["prompt_id"],
-        "image_token_budget": config.get("image_token_budget"),
-        "runtime": None,
-        "quantization": None,
-        "cpu_reserved": RESOURCES["cpu"],
-        "memory_reserved_mb": RESOURCES["memory"],
-    }
-
-    # incremental persistence + resume. Sample runs get their OWN volume file
-    # so a Phase 2-style check can never clobber a full cell's resume state.
-    fname = cid
-    if config.get("sample"):
-        fname += f".sample{config['sample']['n']}s{config['sample']['seed']}"
-    out_path = RESULTS_DIR_IN_VOLUME / config["part"] / f"{fname}.jsonl"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    if config.get("fresh_start") and out_path.exists():
-        out_path.unlink()  # sweep serial mode: a curve never resumes across devices
-    done_ids = set()
-    if out_path.exists() and not config.get("sample"):
-        for line in out_path.read_text().splitlines():
-            try:
-                done_ids.add(json.loads(line)["item_id"])
-            except Exception:
-                pass
-    mode = "a" if done_ids else "w"
-
-    n_new = n_err = 0
-    with open(out_path, mode) as fh:
-        for item in items:
-            if item["item_id"] in done_ids:
-                continue
-            prompt = (
-                prompt_template.replace("{expression}", item.get("expression", ""))
-                .replace("{question}", item.get("question", ""))
-            )
-            row = {
-                "part": config["part"],
-                "model": config["model"],
-                "task": config["task"],
-                "item_id": item["item_id"],
-                "image_ref": item["image_ref"],
-                "prompt_id": config["prompt_id"],
-                "prompt": prompt,
-                "image_token_budget": config.get("image_token_budget"),
-                "image_width": item["image_width"],
-                "image_height": item["image_height"],
-                "gt": item["gt"],
-                "raw_output": None,
-                "latency_ms": None,
-                "error": None,
-                "meta": meta,
-            }
-            for attempt in (1, 2):
-                try:
-                    gen = adapter.generate(
-                        item["image"], prompt, int(config["max_new_tokens"]), task=config["task"]
-                    )
-                    row.update(raw_output=gen["raw_output"], latency_ms=gen["latency_ms"])
-                    row["n_input_tokens"] = gen.get("n_input_tokens")
-                    break
-                except Exception:
-                    tb = traceback.format_exc()
-                    infra = any(m in tb for m in INFRA_ERROR_MARKERS)
-                    row["error"] = tb.strip().splitlines()[-1][:500]
-                    if infra and attempt == 1:
-                        torch.cuda.empty_cache()
-                        time.sleep(2)
-                        continue  # one retry on infrastructure failure only
-                    n_err += 1
-                    break
-            fh.write(json.dumps(row, default=str) + "\n")
-            fh.flush()
-            n_new += 1
-            if n_new % 100 == 0:
-                hf_cache_volume.commit()
-    hf_cache_volume.commit()
-
-    return {
-        "cell_id": cid,
-        "gpu": gpu_name,
-        "n_items": len(items),
-        "n_resumed": len(done_ids),
-        "n_new": n_new,
-        "n_errors": n_err,
-        "sample": sample_meta,
-        "rows_jsonl": out_path.read_text(),
-    }
+    config = dict(config, _cpu_reserved=RESOURCES["cpu"], _memory_reserved_mb=RESOURCES["memory"])
+    return run_cell_core(
+        config, prompt_template, RESULTS_DIR_IN_VOLUME, commit_cb=hf_cache_volume.commit
+    )
 
 
 # cpu/memory: explicit dedicated reservation (change log #3) so host CPU
@@ -218,7 +67,6 @@ RESOURCES = dict(cpu=8.0, memory=32768)
 # backlog drains — every observed substitution occurred under 15-25 parallel
 # requests; low-pressure requests have landed true 40GB consistently.
 GPU_BENCH = GPU_TYPE         # "A100-40GB" — upgradable, free per Modal docs
-GPU_SWEEP_STRICT = GPU_TYPE  # same request; strictness enforced by assert+retry+low concurrency
 
 _RETRIES = modal.Retries(max_retries=3, initial_delay=30.0, backoff_coefficient=2.0)
 
@@ -241,21 +89,7 @@ def run_cell_moondream(config: dict, prompt_template: str):
     return _run_cell(config, prompt_template)
 
 
-# Strict-pinned variants for the sweep (LFM + SmolVLM only run there).
-@app.function(image=TF5_IMAGE, gpu=GPU_SWEEP_STRICT, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
-              retries=_RETRIES)
-def run_cell_tf5_strict(config: dict, prompt_template: str):
-    return _run_cell(config, prompt_template)
-
-
-@app.function(image=TF457_IMAGE, gpu=GPU_SWEEP_STRICT, timeout=TIMEOUT, volumes=VOLUMES, **RESOURCES,
-              retries=_RETRIES)
-def run_cell_tf457_strict(config: dict, prompt_template: str):
-    return _run_cell(config, prompt_template)
-
-
 ENV_TO_FN = {"tf5": run_cell_tf5, "tf457": run_cell_tf457, "moondream2": run_cell_moondream}
-ENV_TO_FN_STRICT = {"tf5": run_cell_tf5_strict, "tf457": run_cell_tf457_strict}
 
 
 # --------------------------------------------------------------------------
