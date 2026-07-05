@@ -85,11 +85,26 @@ purpose — it only goes through our own main test.
   standard shared instruction, SmolVLM2 writes a sentence or a fake placeholder box instead of a
   real answer. We just report that as a finding. Don't try to "fix" it.
 
-### ✅ The full pointing test — finished and saved, but numbers not read yet
-The full RefCOCO-M run for all 4 models completed and each model's result file is saved in Modal's
-storage. The safety-timer stopped the process *after* it had already saved everything, so nothing
-was lost. **But we haven't pulled those final pointing scores down to read them yet** — the local
-folder only has the 24-image trial so far. Reading these is the first job at resume (see §3.1).
+### ✅ The full pointing test (RefCOCO-M) — FINISHED and now READ (all 4 models, 2,080 images each)
+
+| Model | Pointing (Precision@1) | Avg overlap (IoU) |
+|---|---|---|
+| moondream2 | 79.04 | 0.708 |
+| LFM2.5-VL-450M | 70.48 | 0.546 |
+| LLaVA-OneVision-0.5B | 4.04 | 0.161 |
+| SmolVLM2-500M | 0.0 | ~0 |
+
+Notes for the write-up:
+- moondream2 points best; LFM is solid.
+- **LFM's 70.48 here is lower than the company's published 81.28** — expected, because this referee
+  gives every model the *same* generic pointing instruction rather than a model-tuned one. It's a
+  fair same-instructions comparison, not a best-effort-per-model score. Say this plainly in the report.
+- LLaVA (4.04) and SmolVLM2 (0.0) essentially can't do the task under the shared instruction. Same
+  finding as the 24-image trial — SmolVLM2 writes sentences/placeholder boxes instead of coordinates.
+  Real result, not a bug.
+
+(These scores were read from Modal storage on 2026-07-04 and are recorded here so they're not lost.
+The raw files still live on the volume at `vlmeval2_out/<model>/<model>_RefCOCO-M_acc.csv`.)
 
 ### ⏳ The small optional "Aside" re-run — NOT started; YOU (the user) are still deciding
 This is a little bonus table showing how LFM does at different quality settings. The original run
@@ -103,17 +118,16 @@ without a clear go-ahead. If you decide to drop the table, there's nothing to re
 
 ## 3. What to do next, in order (run at most 4 GPU jobs at once)
 
-### 3.1 Read the full pointing scores, then build the comparison tables
-The POPE and counting scores are already saved locally (the table above). The one missing piece is
-the **full pointing (RefCOCO-M) scores.** Read them out of Modal's storage with a small function
-that opens each model's `..._RefCOCO-M_acc.csv` file (there's an example to copy in the scratchpad,
-`read_scores.py` — just point it at the `_RefCOCO-M_acc.csv` files). Then:
+### 3.1 Build the comparison tables (all the numbers are now in hand)
+All the scores are collected: POPE + counting (§2 table) and the full pointing scores (§2 table,
+read on 2026-07-04). So this step is just assembling tables, no more running needed:
 - Add the pointing scores to the calibration table (which also includes the company's published
-  LFM pointing score of **81.28**, with a link to where they published it).
+  LFM pointing score of **81.28**, with a link to where they published it, and the note that our
+  70.48 is lower because it's a same-instructions-for-everyone comparison).
 - Build the final 4-model comparison table.
 
-> If you're unsure whether the full pointing run really finished for some model, just re-run the
-> command in §3.2 — it skips whatever's already done, so it's safe and cheap.
+> If you ever need to re-confirm a pointing score, just re-run the command in §3.2 — it skips
+> whatever's already done, so it's safe and cheap.
 
 ### 3.2 (only if a model's full pointing score is missing) re-run the full pointing test
 ```
