@@ -1,157 +1,160 @@
-# Session Handoff — Edge-VLM Benchmark (resume point 2026-07-04)
+# Handoff — Edge-VLM Benchmark (where things stand, 2026-07-04)
 
-This file lets a **fresh Claude Code session (incl. cloud/web) pick up exactly where the
-local session left off.** The local session's memory (`~/.claude/…`) and Modal credentials
-do **not** travel to a cloud VM, so everything needed is captured here. Read this top-to-bottom
-before touching anything.
+This note lets a brand-new session (on this laptop or in the cloud) pick up exactly where we
+left off. Read it top to bottom before touching anything. It's written plainly on purpose — but
+the exact commands and numbers are here too, because whoever resumes needs them.
+
+The one-line version: the big model tests are **done and saved**. What's left is reading one last
+set of numbers, deciding on one small optional table, and writing up the final results.
 
 ---
 
-## 0. FIRST: environment preconditions (a cloud VM will NOT have these by default)
+## 0. Setup you need first (a fresh cloud machine won't have this)
 
-All model inference runs on **Modal** (workspace `jacob-4532`); local/cloud is control-plane only.
+All the actual model-running happens on **Modal** (a cloud GPU service). Your laptop or the cloud
+box just gives the orders — it never runs a model itself.
 
-- **Modal auth is required.** A fresh cloud environment has no `~/.modal.toml`. Set Modal
-  credentials as env vars in the cloud environment settings (or run `modal token set`):
-  `MODAL_TOKEN_ID` / `MODAL_TOKEN_SECRET` for workspace **jacob-4532**. Verify with
-  `modal app list` (idle/empty right now — that is expected; see §2).
-- **Python/venv:** local uses `.venv/bin/modal` (Python 3.12, modal 1.5.1). In a cloud VM,
-  `pip install modal` and call `modal …` directly (drop the `.venv/bin/` prefix).
-- **Shared state lives on the Modal volume `edge-vlm-hf-cache`** (HF cache + all VLMEvalKit
-  outputs under `vlmeval2_out/…`, TSVs under `lmudata/…`). Nothing to re-download.
-  Always `hf_cache_volume.reload()` inside a function before reading recent commits.
-- **Do not run anything on a local GPU** — there isn't one; Modal only.
+- **You need Modal login keys.** A fresh machine has none. Set these two values (from the Modal
+  account `jacob-4532`) as environment variables, or run `modal token set`:
+  `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET`. Check it worked by running `modal app list` — right
+  now that list is empty, which is normal (nothing is running).
+- **Running the commands:** on this laptop, put `.venv/bin/` in front of `modal` (so
+  `.venv/bin/modal ...`). On a fresh cloud box, run `pip install modal` and just type `modal ...`.
+- **All the saved work lives in Modal's storage** (called the volume `edge-vlm-hf-cache`). Nothing
+  needs to be re-downloaded. One gotcha: inside a Modal function, call `hf_cache_volume.reload()`
+  before reading files, or you may see an old copy.
+- **There is no local GPU.** Everything runs on Modal. Don't try to run a model locally.
 
 ---
 
 ## 1. What this project is
 
-Publication-grade edge-VLM benchmark. Repo: `NYCandrun/Liquid-Moondream-450M-Benchmark` (private).
+A high-quality benchmark comparing small "edge" vision-language models (models small enough to run
+on a phone or laptop). Code repo: `NYCandrun/Liquid-Moondream-450M-Benchmark` (private).
 
-- **Models (5):** LFM2.5-VL-450M, SmolVLM2-500M, LLaVA-OneVision-0.5B, InternVL3.5-1B, moondream2.
-  > **Qwen2.5-VL-7B was DROPPED from scope on 2026-07-03** (runtime bottleneck ~5× slower/item;
-  > dropping it tightens the "edge VLM" framing to ≤2B params). **Do NOT re-add Qwen.** Its
-  > already-collected raw files (`results/raw/bench/bench_qwen25vl_*`) are kept on disk as
-  > **archived provenance** but are excluded from the referee lanes and must be scrubbed from
-  > headline tables at Phase 4.
-- **Benchmarks (3):** RefCOCO-M grounding (`moondream/refcoco-m` — **RefCOCO-M everywhere, NOT
-  standard RefCOCO**), POPE, CountBenchQA.
-- **Metric equivalences:** our grounding Acc@0.5 == VLMEvalKit Precision@1 @ IoU≥0.5. Single
-  scorer `scoring/metrics.py`, `HIT_IOU_THRESHOLD=0.5`.
-- **Hard rules:** every reported number comes from execution (published numbers only in the
-  calibration table, with live URLs); bf16, A100-40GB, greedy decoding; one A100 per Modal
-  function, never shard a model; failures are findings.
+- **The 5 models being compared:** LFM2.5-VL-450M, SmolVLM2-500M, LLaVA-OneVision-0.5B,
+  InternVL3.5-1B, and moondream2.
+  > **We dropped a 6th model, Qwen2.5-VL-7B, on 2026-07-03** because it was too slow (about 5×
+  > slower than the others) and too big for the "edge" theme. **Do not add it back.** Its old
+  > result files are kept on disk as a record, but leave it out of every table. When we write the
+  > final report, remove any mention of it from the headline tables.
+- **The 3 tests:** RefCOCO-M (pointing at the right object in an image), POPE (does the model
+  hallucinate objects that aren't there — yes/no questions), and CountBenchQA (counting objects).
+  > Important: we use **RefCOCO-M**, a specific harder version — not the plain "RefCOCO." Use
+  > RefCOCO-M everywhere.
+- **The ground rule:** every number in the report has to come from us actually running the test.
+  The only outside numbers allowed are in a separate "calibration" table where we compare against a
+  company's published score, and even then we link to where they published it.
 
 ---
 
-## 2. Current state (snapshot at handoff — 2026-07-04)
+## 2. Where things stand right now (2026-07-04)
 
-**Git:** `main` == `origin/main` (this handoff + the `calibration/vlmevalkit2/` referee output
-are the pending commit). Recent: `b8f2d47` handoff update → `b8855a5` add handoff → `0167292`
-drop Qwen.
+**Code:** the `main` branch is pushed and up to date. Latest commits are the handoff updates plus
+the Qwen-drop change.
 
-**Modal:** **idle — no apps running.** A 3-hour hard GPU guillotine was armed earlier and fired
-on schedule (2026-07-03 ~23:24 EDT); it stopped nothing because all launched GPU work had already
-completed naturally. Nothing is detached or in flight now.
+**Modal:** **nothing is running.** Earlier we set a timer to force-kill all GPU work after 3 hours
+as a safety net; it went off on schedule but there was nothing left to kill — everything had
+already finished. So there's no cost running right now and nothing to babysit.
 
-### ✅ Referee (POPE + CountBenchQA) — DONE, 8/8 cells, scored and collected locally
-`calibration/vlmevalkit2/*.csv`. **VLMEvalKit-side numbers (these are the referee cross-check):**
+### ✅ The main cross-check (POPE + counting) — FINISHED for all 4 models
+The scores are saved locally in the folder `calibration/vlmevalkit2/` and committed to git. These
+are the "referee" numbers — a second, independent tool scoring the same models to make sure our own
+numbers are trustworthy:
 
-| Model | POPE acc | POPE F1 (Overall) | CountBenchQA acc |
+| Model | POPE (accuracy) | POPE (F1) | Counting (accuracy) |
 |---|---|---|---|
 | LFM2.5-VL-450M | 87.56 | 86.72 | 72.69 |
 | SmolVLM2-500M | 85.64 | 85.83 | 47.02 |
 | LLaVA-OneVision-0.5B | 86.48 | 85.25 | 31.42 |
 | moondream2 | 90.70 | 90.43 | 83.78 |
 
-POPE=5127 items, CountBenchQA=487 items. Qwen excluded; InternVL3.5-1B is main-harness-only (not
-in the referee lane by design). The earlier LLaVA-count "stall" was a false GPT-judge alarm — POPE
-and CountBenchQA `evaluate()` are rule-based (substring / YOrN), they do **not** hang on a missing
-OPENAI key; the real cause was tangled zombie workers from abrupt local-process kills. All 8 cells
-finished clean once run uninterrupted.
+(POPE has 5,127 questions; counting has 487.) InternVL3.5-1B isn't in this referee check on
+purpose — it only goes through our own main test.
 
-> **Referee↔ours agreement holds:** LFM POPE 87.56 vs ours 87.9 ✓; SmolVLM2 POPE 85.64 reproduces
-> v1 85.6 ✓. **One known disagreement to write up at Phase 4:** LLaVA CountBenchQA — ours ~73 vs
-> referee 31.42. Needs a per-item diff (likely an answer-extraction/format difference, not a model
-> difference). This is the main open analysis item.
+> **Good news: the referee agrees with our own numbers** where we've checked (for example LFM's
+> POPE 87.56 vs our 87.9, and SmolVLM2 reproduces an earlier run). **One thing to sort out later:**
+> for LLaVA's counting test, our own number (~73) is very different from the referee's (31.42).
+> That's almost certainly a difference in how the answer text is read, not a real gap in the model.
+> Someone should look at a handful of individual questions side by side to explain it. This is the
+> main open question for the final write-up.
 
-### ✅ Grounding smoke (RefCOCO-M, 24 items) — passed
-- LFM2.5-VL-450M: **Precision@1 = 83.33**, avg IoU 0.573 → healthy.
-- SmolVLM2-500M: **0.0** — **genuine protocol mismatch, NOT a bug.** Under the uniform VLMEvalKit
-  grounding prompt SmolVLM2 emits prose or degenerate `[100,100,100,100]` placeholder boxes
-  (raw preds captured in `grounding_run_log.smoke.json`). Disclose as a finding; do not "fix."
+### ✅ The pointing test (RefCOCO-M) — quick 24-image trial passed
+- LFM scored 83.33 (healthy).
+- SmolVLM2 scored 0.0 — and that's **real, not a bug.** When asked to point at an object using the
+  standard shared instruction, SmolVLM2 writes a sentence or a fake placeholder box instead of a
+  real answer. We just report that as a finding. Don't try to "fix" it.
 
-### ✅ Grounding full (RefCOCO-M) — completed on the volume, NUMBERS NOT YET READ LOCALLY
-The full 4-model `full()` run finished and each model committed `…_RefCOCO-M_acc.csv` to the Modal
-volume (`vlmeval2_out/<model>/`). The background app was later stopped by the guillotine sweep
-**after** it had already committed, so no data was lost. **These full RefCOCO-M Precision@1 numbers
-still need to be read off the volume** (server-side read; the local `calibration/vlmevalkit2/` dir
-currently only has the *smoke* acc files). See §3.1.
+### ✅ The full pointing test — finished and saved, but numbers not read yet
+The full RefCOCO-M run for all 4 models completed and each model's result file is saved in Modal's
+storage. The safety-timer stopped the process *after* it had already saved everything, so nothing
+was lost. **But we haven't pulled those final pointing scores down to read them yet** — the local
+folder only has the 24-image trial so far. Reading these is the first job at resume (see §3.1).
 
-### ⏳ Aside 50-pic re-run — NOT launched; user is DELIBERATING whether to run it at all
-Small illustrative readability-vs-token-budget side-table (LFM only). The original crashed on
-small-image cells (a crash produces no data to score/patch), so the minimal fix is to re-run just
-the failed subset. **User has not authorized this.** Open decision (see §3.3): run it, or drop the
-Aside table entirely (then nothing to re-run). Do NOT launch without an explicit go.
+### ⏳ The small optional "Aside" re-run — NOT started; YOU (the user) are still deciding
+This is a little bonus table showing how LFM does at different quality settings. The original run
+crashed on the small-image cases, so a re-run would just redo the parts that crashed. **You hadn't
+decided whether this table is worth keeping at all.** Nothing has been launched. Don't launch it
+without a clear go-ahead. If you decide to drop the table, there's nothing to re-run.
 
-### ⏳ Phase 4 assembly — NOT started (see §3.4).
+### ⏳ Final write-up — not started (see §3.4).
 
 ---
 
-## 3. Resume order (do these IN ORDER — concurrency ceiling = 4 A100 containers)
+## 3. What to do next, in order (run at most 4 GPU jobs at once)
 
-### 3.1 Read the grounding-full numbers, build the calibration/agreement tables
-The referee POPE+count are already collected (§2 table). What's missing is the **full RefCOCO-M
-acc**. Read it server-side (reload the volume first), e.g. a small Modal CPU function that opens
-`vlmeval2_out/<model>/<model>_RefCOCO-M_acc.csv` for all 4 models (pattern: the scratchpad
-`read_scores.py`, but target `_RefCOCO-M_acc.csv`). Then:
-- Fold the full RefCOCO-M Precision@1 into the calibration table (with LiquidAI's published LFM
-  RefCOCO-M **81.28** anchor + live URL).
-- Build the **4-model** referee agreement table (POPE + count numbers in §2 + grounding).
+### 3.1 Read the full pointing scores, then build the comparison tables
+The POPE and counting scores are already saved locally (the table above). The one missing piece is
+the **full pointing (RefCOCO-M) scores.** Read them out of Modal's storage with a small function
+that opens each model's `..._RefCOCO-M_acc.csv` file (there's an example to copy in the scratchpad,
+`read_scores.py` — just point it at the `_RefCOCO-M_acc.csv` files). Then:
+- Add the pointing scores to the calibration table (which also includes the company's published
+  LFM pointing score of **81.28**, with a link to where they published it).
+- Build the final 4-model comparison table.
 
-> If in doubt whether grounding-full truly finished for a model, just re-run
-> `.venv/bin/modal run harness/run_vlmevalkit2_grounding.py::full` — it resumes/skips completed
-> cells from the volume, so it's cheap and idempotent.
+> If you're unsure whether the full pointing run really finished for some model, just re-run the
+> command in §3.2 — it skips whatever's already done, so it's safe and cheap.
 
-### 3.2 (only if 3.1 shows a model's full grounding cell is missing) re-run grounding full
+### 3.2 (only if a model's full pointing score is missing) re-run the full pointing test
 ```
-.venv/bin/modal run harness/run_vlmevalkit2_grounding.py::full   # 4 models, 4 parallel containers
+.venv/bin/modal run harness/run_vlmevalkit2_grounding.py::full
 ```
-Uniform-prompt cross-check (VLMEvalKit sends one grounding prompt to all models). Disclosed.
+This runs 4 models at once (one GPU each). Note in the report that every model got the exact same
+pointing instruction, so it's a fair apples-to-apples check.
 
-### 3.3 ⚠️ Aside 50-pic re-run — LAST and SOLO (hard user directive) — BUT GET A GO FIRST
-User is deciding whether to keep the Aside table at all. **If yes**, only after 3.1/3.2 are done
-and nothing else is on GPU (must NOT be parallelized — it has a latency column and is 40GB-pinned):
+### 3.3 The "Aside" re-run — do this LAST, ALONE, and only if you say yes
+You're deciding whether to keep the Aside table. **If yes:** run this only after everything else is
+done and no other GPU job is going (it has to run by itself because it measures speed):
 ```
 .venv/bin/modal run harness/run_sweep_serial.py --lfm-upscale --sample-n 50 --sample-seed 11
 ```
-Then update the RESULTS "Aside" table (LFM @256 row) to reflect the change-#14 upscale fix.
-**If no** → drop the Aside table from RESULTS and skip this entirely.
+Then update the "Aside" table in the results. **If no:** delete that table from the results and
+skip this step entirely.
 
-### 3.4 Phase 4 assembly (task #13)
-Master `results.csv`/`json`; per-model config table; calibration table (incl. LiquidAI's published
-LFM RefCOCO-M **81.28** anchor with live URL); demo_data JSON; **per-item diff for the LLaVA
-CountBenchQA disagreement (ours ~73 vs referee 31.42)**; **scrub Qwen from RESULTS.md/METHODOLOGY
-headline tables + add the descope as a documented methodology change**; README repro lines;
-Gate D audit; commit + push.
+### 3.4 Write up the final results
+Build the master results file; the per-model settings table; the calibration table (with the
+company's published 81.28 pointing score and its link); the demo data file; the side-by-side look
+at the LLaVA counting difference (our ~73 vs referee 31.42); remove Qwen from the headline tables
+and add a short note explaining why it was dropped; add the "how to reproduce this" lines to the
+README; do the final quality check; then commit and push.
 
 ---
 
-## 4. User constraints locked this session (do not violate)
-- **Qwen-7B dropped** — never re-add to any lane or table.
-- **Concurrency ceiling = 4** parallel A100 containers.
-- **Clean sequential finish** — do NOT overlap GPU stages.
-- **Aside runs last and completely alone — and only after the user confirms they want it.**
-- **Guillotine rule (if ever re-armed):** if a hard GPU-kill fires, STOP all work and ASK the user
-  before doing anything else.
-- Prefer **plain-language** status updates.
-- Commit to **`main`** and push (user asks for "current branch"); don't branch off.
+## 4. Rules you set that must not be broken
+- **Qwen stays out** — never add it back to any table.
+- **Never run more than 4 GPU jobs at the same time.**
+- **Finish jobs one stage at a time** — don't overlap them.
+- **The "Aside" re-run goes last and completely alone — and only after you confirm you want it.**
+- **If a safety timer ever force-kills the GPU jobs again: stop everything and ask the user before
+  doing anything else.**
+- **Keep status updates in plain English.**
+- **Commit to `main` and push** (don't create side branches).
 
-## 5. Key files
-- `harness/run_vlmevalkit2.py` — referee POPE+count (Qwen removed from `TF457_MODELS`).
-- `harness/run_vlmevalkit2_grounding.py` — grounding referee (`build`/`smoke`/`full`).
-- `harness/run_sweep_serial.py` — sweep + Aside (`--lfm-upscale --sample-n 50 --sample-seed 11`).
-- `envs/images.py` — Modal images/pins (VLMEvalKit `401916c`, LFM rev, tf5/tf457 images).
-- `scoring/metrics.py` — single scorer (grounding IoU 0.5, POPE, count).
-- `calibration/vlmevalkit2/` — referee score CSVs collected locally (POPE, count, smoke grounding).
-- `RESULTS.md`, `METHODOLOGY.md` — deliverables (still list Qwen; scrub at Phase 4).
+## 5. The important files
+- `harness/run_vlmevalkit2.py` — runs the POPE + counting referee check.
+- `harness/run_vlmevalkit2_grounding.py` — runs the pointing (RefCOCO-M) check (`build`/`smoke`/`full`).
+- `harness/run_sweep_serial.py` — runs the sweep and the "Aside" table.
+- `envs/images.py` — the exact software versions used on Modal (so results are reproducible).
+- `scoring/metrics.py` — the single piece of code that scores everything.
+- `calibration/vlmevalkit2/` — the referee scores saved locally (POPE, counting, and the pointing trial).
+- `RESULTS.md`, `METHODOLOGY.md` — the final report files (still mention Qwen; clean that up at the write-up step).
