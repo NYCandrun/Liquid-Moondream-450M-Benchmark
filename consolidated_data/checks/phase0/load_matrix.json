@@ -1,0 +1,359 @@
+{
+  "lfm450m": {
+    "model": "LiquidAI/LFM2.5-VL-450M",
+    "loader": "image-text-to-text",
+    "revision_requested": "main",
+    "steps": [
+      {
+        "name": "resolve_sha",
+        "detail": "fc6221ca597f3315e4f82fc2df606783267b34ba",
+        "ok": true,
+        "seconds": 0.14
+      },
+      {
+        "name": "load",
+        "detail": {
+          "dtype_kwarg": "dtype=torch.bfloat16",
+          "model_dtype": "torch.bfloat16",
+          "n_params": 448718848
+        },
+        "ok": true,
+        "seconds": 9.0
+      },
+      {
+        "name": "two_image_inference",
+        "detail": {
+          "prompt": "Describe each of the two images in one short sentence.",
+          "n_input_tokens": 493,
+          "output": "The first image shows a red circle on a white background, while the second image shows a blue square on a gray background.",
+          "gen_seconds": 1.34,
+          "peak_gpu_mem_gb": 0.95
+        },
+        "ok": true,
+        "seconds": 1.45
+      }
+    ],
+    "env": {
+      "transformers": "5.12.1",
+      "torch": "2.12.1+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "python": "3.12.10"
+    }
+  },
+  "smolvlm2": {
+    "model": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+    "loader": "image-text-to-text",
+    "revision_requested": "main",
+    "steps": [
+      {
+        "name": "resolve_sha",
+        "detail": "7b375e1b73b11138ff12fe22c8f2822d8fe03467",
+        "ok": true,
+        "seconds": 0.17
+      },
+      {
+        "name": "load",
+        "detail": {
+          "dtype_kwarg": "dtype=torch.bfloat16",
+          "model_dtype": "torch.bfloat16",
+          "n_params": 507482304
+        },
+        "ok": true,
+        "seconds": 16.34
+      },
+      {
+        "name": "two_image_inference",
+        "detail": {
+          "prompt": "Describe each of the two images in one short sentence.",
+          "n_input_tokens": 1743,
+          "output": " The first image is a solid red circle on a white background, while the second image is a solid blue rectangle on a gray background.",
+          "gen_seconds": 1.71,
+          "peak_gpu_mem_gb": 1.77
+        },
+        "ok": true,
+        "seconds": 2.48
+      }
+    ],
+    "env": {
+      "transformers": "4.57.1",
+      "torch": "2.12.1+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "python": "3.12.10"
+    }
+  },
+  "llava_ov": {
+    "model": "llava-hf/llava-onevision-qwen2-0.5b-ov-hf",
+    "loader": "image-text-to-text",
+    "revision_requested": "main",
+    "steps": [
+      {
+        "name": "resolve_sha",
+        "detail": "74dd0bf867a4cda7950c17663794267c60cf4b40",
+        "ok": true,
+        "seconds": 0.11
+      },
+      {
+        "name": "load",
+        "detail": {
+          "dtype_kwarg": "dtype=torch.bfloat16",
+          "model_dtype": "torch.bfloat16",
+          "n_params": 893675552
+        },
+        "ok": true,
+        "seconds": 7.71
+      },
+      {
+        "name": "two_image_inference",
+        "detail": {
+          "prompt": "Describe each of the two images in one short sentence.",
+          "n_input_tokens": 1479,
+          "output": "The first image is a blank white background with a red circle in the center. The second image is a square with a blue border and a blue square in the center.",
+          "gen_seconds": 1.42,
+          "peak_gpu_mem_gb": 1.92
+        },
+        "ok": true,
+        "seconds": 1.49
+      }
+    ],
+    "env": {
+      "transformers": "4.57.1",
+      "torch": "2.12.1+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "python": "3.12.10"
+    }
+  },
+  "internvl35": {
+    "model": "OpenGVLab/InternVL3_5-1B",
+    "loader": "internvl-remote-chat",
+    "revision_requested": "main",
+    "steps": [
+      {
+        "name": "resolve_sha",
+        "detail": "2f71cf52542334823e48a46ffba0e2bc9add3446",
+        "ok": true,
+        "seconds": 0.13
+      },
+      {
+        "name": "remote_code_hashes",
+        "detail": {
+          "configuration_intern_vit.py": "6530df52748e4f7766568825e1d11f55dfa6cc421990020a640c548dc6cd2646",
+          "configuration_internvl_chat.py": "e9fdff47225fd380d940a4a2b6818b303fd2a5fdddf44fce0a75b05a4beb1539",
+          "conversation.py": "b1b9f280e9cb9211e519e2b8071002b57cc742aadb2f49b05fa674ee3c7d83ee",
+          "modeling_intern_vit.py": "a33ec11c517041c7fcbaaff3d736d846498468efaf4a64400a89d55132d5f638",
+          "modeling_internvl_chat.py": "ec972dd3d1c7f5da06455034d5cfe54968a9555dff60804edee9a7fb5759db34"
+        },
+        "ok": true,
+        "seconds": 0.75
+      },
+      {
+        "name": "load",
+        "detail": {
+          "dtype_kwarg": "dtype=torch.bfloat16",
+          "model_dtype": "torch.bfloat16",
+          "n_params": 1060897792
+        },
+        "ok": true,
+        "seconds": 22.99
+      },
+      {
+        "name": "two_image_inference",
+        "detail": {
+          "prompt": "Describe this image in one short sentence.",
+          "note": "two single-image chat() calls (remote-code API)",
+          "outputs": [
+            "A red circle on a white background.",
+            "A simple blue square on a gray background."
+          ],
+          "gen_seconds": 1.68,
+          "peak_gpu_mem_gb": 2.21
+        },
+        "ok": true,
+        "seconds": 1.68
+      }
+    ],
+    "env": {
+      "transformers": "4.57.1",
+      "torch": "2.12.1+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100 80GB PCIe",
+      "python": "3.12.10"
+    }
+  },
+  "qwen25vl": {
+    "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "loader": "image-text-to-text",
+    "revision_requested": "main",
+    "steps": [
+      {
+        "name": "resolve_sha",
+        "detail": "cc594898137f460bfe9f0759e9844b3ce807cfb5",
+        "ok": true,
+        "seconds": 0.15
+      },
+      {
+        "name": "load",
+        "detail": {
+          "dtype_kwarg": "dtype=torch.bfloat16",
+          "model_dtype": "torch.bfloat16",
+          "n_params": 8292166656
+        },
+        "ok": true,
+        "seconds": 19.81
+      },
+      {
+        "name": "two_image_inference",
+        "detail": {
+          "prompt": "Describe each of the two images in one short sentence.",
+          "n_input_tokens": 816,
+          "output": "The first image is a red circle on a white background, and the second image is a blue square with a black outline on a gray background.",
+          "gen_seconds": 2.37,
+          "peak_gpu_mem_gb": 16.77
+        },
+        "ok": true,
+        "seconds": 2.46
+      }
+    ],
+    "env": {
+      "transformers": "4.57.1",
+      "torch": "2.12.1+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "python": "3.12.10"
+    }
+  },
+  "moondream2": {
+    "model": "vikhyatk/moondream2",
+    "loader": "moondream-skills",
+    "steps": [
+      {
+        "name": "enumerate_dated_revisions",
+        "detail": {
+          "all_refs": [
+            "main",
+            "onnx",
+            "client",
+            "2025-06-21",
+            "2025-04-14",
+            "2025-03-27",
+            "2025-01-09",
+            "2024-08-26",
+            "2024-07-23",
+            "2024-05-20",
+            "2024-05-08",
+            "2024-04-02",
+            "2024-03-13",
+            "2024-03-06",
+            "2024-03-05",
+            "2023-03-04",
+            "2024-03-04"
+          ],
+          "dated": [
+            "2023-03-04",
+            "2024-03-04",
+            "2024-03-05",
+            "2024-03-06",
+            "2024-03-13",
+            "2024-04-02",
+            "2024-05-08",
+            "2024-05-20",
+            "2024-07-23",
+            "2024-08-26",
+            "2025-01-09",
+            "2025-03-27",
+            "2025-04-14",
+            "2025-06-21"
+          ],
+          "newest": "2025-06-21"
+        },
+        "ok": true,
+        "seconds": 0.14
+      },
+      {
+        "name": "resolve_sha",
+        "detail": "9a7d4024050840e001defacec2b00727e89149e6",
+        "ok": true,
+        "seconds": 0.11
+      },
+      {
+        "name": "remote_code_hashes",
+        "detail": {
+          "config.py": "ee7707c9b4d091dd6d3441ceebc54a36be4023e97d0504e59b5ea7d71147854b",
+          "configuration_moondream.py": "3dd654ce842b71fbe050e4d4098d2818ba7fccd7eea186e7c24b672ba756a489",
+          "fourier_features.py": "83729dd2b1341ed388c850c799ac417a73eae78ff1b2f0418ed7a88f69acf69d",
+          "handler.py": "c7b6dc4288ed81475187a87def69d33889095e1df24fc7bb6f3bd93e270d5fd7",
+          "hf_moondream.py": "7c1d25f918a50547843919e202700780e69c1680fece415c7242ffa11891c9b5",
+          "image_crops.py": "1f3f469fcbd3291966c6f9fda5c90f8044d39b391261bac14ef6bbcfb76496cb",
+          "layers.py": "9b3bab95b3571b39bd3d37c124bb6205bf881b55652e89cda360e522079962d8",
+          "lora.py": "d180359b1739e9a087a9c756c4671e536debb702d591370741af75ce4e27762d",
+          "modeling_phi.py": "e485c439475605f8be8a575d14d01b0d119a9cd4e4072e5e16e6b85cf9dbfa17",
+          "moondream.py": "52e8d0357eb12fdc1be36de13b3a53b225b970cc47fe7798783f177cf2262e59",
+          "region.py": "225bd962af02fedbf6d4a423c3282cada452fdc11efb478558b82df659dbf726",
+          "region_model.py": "7e72c196778cbe59e810cdb67a0b9995a1f31fe95b0eafc6d6ab5b64fc0cbf6c",
+          "rope.py": "0032ace75443a81888b957b28b7fd00ac808effdfdace14855d31b5c14ea5770",
+          "text.py": "9ec56dd5f1a78c9116c8f60e83db90c887034e0183ec3acb6245a91b493ce352",
+          "utils.py": "08d33430923d83ad26dfdbbc58d6df0f363a4c3c05cbfd8018f6e2c98c82ed59",
+          "vision.py": "f524cd4227df0394b0b1e73f281c93791267849729fc13a874a9071fff6f1eed",
+          "vision_encoder.py": "cc8fc22277d7f21417361d0cbf6203b4923814a24ccc336d33ed78754f4de2bf",
+          "weights.py": "e47fb56bd1830cb71b7017dfbbb96ce0c66d4e328674c64091015b3e7e1eef29"
+        },
+        "ok": true,
+        "seconds": 1.09
+      },
+      {
+        "name": "load",
+        "detail": {
+          "dtype_kwarg": "dtype=torch.bfloat16",
+          "model_dtype": "torch.bfloat16",
+          "n_params": 1927237104,
+          "skill_signatures": {
+            "query": "(image: Union[PIL.Image.Image, transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.EncodedImage, NoneType] = None, question: str = None, reasoning: bool = False, spatial_refs: Optional[List[Union[Tuple[float, float], Tuple[float, float, float, float]]]] = None, stream: bool = False, settings: Optional[transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.TextSamplingSettings] = None)",
+            "detect": "(image: Union[PIL.Image.Image, transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.EncodedImage], object: str, settings: Optional[transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.ObjectSamplingSettings] = None)",
+            "point": "(image: Union[PIL.Image.Image, transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.EncodedImage], object: str, settings: Optional[transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.ObjectSamplingSettings] = None)",
+            "caption": "(image: Union[PIL.Image.Image, transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.EncodedImage], length: Literal['normal', 'short', 'long'] = 'normal', stream: bool = False, settings: Optional[transformers_modules.vikhyatk.moondream2.9a7d4024050840e001defacec2b00727e89149e6.moondream.TextSamplingSettings] = None)"
+          }
+        },
+        "ok": true,
+        "seconds": 22.94
+      },
+      {
+        "name": "two_image_inference",
+        "detail": {
+          "note": "query() on both images + detect('circle') on image 1",
+          "query_outputs": [
+            {
+              "answer": "A red circle is centered against a white background, creating a minimalist and striking composition."
+            },
+            {
+              "answer": "A solid blue square with rounded corners is centered on a light gray background."
+            }
+          ],
+          "detect_output": {
+            "objects": [
+              {
+                "x_min": 0.3115340620279312,
+                "y_min": 0.24434715509414673,
+                "x_max": 0.6884659379720688,
+                "y_max": 0.7556528449058533
+              }
+            ]
+          },
+          "gen_seconds": 1.31,
+          "peak_gpu_mem_gb": 4.42
+        },
+        "ok": true,
+        "seconds": 1.31
+      }
+    ],
+    "env": {
+      "transformers": "4.57.1",
+      "torch": "2.12.1+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "python": "3.12.10"
+    },
+    "revision_requested": "2025-06-21"
+  }
+}

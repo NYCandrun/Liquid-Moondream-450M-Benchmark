@@ -1,0 +1,3457 @@
+{
+  "input_file": "results/raw/bench/bench_llava_ov_count.jsonl",
+  "n_lines_scored": 491,
+  "n_bad_lines": 0,
+  "n_unknown_task": 0,
+  "cells": [
+    {
+      "task": "count",
+      "aggregate": {
+        "n_items": 491,
+        "exact_match": 0.7311608961303462,
+        "parse_rate": 1.0,
+        "n_invalid_gt": 0,
+        "input_file": "results/raw/bench/bench_llava_ov_count.jsonl"
+      },
+      "per_item": [
+        {
+          "item_id": "countbench:19",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:24",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:29",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:37",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:44",
+          "pred": 7,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:48",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:77",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:109",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:165",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:187",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:202",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:214",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:222",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:259",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:274",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:298",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:333",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:420",
+          "pred": 10,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:465",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:485",
+          "pred": 8,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:0",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:1",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:2",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:3",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:4",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:5",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:6",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:7",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:8",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:9",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:10",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:11",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:12",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:13",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:14",
+          "pred": 8,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:15",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:16",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:17",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:18",
+          "pred": 4,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:20",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:21",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:22",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:23",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:25",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:26",
+          "pred": 12,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:27",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:28",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:30",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:31",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:32",
+          "pred": 6,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:33",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:34",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:35",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:36",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:38",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:39",
+          "pred": 5,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:40",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:41",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:42",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:43",
+          "pred": 4,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:45",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:46",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:47",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:49",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:50",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:51",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:52",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:53",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:54",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:55",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:56",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:57",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:58",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:59",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:60",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:61",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:62",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:63",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:64",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:65",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:66",
+          "pred": 4,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:67",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:68",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:69",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:70",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:71",
+          "pred": 8,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:72",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:73",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:74",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:75",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:76",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:78",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:79",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:80",
+          "pred": 9,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:81",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:82",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:83",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:84",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:85",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:86",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:87",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:88",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:89",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:90",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:91",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:92",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:93",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:94",
+          "pred": 7,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:95",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:96",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:97",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:98",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:99",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:100",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:101",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:102",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:103",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:104",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:105",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:106",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:107",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:108",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:110",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:111",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:112",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:113",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:114",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:115",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:116",
+          "pred": 1,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:117",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:118",
+          "pred": 5,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:119",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:120",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:121",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:122",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:123",
+          "pred": 5,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:124",
+          "pred": 1,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:125",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:126",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:127",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:128",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:129",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:130",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:131",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:132",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:133",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:134",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:135",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:136",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:137",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:138",
+          "pred": 12,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:139",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:140",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:141",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:142",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:143",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:144",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:145",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:146",
+          "pred": 3,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:147",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:148",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:149",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:150",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:151",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:152",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:153",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:154",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:155",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:156",
+          "pred": 8,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:157",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:158",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:159",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:160",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:161",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:162",
+          "pred": 10,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:163",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:164",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:166",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:167",
+          "pred": 4,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:168",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:169",
+          "pred": 10,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:170",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:171",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:172",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:173",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:174",
+          "pred": 4,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:175",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:176",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:177",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:178",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:179",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:180",
+          "pred": 4,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:181",
+          "pred": 7,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:182",
+          "pred": 4,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:183",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:184",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:185",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:186",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:188",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:189",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:190",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:191",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:192",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:193",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:194",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:195",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:196",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:197",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:198",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:199",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:200",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:201",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:203",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:204",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:205",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:206",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:207",
+          "pred": 1,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:208",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:209",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:210",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:211",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:212",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:213",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:215",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:216",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:217",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:218",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:219",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:220",
+          "pred": 9,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:221",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:223",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:224",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:225",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:226",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:227",
+          "pred": 7,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:228",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:229",
+          "pred": 8,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:230",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:231",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:232",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:233",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:234",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:235",
+          "pred": 9,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:236",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:237",
+          "pred": 6,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:238",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:239",
+          "pred": 4,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:240",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:241",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:242",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:243",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:244",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:245",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:246",
+          "pred": 12,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:247",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:248",
+          "pred": 7,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:249",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:250",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:251",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:252",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:253",
+          "pred": 16,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:254",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:255",
+          "pred": 3,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:256",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:257",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:258",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:260",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:261",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:262",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:263",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:264",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:265",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:266",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:267",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:268",
+          "pred": 9,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:269",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:270",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:271",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:272",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:273",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:275",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:276",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:277",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:278",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:279",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:280",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:281",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:282",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:283",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:284",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:285",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:286",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:287",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:288",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:289",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:290",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:291",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:292",
+          "pred": 7,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:293",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:294",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:295",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:296",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:297",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:299",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:300",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:301",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:302",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:303",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:304",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:305",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:306",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:307",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:308",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:309",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:310",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:311",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:312",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:313",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:314",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:315",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:316",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:317",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:318",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:319",
+          "pred": 8,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:320",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:321",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:322",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:323",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:324",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:325",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:326",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:327",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:328",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:329",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:330",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:331",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:332",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:334",
+          "pred": 5,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:335",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:336",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:337",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:338",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:339",
+          "pred": 12,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:340",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:341",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:342",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:343",
+          "pred": 9,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:344",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:345",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:346",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:347",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:348",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:349",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:350",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:351",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:352",
+          "pred": 5,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:353",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:354",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:355",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:356",
+          "pred": 7,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:357",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:358",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:359",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:360",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:361",
+          "pred": 9,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:362",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:363",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:364",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:365",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:366",
+          "pred": 7,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:367",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:368",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:369",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:370",
+          "pred": 1,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:371",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:372",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:373",
+          "pred": 12,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:374",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:375",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:376",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:377",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:378",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:379",
+          "pred": 5,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:380",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:381",
+          "pred": 5,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:382",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:383",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:384",
+          "pred": 10,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:385",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:386",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:387",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:388",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:389",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:390",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:391",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:392",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:393",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:394",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:395",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:396",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:397",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:398",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:399",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:400",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:401",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:402",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:403",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:404",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:405",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:406",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:407",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:408",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:409",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:410",
+          "pred": 12,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:411",
+          "pred": 7,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:412",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:413",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:414",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:415",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:416",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:417",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:418",
+          "pred": 8,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:419",
+          "pred": 10,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:421",
+          "pred": 7,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:422",
+          "pred": 4,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:423",
+          "pred": 5,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:424",
+          "pred": 7,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:425",
+          "pred": 6,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:426",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:427",
+          "pred": 4,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:428",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:429",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:430",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:431",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:432",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:433",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:434",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:435",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:436",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:437",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:438",
+          "pred": 4,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:439",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:440",
+          "pred": 5,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:441",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:442",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:443",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:444",
+          "pred": 12,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:445",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:446",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:447",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:448",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:449",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:450",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:451",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:452",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:453",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:454",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:455",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:456",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:457",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:458",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:459",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:460",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:461",
+          "pred": 3,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:462",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:463",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:464",
+          "pred": 12,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:466",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:467",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:468",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:469",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:470",
+          "pred": 6,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:471",
+          "pred": 4,
+          "gt": 4,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:472",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:473",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:474",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:475",
+          "pred": 5,
+          "gt": 5,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:476",
+          "pred": 12,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:477",
+          "pred": 9,
+          "gt": 9,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:478",
+          "pred": 3,
+          "gt": 3,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:479",
+          "pred": 6,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:480",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:481",
+          "pred": 10,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:482",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:483",
+          "pred": 2,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:484",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:486",
+          "pred": 7,
+          "gt": 7,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:487",
+          "pred": 6,
+          "gt": 6,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:488",
+          "pred": 8,
+          "gt": 8,
+          "parsed_ok": true,
+          "correct": true
+        },
+        {
+          "item_id": "countbench:489",
+          "pred": 1,
+          "gt": 2,
+          "parsed_ok": true,
+          "correct": false
+        },
+        {
+          "item_id": "countbench:490",
+          "pred": 12,
+          "gt": 10,
+          "parsed_ok": true,
+          "correct": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,737 @@
+{
+  "vlmeval": {
+    "release_tag": "v0.3rc1",
+    "commit_hash": "8eb37bb96bc508bd016000318548854fdfa1bd30",
+    "clone_notes": "Cloned https://github.com/open-compass/VLMEvalKit to /private/tmp/claude-501/-Users-jacobnikolau-Desktop-Claude/b427ce91-3feb-4233-90b1-b084100c3c8f/scratchpad/VLMEvalKit. Tags present: v0.1 (2024-01-22), v0.2rc1 (2024-06-27), v0.2 (2025-03-22), v0.3rc1 (2025-06-21). v0.3rc1 is the highest-semver / most recent tag; GitHub releases API (https://api.github.com/repos/open-compass/VLMEvalKit/releases) confirms v0.3rc1 is the most recent release (published 2025-06-21, flagged prerelease; latest stable release is v0.2). Checked out v0.3rc1; git rev-parse HEAD = 8eb37bb96bc508bd016000318548854fdfa1bd30. For context, origin/main at clone time = 0bfa830fa42fd1d5ac485bbb0bbc78e16c079e18 (committed 2026-06-29); main-branch facts below are cited via `git show origin/main:<path>` from this clone. HF API check: LiquidAI/LFM2.5-VL-450M exists (https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M, sha fc6221ca597f3315e4f82fc2df606783267b34ba, pipeline image-text-to-text).",
+    "lfm2_5_vl_supported": false,
+    "models": [
+      {
+        "our_checkpoint": "LiquidAI/LFM2.5-VL-450M",
+        "adapter_name": "none at v0.3rc1 (LFM2VL exists only on main)",
+        "supported": "no",
+        "evidence_path": "repo-wide grep at v0.3rc1: `grep -rin 'lfm|liquid' vlmeval/` returns zero hits; no liquid.py under vlmeval/vlm/ and no lfm entry in vlmeval/config.py",
+        "notes": "No LFM2 / LFM2.5-VL adapter exists at the pinned release tag \u2014 this is the decisive gap. On current main (origin/main 0bfa830fa42fd1d5ac485bbb0bbc78e16c079e18) an adapter DOES exist: class LFM2VL at vlmeval/vlm/liquid.py:7 (exported via vlmeval/vlm/__init__.py:37), registered in lfm2vl_series at vlmeval/config.py:2426-2431 with aliases LFM2-VL-450M, LFM2-VL-1.6B, LFM2-VL-3B, LFM2.5-VL-1.6B. Note: even on main there is NO 'LFM2.5-VL-450M' alias; the class takes an arbitrary model_path so running our exact checkpoint needs a one-line registry addition or a config override. The HF checkpoint itself exists (verified via HF API)."
+      },
+      {
+        "our_checkpoint": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "adapter_name": "SmolVLM2 (registry alias 'SmolVLM2-500M')",
+        "supported": "yes",
+        "evidence_path": "vlmeval/config.py:928-930 (partial(SmolVLM2, model_path=\"HuggingFaceTB/SmolVLM2-500M-Video-Instruct\")); class SmolVLM2 at vlmeval/vlm/smolvlm.py:354 (500M branch at smolvlm.py:368)",
+        "notes": "Exact model_path match to our checkpoint at the pinned tag."
+      },
+      {
+        "our_checkpoint": "llava-hf/llava-onevision-qwen2-0.5b-ov-hf",
+        "adapter_name": "LLaVA_OneVision_HF (registry alias 'llava-onevision-qwen2-0.5b-ov-hf')",
+        "supported": "yes",
+        "evidence_path": "vlmeval/config.py:635-637 (partial(LLaVA_OneVision_HF, model_path=\"llava-hf/llava-onevision-qwen2-0.5b-ov-hf\")); class at vlmeval/vlm/llava/llava.py:728",
+        "notes": "Exact model_path match at the pinned tag."
+      },
+      {
+        "our_checkpoint": "OpenGVLab/InternVL3_5-1B",
+        "adapter_name": "InternVLChat (generic class; no InternVL3_5 alias at tag)",
+        "supported": "partial",
+        "evidence_path": "repo-wide grep at v0.3rc1 for 'InternVL3_5|InternVL3-5|InternVL3.5' = zero hits; nearest registered entry is 'InternVL3-1B' at vlmeval/config.py:845-847 via generic InternVLChat (vlmeval/vlm/internvl/internvl_chat.py:107, accepts arbitrary model_path + version kwarg)",
+        "notes": "The tag (2025-06-21) predates the InternVL3.5 release, so no registry entry exists. The generic InternVLChat class might load it via trust_remote_code with version='V2.0' but this is unverified at this tag. On current main it IS registered: git show origin/main:vlmeval/config.py lines 1307-1308 ('InternVL3_5-1B' -> vlm.InternVLChat, model_path='OpenGVLab/InternVL3_5-1B', version='V2.0')."
+      },
+      {
+        "our_checkpoint": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "adapter_name": "Qwen2VLChat (registry alias 'Qwen2.5-VL-7B-Instruct')",
+        "supported": "yes",
+        "evidence_path": "vlmeval/config.py:1158-1164 (partial(Qwen2VLChat, model_path=\"Qwen/Qwen2.5-VL-7B-Instruct\", min_pixels=1280*28*28, max_pixels=16384*28*28, use_custom_prompt=False)); adapter package vlmeval/vlm/qwen2_vl/",
+        "notes": "Registered with use_custom_prompt=False, so it receives the dataset-default prompts (raw POPE question; CountBenchQA template) rather than the Qwen custom Y/N prompt in vlmeval/vlm/qwen2_vl/prompt.py."
+      },
+      {
+        "our_checkpoint": "vikhyatk/moondream2",
+        "adapter_name": "Moondream2 (registry alias 'Moondream2')",
+        "supported": "yes",
+        "evidence_path": "vlmeval/config.py:1306 (partial(Moondream2, model_path=\"vikhyatk/moondream2\")); class at vlmeval/vlm/moondream.py:102",
+        "notes": "CAVEAT: the adapter pins revision=\"2025-01-09\" by default (vlmeval/vlm/moondream.py:106) \u2014 it will NOT evaluate the current moondream2 main revision unless a revision kwarg is passed. Second caveat: the adapter's counting prompt is keyed on 'CountbenchQA' (lowercase b, moondream.py:159 and :190) while the registered dataset name is 'CountBenchQA' (image_vqa.py:2334), so the moondream-specific counting prompt is dead code at this tag and the dataset-default prompt is used instead."
+      }
+    ],
+    "datasets": [
+      {
+        "dataset": "POPE",
+        "supported": "yes",
+        "evidence_path": "vlmeval/dataset/image_yorn.py:14 (DATASET_URL['POPE']), :21 (MD5), :95-96 (POPE_rating dispatch in evaluate()); scorer POPE_rating at vlmeval/dataset/utils/yorn.py:143",
+        "notes": "Handled by ImageYORNDataset (TYPE='Y/N'). Reports F1/precision/recall-style rating via POPE_rating; answer extraction via YOrN_Extraction with optional LLM judge fallback (image_yorn.py:35-104)."
+      },
+      {
+        "dataset": "RefCOCO-M (RefCOCO grounding)",
+        "supported": "no",
+        "evidence_path": "repo-wide grep at v0.3rc1: `grep -rin refcoco .` (py+md) = zero hits; only grounding-flavored dataset is TDBenchGrounding at vlmeval/dataset/image_vqa.py:2194 (top-down aerial benchmark, unrelated to RefCOCO)",
+        "notes": "Entirely absent at the pinned tag. On current main it exists: git show origin/main:vlmeval/dataset/refcoco.py \u2014 class RefCOCODataset (line 15, TYPE='GROUNDING', IoU@0.5) covering RefCOCO_val/testA/testB, RefCOCO+_val/testA/testB, RefCOCOg_val/test, registered at origin/main vlmeval/dataset/__init__.py:110 and :297. Even on main the name is 'RefCOCO' (unified TSV), not 'RefCOCO-M'."
+      },
+      {
+        "dataset": "CountBenchQA",
+        "supported": "yes",
+        "evidence_path": "vlmeval/dataset/image_vqa.py:2331-2361 (class CountBenchQA, DATASET_URL line 2334-2335, MD5 line 2337, build_prompt 2339-2348, evaluate 2350-2361); imported/registered at vlmeval/dataset/__init__.py:15 and :195",
+        "notes": "Scoring is lenient substring containment: correct if the ground-truth answer string appears anywhere in the prediction (image_vqa.py:2357-2359)."
+      }
+    ],
+    "pope_prompt_file": "vlmeval/dataset/image_yorn.py (ImageYORNDataset.build_prompt, lines 25-32) together with vlmeval/dataset/image_base.py (ImageBaseDataset.build_prompt, lines 186-203). At the dataset level, POPE gets the RAW question from POPE.tsv with the image and NO suffix \u2014 the '\\nPlease answer yes or no.' suffix at image_yorn.py:31 is applied only when dataset_name == 'AMBER'. Model-side overrides that alter the POPE prompt: vlmeval/vlm/moondream.py:186-187 (POPE -> f\"{question}\\nAnswer yes or no.\"); vlmeval/vlm/qwen2_vl/prompt.py:127-141 (YORN_PROMPT = ' Please answer yes or no.' appended for Y/N incl. POPE per prompt.py:38 \u2014 but inactive for our Qwen2.5-VL-7B-Instruct alias since config.py:1163 sets use_custom_prompt=False); vlmeval/vlm/internvl/internvl_chat.py:258-264 (POPE falls into the else branch, prompt = question, raw).",
+    "countbench_prompt_file": "vlmeval/dataset/image_vqa.py, class CountBenchQA.build_prompt, lines 2339-2348. Exact template (line 2346): f'{ques} Note that: answer with a number directly e.g. 3. Do not include any additional text.' where ques = line['question'] from CountBenchQA.tsv. The moondream adapter's counting prompt (vlmeval/vlm/moondream.py:190-195: \"Look at the image carefully and count the objects. Answer with just a number, without any additional text. \" + question) is keyed on the misspelled name 'CountbenchQA' and therefore never fires for the registered dataset 'CountBenchQA'.",
+    "prompt_convention_notes": "VLMEvalKit splits prompt construction between dataset classes (default) and per-model use_custom_prompt/build_prompt overrides. For POPE the dataset default is the bare TSV question (no yes/no instruction); whether a model sees a yes/no suffix depends on its adapter (moondream: yes, at moondream.py:186-187; Qwen2.5-VL-7B-Instruct as registered: no, use_custom_prompt=False at config.py:1163; InternVLChat: no, internvl_chat.py:264). For CountBenchQA the dataset-level template at image_vqa.py:2346 applies to all models without a matching custom prompt. Any custom harness aiming for prompt parity should cite image_vqa.py:2339-2348 (CountBenchQA) and image_yorn.py:25-32 + image_base.py:186-203 (POPE), plus the per-adapter overrides for the specific model under test.",
+    "coverage_matrix_md": "## VLMEvalKit coverage at v0.3rc1 (commit 8eb37bb96bc508bd016000318548854fdfa1bd30)\n\nCell = can this (model, dataset) pair run upstream at the pinned tag with no code changes?\n\n| Model checkpoint | POPE | RefCOCO-M | CountBenchQA |\n|---|---|---|---|\n| LiquidAI/LFM2.5-VL-450M | NO (no adapter; zero lfm/liquid hits at tag) | NO (dataset absent at tag) | NO (no adapter) |\n| HuggingFaceTB/SmolVLM2-500M-Video-Instruct | YES (config.py:928-930 + image_yorn.py:14) | NO (dataset absent at tag) | YES (config.py:928-930 + image_vqa.py:2331) |\n| llava-hf/llava-onevision-qwen2-0.5b-ov-hf | YES (config.py:635-637 + image_yorn.py:14) | NO (dataset absent at tag) | YES (config.py:635-637 + image_vqa.py:2331) |\n| OpenGVLab/InternVL3_5-1B | PARTIAL (no InternVL3_5 registry entry at tag; generic InternVLChat at internvl_chat.py:107 unverified) | NO (dataset absent at tag) | PARTIAL (same adapter gap) |\n| Qwen/Qwen2.5-VL-7B-Instruct | YES (config.py:1158-1164 + image_yorn.py:14) | NO (dataset absent at tag) | YES (config.py:1158-1164 + image_vqa.py:2331) |\n| vikhyatk/moondream2 | YES (config.py:1306 + moondream.py:186-187; adapter pins revision 2025-01-09 at moondream.py:106) | NO (dataset absent at tag) | YES (config.py:1306 + image_vqa.py:2331; dataset-default prompt used due to 'CountbenchQA' case mismatch at moondream.py:159) |\n\nContext (current main, origin/main 0bfa830fa42fd1d5ac485bbb0bbc78e16c079e18, 2026-06-29): LFM2VL adapter exists (vlmeval/vlm/liquid.py:7; lfm2vl_series config.py:2426-2431, but no LFM2.5-VL-450M alias), InternVL3_5-1B is registered (config.py:1307-1308), and RefCOCO grounding exists (vlmeval/dataset/refcoco.py:15, name 'RefCOCO', not 'RefCOCO-M').",
+    "flip_recommendation": "Do NOT flip VLMEvalKit to primary at the pinned release tag; keep the custom harness as primary and use VLMEvalKit as a secondary cross-check. Rationale at v0.3rc1 (8eb37bb): (1) the study's headline model, LiquidAI/LFM2.5-VL-450M, has no adapter at all (zero lfm/liquid matches repo-wide) \u2014 lfm2_5_vl_supported=false \u2014 so the primary instrument would exclude the primary subject; (2) RefCOCO-M/RefCOCO grounding is entirely absent, killing one of three benchmark columns; (3) InternVL3_5-1B has no registry entry (tag predates the model). Coverage at the tag is only POPE+CountBenchQA for 4 of 6 models. A conditional alternative: pin to a recent main commit instead of a release tag (e.g., origin/main 0bfa830fa42fd1d5ac485bbb0bbc78e16c079e18, 2026-06-29), which adds the LFM2VL adapter, an InternVL3_5-1B entry, and a RefCOCO GROUNDING dataset \u2014 but even there our exact LFM2.5-VL-450M checkpoint has no registry alias (needs a one-line addition or model_path override), RefCOCO is upstream's unified TSV rather than 'RefCOCO-M', and pinning to an untagged main commit sacrifices release-level reproducibility. Recommended posture: custom harness primary for all six models; run VLMEvalKit at v0.3rc1 on POPE+CountBenchQA for the four fully covered models as an external validity check; adopt/cite VLMEvalKit's prompt templates (image_vqa.py:2339-2348 for CountBenchQA; image_yorn.py:25-32 + image_base.py:186-203 for POPE) in the custom harness to keep numbers comparable; revisit the flip decision if/when upstream tags a release containing liquid.py + refcoco.py."
+  },
+  "revisions": {
+    "checkpoints": [
+      {
+        "repo_id": "LiquidAI/LFM2.5-VL-450M",
+        "exists": true,
+        "main_sha": "fc6221ca597f3315e4f82fc2df606783267b34ba",
+        "source_url": "https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M",
+        "trust_remote_code": false,
+        "remote_code_files": [],
+        "transformers_requirement": "transformers >= 5.1 (model card, line 97: \"You can run LFM2.5-VL-450M with Hugging Face transformers v5.1 or newer\" \u2014 source: https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/README.md). config.json transformers_version = \"5.0.0.dev0\" (save-time version \u2014 source: https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/config.json). ANCHOR CHECK: study prior \"needs >=5.x, prior-working 5.12.1\" \u2014 the >=5.x part is CONFIRMED by the card (>=5.1); the specific 5.12.1 pin is a study-internal value, not stated anywhere on the card, so it remains unverified from source in this run.",
+        "renamed_or_superseded": false,
+        "rename_note": "Not renamed or superseded (cardData.new_version = null, gated=false, disabled=false \u2014 source: https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M). Note it is itself the refreshed successor of LiquidAI/LFM2-VL-450M (README line 44). Repo is very young: initial commit e8c60131 on 2026-04-08; only 4 commits total, all on 2026-04-08 (weights uploaded in a8f47c53, main head fc6221ca is a README-only update) \u2014 source: https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M/commits/main. No tags/branches besides main \u2014 source: https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M/refs",
+        "notes": "gated=false, disabled=false, private=false, lastModified=2026-04-08T19:38:36Z, license=other (LFM license), architecture Lfm2VlForConditionalGeneration (native lfm2_vl model_type, no custom_code tag, no .py siblings, no auto_map) \u2014 all from https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M and https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/config.json"
+      },
+      {
+        "repo_id": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "exists": true,
+        "main_sha": "7b375e1b73b11138ff12fe22c8f2822d8fe03467",
+        "source_url": "https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "trust_remote_code": false,
+        "remote_code_files": [],
+        "transformers_requirement": "No explicit version pin on the card; README line 61 says \"Make sure you have num2words, flash-attn and latest transformers installed\" (source: https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/raw/main/README.md). config.json transformers_version = \"4.47.1\" (save-time, pre-release dev install \u2014 source: https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/raw/main/config.json). Effective minimum RELEASED version: 4.50.0 \u2014 SmolVLM2 was added in transformers v4.50.0 (released 2025-03-21, PR #36126 by @orrzohar \u2014 source: https://github.com/huggingface/transformers/releases/tag/v4.50.0). ANCHOR CHECK: study prior \"known-good on 4.57.1\" is consistent (4.57.1 >= 4.50.0) but the specific 4.57.1 value is a study-internal pin not verifiable from the card.",
+        "renamed_or_superseded": false,
+        "rename_note": "Not renamed or superseded (cardData.new_version = null, gated=false, disabled=false). lastModified=2025-04-08T07:25:40Z. Source: https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "notes": "Native smolvlm model_type, architecture SmolVLMForConditionalGeneration, no custom_code tag, no .py siblings, no auto_map, license apache-2.0 \u2014 from https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-500M-Video-Instruct and its raw config.json"
+      },
+      {
+        "repo_id": "llava-hf/llava-onevision-qwen2-0.5b-ov-hf",
+        "exists": true,
+        "main_sha": "74dd0bf867a4cda7950c17663794267c60cf4b40",
+        "source_url": "https://huggingface.co/api/models/llava-hf/llava-onevision-qwen2-0.5b-ov-hf",
+        "trust_remote_code": false,
+        "remote_code_files": [],
+        "transformers_requirement": "transformers >= 4.45.0 (model card, line 51: \"make sure to have transformers installed from [branch PR #32673] or transformers >= 4.45.0\" \u2014 source: https://huggingface.co/llava-hf/llava-onevision-qwen2-0.5b-ov-hf/raw/main/README.md). config.json transformers_version = \"4.45.0.dev0\" (source: https://huggingface.co/llava-hf/llava-onevision-qwen2-0.5b-ov-hf/raw/main/config.json). ANCHOR CHECK: study prior \"known-good on 4.57.1\" is consistent with the card minimum (4.57.1 >= 4.45.0); the 4.57.1 value itself is study-internal.",
+        "renamed_or_superseded": false,
+        "rename_note": "Not renamed or superseded (cardData.new_version = null, gated=false, disabled=false). lastModified=2025-06-18T13:57:09Z. Source: https://huggingface.co/api/models/llava-hf/llava-onevision-qwen2-0.5b-ov-hf",
+        "notes": "Native llava_onevision model_type, architecture LlavaOnevisionForConditionalGeneration, no custom_code tag, no .py siblings, no auto_map, license apache-2.0 \u2014 from https://huggingface.co/api/models/llava-hf/llava-onevision-qwen2-0.5b-ov-hf and its raw config.json"
+      },
+      {
+        "repo_id": "OpenGVLab/InternVL3_5-1B",
+        "exists": true,
+        "main_sha": "2f71cf52542334823e48a46ffba0e2bc9add3446",
+        "source_url": "https://huggingface.co/api/models/OpenGVLab/InternVL3_5-1B",
+        "trust_remote_code": true,
+        "remote_code_files": [
+          "configuration_intern_vit.py",
+          "configuration_internvl_chat.py",
+          "conversation.py",
+          "modeling_intern_vit.py",
+          "modeling_internvl_chat.py"
+        ],
+        "transformers_requirement": "transformers >= 4.52.1 (model card, line 360: \"Please use transformers>=4.52.1 to ensure the model works normally. For the 20B version of our model, transformers>=4.55.0 is required.\" \u2014 source: https://huggingface.co/OpenGVLab/InternVL3_5-1B/raw/main/README.md). config.json transformers_version = null (source: https://huggingface.co/OpenGVLab/InternVL3_5-1B/raw/main/config.json). ANCHOR CHECK: \"known-good on 4.57.1\" is consistent with card minimum (4.57.1 >= 4.52.1). ANCHOR \"remote code fails on transformers 5.x\": UNVERIFIED in this run \u2014 web search found no authoritative source for a 5.x-specific failure; closest indirect evidence is huggingface/transformers issue #40475 (InternVL3.5-30B-A3B processor load bug with trust_remote_code on 4.56.0, https://github.com/huggingface/transformers/issues/40475). Treat the 5.x failure claim as plausible-but-unconfirmed.",
+        "renamed_or_superseded": false,
+        "rename_note": "Not renamed/superseded (cardData.new_version = null, gated=false, disabled=false; lastModified=2025-08-29T17:57:08Z \u2014 source: https://huggingface.co/api/models/OpenGVLab/InternVL3_5-1B). GATE A NOTE: an official HF-format twin exists at OpenGVLab/InternVL3_5-1B-HF (exists, sha 9191dbccf312b537016f041b25d61c72e7c5c9f3 \u2014 source: https://huggingface.co/api/models/OpenGVLab/InternVL3_5-1B-HF) which uses native transformers code without trust_remote_code; the model card (line 41) explicitly describes the two formats. If InternVL remote code breaks on transformers 5.x, the -HF repo is the sanctioned alternative.",
+        "notes": "custom_code tag present; auto_map = {AutoConfig: configuration_internvl_chat.InternVLChatConfig, AutoModel/AutoModelForCausalLM: modeling_internvl_chat.InternVLChatModel}; model_type internvl_chat; architecture InternVLChatModel; license apache-2.0 \u2014 from https://huggingface.co/api/models/OpenGVLab/InternVL3_5-1B and https://huggingface.co/OpenGVLab/InternVL3_5-1B/raw/main/config.json"
+      },
+      {
+        "repo_id": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "exists": true,
+        "main_sha": "cc594898137f460bfe9f0759e9844b3ce807cfb5",
+        "source_url": "https://huggingface.co/api/models/Qwen/Qwen2.5-VL-7B-Instruct",
+        "trust_remote_code": false,
+        "remote_code_files": [],
+        "transformers_requirement": "Card (lines 103-123) predates a stable release with qwen2_5_vl and says to build transformers from source (\"pip install git+https://github.com/huggingface/transformers accelerate\") or you get KeyError: 'qwen2_5_vl' (source: https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct/raw/main/README.md). Effective minimum RELEASED version: 4.49.0 \u2014 Qwen2.5-VL was added in transformers v4.49.0 (released 2025-02-17, PR #35569 by @ShuaiBai623 \u2014 source: https://github.com/huggingface/transformers/releases/tag/v4.49.0). config.json transformers_version = \"4.41.2\" (save-time only \u2014 source: https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct/raw/main/config.json). ANCHOR CHECK: \"known-good on 4.57.1\" is consistent (4.57.1 >= 4.49.0); the 4.57.1 value itself is study-internal.",
+        "renamed_or_superseded": false,
+        "rename_note": "Not renamed or superseded (cardData.new_version = null, gated=false, disabled=false). lastModified=2025-04-06T16:23:01Z. Source: https://huggingface.co/api/models/Qwen/Qwen2.5-VL-7B-Instruct",
+        "notes": "Native qwen2_5_vl model_type, architecture Qwen2_5_VLForConditionalGeneration, no custom_code tag, no .py siblings, no auto_map, license apache-2.0. Card also recommends qwen-vl-utils[decord]==0.0.8 for video (README line 131). Sources: https://huggingface.co/api/models/Qwen/Qwen2.5-VL-7B-Instruct and raw config.json/README.md"
+      },
+      {
+        "repo_id": "vikhyatk/moondream2",
+        "exists": true,
+        "main_sha": "6b714b26eea5cbd9f31e4edb2541c170afa935ba",
+        "source_url": "https://huggingface.co/api/models/vikhyatk/moondream2",
+        "trust_remote_code": true,
+        "remote_code_files": [
+          "config.py",
+          "configuration_moondream.py",
+          "fourier_features.py",
+          "handler.py",
+          "hf_moondream.py",
+          "image_crops.py",
+          "layers.py",
+          "lora.py",
+          "moondream.py",
+          "region.py",
+          "region_model.py",
+          "rope.py",
+          "text.py",
+          "utils.py",
+          "vision.py",
+          "vision_encoder.py",
+          "weights.py"
+        ],
+        "transformers_requirement": "No explicit transformers version pin on the model card (README shows AutoModelForCausalLM with trust_remote_code=True and revision=\"2025-06-21\" \u2014 source: https://huggingface.co/vikhyatk/moondream2/raw/main/README.md). config.json transformers_version = \"4.52.4\" (save-time \u2014 source: https://huggingface.co/vikhyatk/moondream2/raw/main/config.json). No 4.57.1/5.x anchor was given for this checkpoint; treat compatibility as governed by the remote code at the pinned revision.",
+        "renamed_or_superseded": true,
+        "rename_note": "SUPERSEDED (Gate A): cardData.new_version = \"moondream/moondream3-preview\" (source: https://huggingface.co/api/models/vikhyatk/moondream2) and the README banner states \"The latest version of Moondream is Moondream 3 (Preview)\" (source: https://huggingface.co/vikhyatk/moondream2/raw/main/README.md, lines 4-7). The moondream2 repo itself is NOT renamed/gated/disabled and remains live. Additionally, main has moved past the newest dated release: 5 commits after the 2025-06-21 tag, ending with \"Update moondream.py\" on 2025-09-23 (main head 6b714b26...), so remote code on main differs from the 2025-06-21 release \u2014 pin revision=\"2025-06-21\" (commit 9a7d4024050840e001defacec2b00727e89149e6) as the card itself recommends. Commit history source: https://huggingface.co/api/models/vikhyatk/moondream2/commits/main",
+        "notes": "custom_code tag present; auto_map = {AutoConfig: hf_moondream.HfConfig, AutoModelForCausalLM: hf_moondream.HfMoondream}; model_type moondream1; architecture HfMoondream; license apache-2.0; lastModified=2025-09-23T01:22:59Z. The 17 .py files above are from the API siblings list via raw JSON (curl); an initial WebFetch summary of the same URL omitted handler.py \u2014 the raw JSON is authoritative. Source: https://huggingface.co/api/models/vikhyatk/moondream2"
+      }
+    ],
+    "moondream2_refs_url": "https://huggingface.co/api/models/vikhyatk/moondream2/refs",
+    "moondream2_newest_revision": "2025-06-21 (tag refs/tags/2025-06-21, targetCommit 9a7d4024050840e001defacec2b00727e89149e6) \u2014 newest dated revision; no dated tag newer than this exists as of 2026-07-02, although branch main (6b714b26eea5cbd9f31e4edb2541c170afa935ba, lastModified 2025-09-23) is 5 commits ahead of it. Source: https://huggingface.co/api/models/vikhyatk/moondream2/refs and https://huggingface.co/api/models/vikhyatk/moondream2/commits/main",
+    "moondream2_dated_revisions": [
+      "2025-06-21 -> 9a7d4024050840e001defacec2b00727e89149e6",
+      "2025-04-14 -> 797e1e4728e49ce676920e72e42cd0cb3948f504",
+      "2025-03-27 -> 8ef2caddfdead307fe7f3a4ed596baca7eab8a2f",
+      "2025-01-09 -> adcbcd1a6d27fc19974b18dc128eb51ef6837879",
+      "2024-08-26 -> 92d3d73b6fd61ab84d9fe093a9c7fd8c04bf2c0d",
+      "2024-07-23 -> 79671eae7b5340017e91065d09c1ce1a352c0e8d",
+      "2024-05-20 -> af5f98991c2661d0c4448ff6c2fb3c19e74f1c02",
+      "2024-05-08 -> 6275e4316f99adc1f8fd7f63301327f1ac4bfe5e",
+      "2024-04-02 -> 9ba2958f5a886de83fa18a235d651295a05b4d13",
+      "2024-03-13 -> 2b705eea63f9bff6dae9b52c2daeb26bc10e4aeb",
+      "2024-03-06 -> c064b4c517bbdbbad6351b1959c90b79858822be",
+      "2024-03-05 -> 4a8fa31450e8def597abae38a8fa915d18e90b9f",
+      "2024-03-04 -> b3d72d14957e9965facc14f53dc01c7e3bbe0eec",
+      "2023-03-04 -> b3d72d14957e9965facc14f53dc01c7e3bbe0eec (apparent typo tag; same commit as 2024-03-04)"
+    ],
+    "discrepancies_for_gate_a": [
+      "GATE A / moondream2 SUPERSEDED: vikhyatk/moondream2 is marked superseded by moondream/moondream3-preview (cardData.new_version in https://huggingface.co/api/models/vikhyatk/moondream2 and README banner at https://huggingface.co/vikhyatk/moondream2/raw/main/README.md). The repo is still live and usable; if the study intends 'moondream2' this id is still correct, but the family has a newer generation.",
+      "GATE A / moondream2 main vs dated release drift: main head 6b714b26eea5cbd9f31e4edb2541c170afa935ba (2025-09-23, 'Update moondream.py') is 5 commits past the newest dated tag 2025-06-21 (9a7d4024050840e001defacec2b00727e89149e6). Loading without revision= pins to changed remote code. Card explicitly recommends revision=\"2025-06-21\". Sources: https://huggingface.co/api/models/vikhyatk/moondream2/commits/main and .../refs",
+      "GATE A / InternVL3_5-1B format twin: OpenGVLab/InternVL3_5-1B is the custom-code (GitHub-format) repo requiring trust_remote_code; an official HF-format twin OpenGVLab/InternVL3_5-1B-HF exists (sha 9191dbccf312b537016f041b25d61c72e7c5c9f3, https://huggingface.co/api/models/OpenGVLab/InternVL3_5-1B-HF) using native transformers code. Not a rename, but relevant if the custom code fails on newer transformers.",
+      "UNVERIFIED anchor: 'InternVL3_5 remote code fails on transformers 5.x' could not be confirmed from any live source this run; closest indirect evidence is a trust_remote_code processor-load bug on 4.56.0 (https://github.com/huggingface/transformers/issues/40475). Flag as plausible-but-unconfirmed; test empirically before Gate A.",
+      "UNVERIFIED anchor values: 'prior-working transformers 5.12.1' for LFM2.5-VL-450M and 'known-good 4.57.1' for SmolVLM2/llava-onevision/InternVL3_5/Qwen2.5-VL are study-internal pins that appear nowhere in the model cards; this run verified only that they satisfy each card's stated minimum (>=5.1, none-stated/released-in-4.50.0, >=4.45.0, >=4.52.1, released-in-4.49.0 respectively).",
+      "INFO / LFM2.5-VL-450M repo age: repo created 2026-04-08 (initial commit e8c60131...) with only 4 commits, all on 2026-04-08; weights unchanged since upload, main head fc6221ca... is a README-only update. It is itself the refreshed successor of LiquidAI/LFM2-VL-450M. If the study ids were written before 2026-04-08, this checkpoint did not exist then and Gate A should confirm which Liquid 450M checkpoint the study intends. Source: https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M/commits/main",
+      "No discrepancies found for HuggingFaceTB/SmolVLM2-500M-Video-Instruct, llava-hf/llava-onevision-qwen2-0.5b-ov-hf, and Qwen/Qwen2.5-VL-7B-Instruct: all exist, ungated, not disabled, not renamed/superseded (cardData.new_version null), lastModified 2025-04-08 / 2025-06-18 / 2025-04-06 respectively \u2014 sources: https://huggingface.co/api/models/<id> for each."
+    ]
+  },
+  "md05b": {
+    "transformers_loadable_05b_exists": false,
+    "finding_statement": "NO transformers-loadable (safetensors fp16/bf16) Moondream 0.5B checkpoint exists. Verified 2026-07-02: (a) vikhyatk/moondream2 main (commit 6b714b26eea5cbd9f31e4edb2541c170afa935ba, https://huggingface.co/api/models/vikhyatk/moondream2) contains a single model.safetensors that is the ~1.9B (\"2B\") model, tags transformers/safetensors, license apache-2.0 \u2014 no 0.5B weights on main; (b) the official moondream org (https://huggingface.co/api/models?author=moondream) hosts only moondream3-preview, moondream-2b-2025-04-14(+4bit), md3p-int4, etc. \u2014 no 0.5B repo; (c) an HF-wide search for 0.5B moondream repos returns only third-party non-transformers artifacts: grifttown/moondream-0.5b (single file moondream-0_5b-int8.mf, sha a78c0c880edb49a6a6af37d7a5c45133d2cb46dc), andito/moondream05 (single file moondream-0_5b-int8.mf, sha ae3248c53de4d0578bc7ad39808d8a8ce0d757f6), and whistleroosh/moondream-0.5B (ONNX export, sha 1bc5517576280f452ae0029a5db70ed156a54699). The 0.5B ships officially ONLY as int8/int4 .mf archives (Moondream's own \"MOON\" container format, magic bytes b\"MOON\" v1, containing ONNX components) on the `onnx` branch of vikhyatk/moondream2, loadable only by Moondream's own legacy runtime (moondream Python client <=0.0.6 via onnxruntime), NOT by transformers. The current local runtime (moondream 1.3.0 + kestrel/Photon 0.4.2) supports only moondream2 (2B) and moondream3-preview \u2014 it cannot load .mf files or the 0.5B at all (https://pypi.org/pypi/kestrel/json README: \"Kestrel supports both Moondream 3 and Moondream 2\").",
+    "artifacts": [
+      {
+        "name": "Moondream 0.5B int8 (.mf archive, gzipped)",
+        "repo_id": "vikhyatk/moondream2",
+        "revision": "9dddae84d54db4ac56fe37817aeaeb502ed083e2",
+        "format": "mf (MOON v1 container of ONNX components), gzip-compressed",
+        "quantization": "int8",
+        "url": "https://huggingface.co/vikhyatk/moondream2/resolve/9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int8.mf.gz",
+        "size_bytes": 621619051,
+        "lfs_sha256": "355c534d5f71fff8524dfeb41ba65f7d07948f910f754de4df242d0037d8be4a",
+        "provenance": "HF tree API https://huggingface.co/api/models/vikhyatk/moondream2/tree/onnx (branch onnx -> commit 9dddae84 per https://huggingface.co/api/models/vikhyatk/moondream2/refs); pinned resolve URL HEAD-verified (HTTP 302, x-repo-commit: 9dddae84..., x-linked-size: 621619051); same pinned URL is the official download link published in the moondream 0.0.6 PyPI README (moondream-0.0.6.dist-info/METADATA)"
+      },
+      {
+        "name": "Moondream 0.5B int4 (.mf archive, gzipped)",
+        "repo_id": "vikhyatk/moondream2",
+        "revision": "9dddae84d54db4ac56fe37817aeaeb502ed083e2",
+        "format": "mf (MOON v1 container of ONNX components), gzip-compressed",
+        "quantization": "int4",
+        "url": "https://huggingface.co/vikhyatk/moondream2/resolve/9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int4.mf.gz",
+        "size_bytes": 442376060,
+        "lfs_sha256": "56cb6c2b5ff43ec065cad89da8007224d37b1b10d053ff6d958f97baa195c129",
+        "provenance": "same as int8: HF tree API onnx branch + refs API + HEAD-verified pinned resolve URL (x-linked-size: 442376060)"
+      }
+    ],
+    "runtime_package_name": "moondream (Python client, PyPI) \u2014 the .mf loader is the OnnxVL/onnxruntime backend present only in versions <= 0.0.6; local .mf support was removed in 0.1.0 (sdist contains only cloud_vl.py; vl() returns CloudVL only). Current moondream 1.3.0 uses kestrel 0.4.2 (\"Photon\") which loads safetensors from HF (moondream2 2B / moondream3-preview only) and cannot load .mf. Separate local server \"moondream-station\" (PyPI, latest 0.1.9, 2025-12-19, serves on localhost:2020) is Photon/2B-3B oriented; its docs mention no 0.5B or .mf.",
+    "runtime_version": "0.0.6 (released 2024-12-10, last PyPI release with .mf support; deps: onnxruntime>=1.19.2,<2.0.0, onnx>=1.17.0, numpy>=2.1.2, pillow>=10.4.0, tokenizers>=0.20.1; Python >=3.10,<4.0). Source: https://pypi.org/pypi/moondream/json release history + moondream-0.0.6 wheel METADATA. Current (non-.mf) client for contrast: moondream 1.3.0 (2026-06-08) + kestrel 0.4.2.",
+    "runtime_install": "pip install moondream==0.0.6   (the shipped README says `pip install moondream==0.0.5`; 0.0.6 is the last version containing the OnnxVL .mf loader \u2014 both load .mf). Built-in HTTP server: `moondream serve --model path/to/moondream-0_5b-int8.mf.gz --host localhost --port 3475` (moondream/cli.py in the 0.0.6 wheel). NOTE: plain `pip install moondream` today installs 1.3.0 which CANNOT load .mf \u2014 the version pin is mandatory.",
+    "skill_api": {
+      "query": "model = md.vl(model='path/to/moondream-0_5b-int8.mf.gz')  # moondream.vl(*, model, api_key, api_url) -> OnnxVL.from_path(model). Then: model.query(image: Union[PIL.Image.Image, EncodedImage], question: str, stream: bool = False, settings: Optional[SamplingSettings] = None) -> {'answer': str | Generator[str]}. Source: moondream-0.0.6 moondream/onnx_vl.py lines 273-306 and moondream/__init__.py.",
+      "caption": "model.caption(image: Union[PIL.Image.Image, EncodedImage], length: Literal['normal','short'] = 'normal', stream: bool = False, settings: Optional[SamplingSettings] = None) -> {'caption': str | Generator[str]}. Raises ValueError if the .mf's embedded templates lack 'caption' or the requested length. Source: moondream-0.0.6 moondream/onnx_vl.py lines 240-271.",
+      "detect": "model.detect(image: Union[PIL.Image.Image, EncodedImage], object: str) -> {'objects': [{'x_min': float, 'y_min': float, 'x_max': float, 'y_max': float}, ...]} with normalized 0-1 coords; greedy decode via dedicated coord/size ONNX heads; hard cap max_objects=50; NO settings parameter. Source: moondream-0.0.6 moondream/onnx_vl.py lines 308-380.",
+      "point": "model.point(image: Union[PIL.Image.Image, EncodedImage], object: str) -> {'points': [{'x': float, 'y': float}, ...]} normalized 0-1; greedy; hard cap max_points=50; NO settings parameter. Source: moondream-0.0.6 moondream/onnx_vl.py lines 381-434. Also available: model.encode_image(image) -> EncodedImage (precomputed KV cache, reusable across skills)."
+    },
+    "sampler_controls": "The .mf runtime (moondream 0.0.6) exposes exactly ONE decoding knob: settings={'max_tokens': int} (SamplingSettings = TypedDict({'max_tokens': int}, total=False); DEFAULT_MAX_TOKENS = 512), accepted only by caption() and query(). Decoding is hard-coded GREEDY argmax (next_token = np.argmax(logits) in _generate; detect/point likewise argmax over coord/size heads). There is NO temperature, NO top_p/top_k, NO sampling on/off toggle, and detect/point accept no settings at all. Source: moondream-0.0.6 moondream/types.py (SamplingSettings) and moondream/onnx_vl.py (_generate, DEFAULT_MAX_TOKENS). Contrast: the current cloud/Photon client (moondream 1.3.0 types.py) adds temperature and top_p to SamplingSettings, but its local Photon path forwards only max_tokens (_build_settings in photon_vl.py) and cannot run the 0.5B anyway.",
+    "image_token_or_resolution_control": "NONE. The .mf runtime exposes no image-token, crop-count, or resolution parameter anywhere in its public API: encode_image(image) takes only the image; caption/query/detect/point take no image-processing arguments. Internally (moondream-0.0.6 moondream/preprocess.py, create_patches(image, image_patch_size=378)): images are always processed as fixed 378x378 patches \u2014 one global patch plus, if max(width,height) >= 378*1.4 (~529 px), 2-4 crops chosen automatically by aspect ratio from hard-coded templates [(1,2),(2,1),(2,2)] then adaptive-avg-pooled back to one grid; smaller images use the single global patch with duplicated features. image_patch_size is a function default never surfaced to users. The ONLY way to influence vision compute/tokens is to pre-resize the input image below/above the ~529 px threshold to flip the automatic 1-patch vs multi-crop template selection \u2014 an indirect, undocumented mechanism, not a parameter. For the sweep: treat image-token count as NOT controllable in this runtime.",
+    "urls": [
+      "https://huggingface.co/api/models/vikhyatk/moondream2",
+      "https://huggingface.co/api/models/vikhyatk/moondream2/refs",
+      "https://huggingface.co/api/models/vikhyatk/moondream2/tree/onnx",
+      "https://huggingface.co/vikhyatk/moondream2/resolve/9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int8.mf.gz",
+      "https://huggingface.co/vikhyatk/moondream2/resolve/9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int4.mf.gz",
+      "https://huggingface.co/api/models?author=moondream",
+      "https://huggingface.co/api/models/grifttown/moondream-0.5b",
+      "https://huggingface.co/api/models/whistleroosh/moondream-0.5B",
+      "https://huggingface.co/api/models/andito/moondream05",
+      "https://pypi.org/pypi/moondream/json",
+      "https://files.pythonhosted.org/packages/97/e4/921c236172c1b8505a04889a579fc6843b331ad61c5e5a3d6772c83117ef/moondream-0.1.1.tar.gz",
+      "https://files.pythonhosted.org/packages/d0/02/b5c4cb6743c599655f3172ad7462524d92b6887c93d79a785cad014e5673/moondream-1.3.0.tar.gz",
+      "https://pypi.org/pypi/kestrel/json",
+      "https://pypi.org/pypi/moondream-station/json",
+      "https://moondream.ai/blog/introducing-moondream-0-5b",
+      "https://moondream.ai/p/models",
+      "https://docs.moondream.ai/running-locally",
+      "https://docs.moondream.ai/quickstart",
+      "https://docs.moondream.ai/station/",
+      "https://github.com/m87-labs/moondream",
+      "https://api.github.com/repos/m87-labs/moondream-station",
+      "https://registry.npmjs.org/moondream"
+    ],
+    "notes": "PROVENANCE DETAILS AND CAVEATS. (1) Pinned revision: the `onnx` branch head of vikhyatk/moondream2 is 9dddae84d54db4ac56fe37817aeaeb502ed083e2 (refs API, fetched 2026-07-02); both 0.5B .mf.gz files HEAD-verified at that pinned resolve URL (HTTP 302 to CDN, response header x-repo-commit: 9dddae84d54db4ac56fe37817aeaeb502ed083e2, x-linked-size matching the tree API sizes: int8 = 621,619,051 B, int4 = 442,376,060 B; LFS sha256: int8 355c534d5f71fff8524dfeb41ba65f7d07948f910f754de4df242d0037d8be4a, int4 56cb6c2b5ff43ec065cad89da8007224d37b1b10d053ff6d958f97baa195c129). These exact commit-pinned URLs are also the official download links printed in the moondream 0.0.6 PyPI README (with '?download=true'), which additionally states download/memory: 0.5B int8 = 593 MiB / 996 MiB, 0.5B int4 = 422 MiB / 816 MiB. (2) License: Apache-2.0 (vikhyatk/moondream2 HF tag license:apache-2.0; 0.5B announcement blog https://moondream.ai/blog/introducing-moondream-0-5b, published 2024-12-05, also states Apache and 996/816 MiB memory). (3) The .mf format ('MOON' magic, version 1, gzip-transparent) is parsed by moondream/moonfile.py in the 0.0.6 wheel; OnnxVL.from_path builds 8 onnxruntime sessions (vision_encoder, vision_projection, text_encoder, text_decoder, size_encoder/decoder, coord_encoder/decoder) + tokenizer + initial_kv_cache + config, CUDAExecutionProvider if available else CPU. (4) Timeline of .mf support in the `moondream` PyPI package: 0.0.5 (2024-12-05, first with 0.5B links) and 0.0.6 (2024-12-10) load .mf; 0.1.0 (2025-04-09) removed OnnxVL entirely (vl() is cloud-only, docstring points local users to http://localhost:2020/v1 = Moondream Station); 0.2.x-1.3.0 (through 2026-06-08) use kestrel/Photon. (5) Moondream Station status: NOT archived on GitHub (api.github.com repo archived:false, pushed 2026-02-18), PyPI moondream-station 0.1.9 (2025-12-19); a web-search snippet claimed it 'deprecated in favor of Photon' but I could NOT confirm any deprecation notice on docs.moondream.ai/station/ in this run \u2014 treat deprecation as UNVERIFIED. Station docs mention no 0.5B or .mf support. (6) Current official local path (docs.moondream.ai/running-locally): pip install moondream, md.vl(local=True, model=...) with only moondream/moondream3-preview (default) and vikhyatk/moondream2 (2B) available; kestrel 0.4.2 README confirms only those two models; therefore the 0.5B is NOT runnable on the current Photon stack \u2014 the legacy onnxruntime client (CPU or CUDA) is the only loader. (7) The npm 'moondream' client (0.2.0) is a thin API client (dep: sharp) \u2014 no .mf loading. (8) One unverifiable-without-download item: which caption lengths ('normal'/'short') the 0.5B .mf's embedded templates support \u2014 templates live inside the archive config and I did not download weights per instructions; caption() raises ValueError if a length is unsupported. (9) Local source inspected in this run (absolute paths for the parent): /private/tmp/claude-501/-Users-jacobnikolau-Desktop-Claude/b427ce91-3feb-4233-90b1-b084100c3c8f/scratchpad/pypi/md006/x/moondream/{onnx_vl.py,types.py,preprocess.py,moonfile.py,cli.py,server.py} (moondream 0.0.6 wheel), .../pypi/moondream-0.1.1/ and .../pypi/moondream-1.3.0/ (sdists), .../pypi/md130/x/moondream/photon_vl.py, and clone /private/tmp/claude-501/-Users-jacobnikolau-Desktop-Claude/b427ce91-3feb-4233-90b1-b084100c3c8f/scratchpad/moondream-src (m87-labs/moondream @ 6eccfceaf1aaff804a67cd157193a6f744fa2bdc)."
+  },
+  "licenses": {
+    "licenses": [
+      {
+        "subject": "LiquidAI/LFM2.5-VL-450M",
+        "license": "LFM Open License v1.0 (HF metadata: license=other, license_name=lfm1.0; free use/modification/distribution, commercial use restricted to organizations with annual revenue below $10M, exception for qualified non-profit research)",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/LICENSE (cardData confirmed at https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M, sha fc6221ca597f3315e4f82fc2df606783267b34ba)",
+        "verified": true
+      },
+      {
+        "subject": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "license": "Apache-2.0",
+        "source_url": "https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-500M-Video-Instruct (cardData.license=apache-2.0, sha 7b375e1b73b11138ff12fe22c8f2822d8fe03467)",
+        "verified": true
+      },
+      {
+        "subject": "llava-hf/llava-onevision-qwen2-0.5b-ov-hf",
+        "license": "Apache-2.0",
+        "source_url": "https://huggingface.co/api/models/llava-hf/llava-onevision-qwen2-0.5b-ov-hf (cardData.license=apache-2.0, sha 74dd0bf867a4cda7950c17663794267c60cf4b40)",
+        "verified": true
+      },
+      {
+        "subject": "OpenGVLab/InternVL3_5-1B",
+        "license": "Apache-2.0",
+        "source_url": "https://huggingface.co/api/models/OpenGVLab/InternVL3_5-1B (cardData.license=apache-2.0, sha 2f71cf52542334823e48a46ffba0e2bc9add3446)",
+        "verified": true
+      },
+      {
+        "subject": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "license": "Apache-2.0",
+        "source_url": "https://huggingface.co/api/models/Qwen/Qwen2.5-VL-7B-Instruct (cardData.license=apache-2.0, sha cc594898137f460bfe9f0759e9844b3ce807cfb5)",
+        "verified": true
+      },
+      {
+        "subject": "vikhyatk/moondream2",
+        "license": "Apache-2.0",
+        "source_url": "https://huggingface.co/api/models/vikhyatk/moondream2 (cardData.license=apache-2.0, sha 6b714b26eea5cbd9f31e4edb2541c170afa935ba)",
+        "verified": true
+      },
+      {
+        "subject": "moondream/moondream3-preview (Moondream 3 preview, landscape note)",
+        "license": "Business Source License 1.1 (BUSL-1.1); Licensor: M87 Labs, Inc.; Change License: Apache License 2.0; Change Date: two years after first public release of this version of the Licensed Work (HF metadata: license=other)",
+        "source_url": "https://huggingface.co/moondream/moondream3-preview/raw/main/LICENSE.md (cardData confirmed at https://huggingface.co/api/models/moondream/moondream3-preview, sha 5112966d1a723413b1c9a1e8bea272b72e647b35)",
+        "verified": true
+      }
+    ],
+    "moondream3_preview_license": "Business Source License 1.1 (BUSL-1.1) \u2014 Licensor: M87 Labs, Inc.; Change License: Apache License, Version 2.0; Change Date: two years after the first public release of this version of the Licensed Work. Matches the expected BUSL-1.1.",
+    "moondream3_source_url": "https://huggingface.co/moondream/moondream3-preview/raw/main/LICENSE.md"
+  },
+  "datasets": {
+    "datasets": [
+      {
+        "repo_id": "moondream/refcoco-m",
+        "exists": true,
+        "main_sha": "45686f0eb7980ed4b70d3d5480a198775a26b4c1",
+        "url": "https://huggingface.co/datasets/moondream/refcoco-m",
+        "split": "validation",
+        "reported_count": 1190,
+        "count_source": "https://datasets-server.huggingface.co/info?dataset=moondream/refcoco-m (config=default, split=validation, num_examples=1190); splits confirmed at https://datasets-server.huggingface.co/splits?dataset=moondream/refcoco-m; main sha cross-verified at https://huggingface.co/api/datasets/moondream/refcoco-m and https://huggingface.co/api/datasets/moondream/refcoco-m/refs (refs/heads/main -> 45686f0eb7980ed4b70d3d5480a198775a26b4c1)",
+        "split_composition": "Single 'validation' split in config 'default'; 1,190 image-level rows, each with nested 'samples' list (1-7 annotated objects per image per the HF dataset viewer), each sample containing id, image_id, category, supercategory, label, sentences (string array), bbox (float32 array), and RLE mask. Files: data/validation-00000-of-00002.parquet, data/validation-00001-of-00002.parquet (per https://huggingface.co/api/datasets/moondream/refcoco-m siblings).",
+        "flattening_or_exclusion_rule": "Flatten each image-level row by iterating its nested 'samples' list to produce one (image, referring-expression, ground-truth-box) evaluation instance per annotated object, pairing each sample's bbox with its referring expression(s) from the 'sentences' field. Expected ~2,080 flattened instances from the 1,190 raw image rows.",
+        "count_verification_note": "The 1,190 figure is the RAW image-level row count from datasets-server; it is NOT the flattened instance count. datasets-server does not report the flattened per-object count. The EXACT flattened count (expected ~2,080) MUST be verified on Modal by loading the split at sha 45686f0eb7980ed4b70d3d5480a198775a26b4c1 and counting instances after applying the flattening rule (including how multiple sentences per object are handled)."
+      },
+      {
+        "repo_id": "lmms-lab/POPE",
+        "exists": true,
+        "main_sha": "4db1276663dfa5eb8ad16a52d24c31a09e470896",
+        "url": "https://huggingface.co/datasets/lmms-lab/POPE",
+        "split": "test",
+        "reported_count": 9000,
+        "count_source": "https://datasets-server.huggingface.co/info?dataset=lmms-lab/POPE (config=default split=test num_examples=9000; config=Full splits adversarial/popular/random num_examples=3000 each); splits list confirmed at https://datasets-server.huggingface.co/splits?dataset=lmms-lab/POPE; main sha cross-verified at https://huggingface.co/api/datasets/lmms-lab/POPE and https://huggingface.co/api/datasets/lmms-lab/POPE/refs (refs/heads/main -> 4db1276663dfa5eb8ad16a52d24c31a09e470896)",
+        "split_composition": "Two configs. Config 'default': single 'test' split, 9,000 rows total, with features id, question_id, question, answer, image_source, image, category (the 'category' field distinguishes subsets). Config 'Full': three splits \u2014 random (3,000), popular (3,000), adversarial (3,000) \u2014 which sum to the 9,000 in default/test. Composition: 3,000 random + 3,000 popular + 3,000 adversarial = 9,000 (per-subset counts sourced from the Full config in datasets-server info).",
+        "count_verification_note": "Total 9,000 and per-category 3,000/3,000/3,000 counts come directly from datasets-server info at the pinned sha; no Modal verification strictly required, but the category-field breakdown within the default/test split should be sanity-checked at load time."
+      },
+      {
+        "repo_id": "vikhyatk/CountBenchQA",
+        "exists": true,
+        "main_sha": "76d600309e9d6147bd3713b4cd431518ac1206c8",
+        "url": "https://huggingface.co/datasets/vikhyatk/CountBenchQA",
+        "split": "test",
+        "reported_count": 491,
+        "count_source": "https://datasets-server.huggingface.co/info?dataset=vikhyatk/CountBenchQA (config=default, split=test, num_examples=491); split confirmed at https://datasets-server.huggingface.co/splits?dataset=vikhyatk/CountBenchQA; main sha cross-verified at https://huggingface.co/api/datasets/vikhyatk/CountBenchQA and https://huggingface.co/api/datasets/vikhyatk/CountBenchQA/refs (refs/heads/main -> 76d600309e9d6147bd3713b4cd431518ac1206c8)",
+        "split_composition": "Single 'test' split in config 'default', 491 rows, features: image (Image), text (string), question (string), number (int32). Single parquet file data/test-00000-of-00001.parquet (per https://huggingface.co/api/datasets/vikhyatk/CountBenchQA siblings).",
+        "flattening_or_exclusion_rule": "Exclusion rule per the dataset card (https://huggingface.co/datasets/vikhyatk/CountBenchQA): the HF version 'only includes 491 images from the original CountBench dataset, since some of the original URLs can no longer be accessed' \u2014 i.e., 49 of the original 540 CountBench items (LAION-400M-sourced) were dropped due to dead image URLs. Counting answers span two to ten objects per the original CountBench design.",
+        "count_verification_note": "491 rows is confirmed by datasets-server at the pinned sha and matches the expected ~491 usable items. However, the EXACT usable count at evaluation time (e.g., any rows with missing/undecodable images or malformed number fields requiring exclusion) MUST be verified on Modal when the split is actually loaded."
+      }
+    ]
+  },
+  "calibration": {
+    "numbers": [
+      {
+        "model": "LiquidAI/LFM2.5-VL-450M",
+        "benchmark": "RefCOCO-M",
+        "metric": "score as printed (VLMEvalKit)",
+        "published_value": "81.28",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "Verified at two live sources this run: HF model card (main sha fc6221ca597f3315e4f82fc2df606783267b34ba) and release post https://www.liquid.ai/blog/lfm2-5-vl-450m (identical value). Card states all vision scores obtained with VLMEvalKit; metric type for RefCOCO-M is not defined on the card."
+      },
+      {
+        "model": "LiquidAI/LFM2.5-VL-450M",
+        "benchmark": "POPE",
+        "metric": "score as printed (VLMEvalKit)",
+        "published_value": "86.93",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "Also verified identical at https://www.liquid.ai/blog/lfm2-5-vl-450m ."
+      },
+      {
+        "model": "LiquidAI/LFM2.5-VL-450M",
+        "benchmark": "CountBench",
+        "metric": "score as printed (VLMEvalKit)",
+        "published_value": "73.31",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "Also verified identical at https://www.liquid.ai/blog/lfm2-5-vl-450m ."
+      },
+      {
+        "model": "LiquidAI/LFM2-VL-450M (predecessor, printed in same table)",
+        "benchmark": "POPE",
+        "metric": "score as printed (VLMEvalKit)",
+        "published_value": "83.79",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "From the LFM2.5-VL-450M card comparison table (also on the Liquid blog). LFM2-VL-450M has no RefCOCO-M value in that table (printed as dash)."
+      },
+      {
+        "model": "LiquidAI/LFM2-VL-450M (predecessor, printed in same table)",
+        "benchmark": "CountBench",
+        "metric": "score as printed (VLMEvalKit)",
+        "published_value": "47.64",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "From the LFM2.5-VL-450M card comparison table (also on the Liquid blog)."
+      },
+      {
+        "model": "SmolVLM2-500M (as evaluated by Liquid AI, third-party)",
+        "benchmark": "POPE",
+        "metric": "score as printed (VLMEvalKit, Liquid's evaluation)",
+        "published_value": "82.67",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "IMPORTANT ATTRIBUTION: this number is printed on Liquid's LFM2.5-VL-450M card/blog, NOT on the SmolVLM2 card. The SmolVLM2-500M-Video-Instruct card itself publishes no POPE/RefCOCO/CountBench numbers (verified this run; its only benchmarks are Video-MME 42.2, MLVU 47.3, MVBench 39.73)."
+      },
+      {
+        "model": "SmolVLM2-500M (as evaluated by Liquid AI, third-party)",
+        "benchmark": "CountBench",
+        "metric": "score as printed (VLMEvalKit, Liquid's evaluation)",
+        "published_value": "61.81",
+        "source_url": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M",
+        "verified": true,
+        "notes": "Same attribution caveat: Liquid-run evaluation printed on Liquid's card/blog, not on the SmolVLM2 card."
+      },
+      {
+        "model": "vikhyatk/moondream2 (2025-03-27 release and later)",
+        "benchmark": "CountBenchQA",
+        "metric": "accuracy (as printed in release notes)",
+        "published_value": "86.4",
+        "source_url": "https://huggingface.co/vikhyatk/moondream2",
+        "verified": true,
+        "notes": "Exact printed text (README line 84, main sha 6b714b26eea5cbd9f31e4edb2541c170afa935ba): 'Improved counting accuracy (e.g. CountBenchQA increased from 80 to 86.4)' under the 2025-03-27 release. Prior value 80 applies to earlier revisions. No POPE or RefCOCO number appears anywhere on the card (grep of raw README this run). Later release notes (2025-04-15, 2025-06-21) do not update CountBenchQA."
+      },
+      {
+        "model": "OpenGVLab/InternVL3_5-1B (InternVL3.5-1B)",
+        "benchmark": "POPE",
+        "metric": "POPE (avg)",
+        "published_value": "86.8",
+        "source_url": "https://arxiv.org/html/2508.18265v1",
+        "verified": true,
+        "notes": "From the InternVL3.5 technical report hallucination table; raw HTML row verified this run: 'InternVL3.5-1B ... 41.0 68.4 86.8 65.4' (HallBench, CRPE, POPE avg, overall). The HF model card (sha 2f71cf52542334823e48a46ffba0e2bc9add3446) shows benchmarks only as images with no machine-readable numbers, and explicitly links to this paper (arXiv:2508.18265)."
+      },
+      {
+        "model": "OpenGVLab/InternVL3_5-1B (InternVL3.5-1B)",
+        "benchmark": "RefCOCO",
+        "metric": "accuracy, val / testA / testB",
+        "published_value": "85.4 / 89.7 / 80.2",
+        "source_url": "https://arxiv.org/html/2508.18265v1",
+        "verified": true,
+        "notes": "Visual grounding table (Table 7), raw HTML row verified this run: 'InternVL3.5-1B 85.4 89.7 80.2 77.7 85.5 69.5 81.9 81.6 81.4'."
+      },
+      {
+        "model": "OpenGVLab/InternVL3_5-1B (InternVL3.5-1B)",
+        "benchmark": "RefCOCO+",
+        "metric": "accuracy, val / testA / testB",
+        "published_value": "77.7 / 85.5 / 69.5",
+        "source_url": "https://arxiv.org/html/2508.18265v1",
+        "verified": true,
+        "notes": "Same table row as RefCOCO entry."
+      },
+      {
+        "model": "OpenGVLab/InternVL3_5-1B (InternVL3.5-1B)",
+        "benchmark": "RefCOCOg",
+        "metric": "accuracy, val / test",
+        "published_value": "81.9 / 81.6",
+        "source_url": "https://arxiv.org/html/2508.18265v1",
+        "verified": true,
+        "notes": "Same table row; the trailing 81.4 in that row is the overall grounding average across the RefCOCO suite."
+      },
+      {
+        "model": "OpenGVLab/InternVL3_5-1B (InternVL3.5-1B)",
+        "benchmark": "RefCOCO suite (overall)",
+        "metric": "grounding average across RefCOCO/RefCOCO+/RefCOCOg",
+        "published_value": "81.4",
+        "source_url": "https://arxiv.org/html/2508.18265v1",
+        "verified": true,
+        "notes": "Overall column of the same verified grounding table row. No CountBench values appear anywhere in the InternVL3.5 report."
+      },
+      {
+        "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "benchmark": "RefCOCO",
+        "metric": "accuracy, val / testA / testB",
+        "published_value": "90.0 / 92.5 / 85.4",
+        "source_url": "https://arxiv.org/pdf/2502.13923",
+        "verified": true,
+        "notes": "Qwen2.5-VL Technical Report, Table 6 (grounding), page 14; extracted from the downloaded PDF this run. The HF model card itself (sha cc594898137f460bfe9f0759e9844b3ce807cfb5) contains NO RefCOCO/POPE/CountBench/grounding numbers (grep of raw README this run). arXiv HTML versions of this paper 404; PDF is the live source."
+      },
+      {
+        "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "benchmark": "RefCOCO+",
+        "metric": "accuracy, val / testA / testB",
+        "published_value": "84.2 / 89.1 / 76.9",
+        "source_url": "https://arxiv.org/pdf/2502.13923",
+        "verified": true,
+        "notes": "Same source, Table 6, page 14."
+      },
+      {
+        "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "benchmark": "RefCOCOg",
+        "metric": "accuracy, val / test",
+        "published_value": "87.2 / 87.2",
+        "source_url": "https://arxiv.org/pdf/2502.13923",
+        "verified": true,
+        "notes": "Same source, Table 6, page 14. NOTE: CountBench in that paper (Table 7) is published only for Qwen2.5-VL-72B (93.6), not 7B; POPE appears zero times in the entire paper. So no official POPE or CountBench number exists for Qwen2.5-VL-7B."
+      }
+    ],
+    "notes": "All values above were read from live sources during this run (no remembered numbers). Verified absences, equally important for the calibration table: (1) HuggingFaceTB/SmolVLM2-500M-Video-Instruct card publishes only Video-MME 42.2 / MLVU 47.3 / MVBench 39.73 \u2014 no POPE, RefCOCO, or CountBench. (2) lmms-lab/llava-onevision-qwen2-0.5b-ov: the full 48-entry model-index fetched via the HF API (sha 381d9947148efb1e58a577f451c05705ceec666e) contains no POPE, RefCOCO, or CountBench entries. (3) vikhyatk/moondream2 card: no POPE or RefCOCO mention anywhere in the raw README. (4) Qwen/Qwen2.5-VL-7B-Instruct card: no RefCOCO/POPE/CountBench/grounding mention in the raw README; numbers had to come from the technical-report PDF. (5) OpenGVLab/InternVL3_5-1B card: benchmark results are embedded as images with no machine-readable numbers; the card links to arXiv:2508.18265, whose raw HTML rows were verified directly. Anchor confirmations: LFM2.5-VL-450M RefCOCO-M 81.28 confirmed at both the HF card and the Liquid release post; moondream2 CountBenchQA 86.4 confirmed in the 2025-03-27 release notes (README line 84). Attribution caveat for the SmolVLM2-500M POPE 82.67 / CountBench 61.81 rows: these are Liquid AI's own third-party evaluations printed on the LFM2.5-VL-450M card/blog, not numbers published by the SmolVLM2 authors. Metric-type caveat: the Liquid card does not state whether POPE is accuracy or F1 (only that VLMEvalKit was used), so treat those as 'score as printed'."
+  },
+  "knobs": {
+    "common_scale_feasible": true,
+    "knob_table_md": "## Image-token knob table (verified 2026-07-02/03; transformers main @ 9d011e8375ab802f1b9ada2d488af35232f6dd3e)\n\n| Model | Parameter | What it actually controls | Valid range | Default | Same axis as LFM token budget? | Exact API call | True token budget? |\n|---|---|---|---|---|---|---|---|\n| LiquidAI/LFM2.5-VL-450M (HF sha fc6221c) | `max_image_tokens` (+ `min_image_tokens`, `do_image_splitting`, `min_tiles`/`max_tiles`) | Direct per-image/per-thumbnail token budget: image is smart-resized so tokens = pixels/(16\u00b72)\u00b2 lands in [min,max]. With splitting on, each extra 512px tile adds a fixed 256 tokens (`_compute_tokens_per_tile` = (512/16/2)\u00b2) plus thumbnail | Any positive int, `min<=max`; shipped/trained envelope 64-256 (model card recommends min 32); >256 mechanically allowed (`max_num_patches` is recomputed in `__init__`) but outside training config \u2014 flag | `max_image_tokens=256`, `min_image_tokens=64`, `do_image_splitting=True`, tiles 2-10, `downsample_factor=2`, `tile_size=512` (processor_config.json) | yes (this IS the reference axis) | `processor.apply_chat_template(conv, tokenize=True, return_dict=True, return_tensors=\"pt\", min_image_tokens=T, max_image_tokens=T, do_image_splitting=False)` \u2014 kwargs typed in `Lfm2VlImageProcessorKwargs` (image_processing_lfm2_vl.py L166-214) and accepted by `Lfm2VlProcessor.__call__` (processing_lfm2_vl.py L78-83) | YES |\n| HuggingFaceTB/SmolVLM2-500M-Video-Instruct (HF sha 7b375e1) | `size={\"longest_edge\": N*512}` (secondary: `do_image_splitting`) | Input resolution -> tile grid: image (up/down)scaled to longest edge, cut into 512px tiles (`max_image_size`), each tile = fixed `image_seq_len=64` tokens (=(512/16)\u00b2/pixel_shuffle_factor\u00b2). Total = 64 or (ceil(H/512)*ceil(W/512)+1)*64 | Any positive int; docs recommend multiples of 512; token count quantized in 64-token steps and aspect-ratio dependent | `size={\"longest_edge\": 2048}`, `max_image_size={\"longest_edge\": 512}`, `image_seq_len=64`, `do_image_splitting=True` (preprocessor_config.json, processor_config.json) | partial \u2014 resolution/tiling dial that indirectly sets token count; tokens-per-tile is NOT tunable (image_seq_len must match pixel_shuffle_factor) | `processor(text=prompt, images=[img], return_tensors=\"pt\", size={\"longest_edge\": N*512})` or `AutoProcessor.from_pretrained(id, size={\"longest_edge\": N*512})`; docs example: `SmolVLMImageProcessor(do_resize=True, size={\"longest_edge\": 2*512}, max_image_size=512)` | NO \u2014 flag: tile-count dial, not a token budget |\n| Moondream 0.5B, own runtime (github.com/m87-labs/moondream @ 6eccfce; weights vikhyatk/moondream2 rev 9dddae8 `moondream-0_5b-int8.mf.gz`) | none exposed | LM-side image tokens hard-coded to 729: projector pools reconstructed crops to 27x27 and `.view(729, enc_dim)` (torch/vision.py L84-87); `prefix_attn: 730` = BOS+729 (config_md05.json). Public `encode_image` settings = `{\"variant\": str}` only (torch/moondream.py L27-31, L296-305). Internal `max_crops=12` (crop_size 378, patch 14) changes ViT encoder compute only, never LM tokens, and is not a public API arg | n/a \u2014 single operating point | 729 image tokens/image; internal `max_crops=12` | no \u2014 no knob; even the internal `max_crops` is an encoder-compute axis, not a token budget | `model.query(image, question)` / `model.caption(image)` \u2014 no image-size/token parameter exists (docs.moondream.ai/running-locally confirms only `stream`/`local`) | NO KNOB \u2014 runs at a single default point (flag) |\n\n### Proposed sweep points (per-image visual tokens)\n- **LFM2.5-VL-450M** (`do_image_splitting=False`, set `min_image_tokens=max_image_tokens=T` to pin): T = **256 (default cap / max)**, 128 (mid), 64 (low, = shipped min default), 32 (floor, = model-card recommended min). Default full-pipeline point = max 256 + splitting True.\n- **SmolVLM2-500M**: `longest_edge` = **2048 (default; up to 1088 tok)**, 1536 (up to 640), 1024 (up to 320), 512 (64, low). \"Up to\" = large near-square images; use source images >2048px so resize always binds.\n- **Moondream 0.5B**: single point, 729 tokens (default, fixed). Optional off-label extra: patch `vision.max_crops` in `MoondreamConfig.from_dict` (e.g. 1 vs 12) \u2014 sweeps encoder FLOPs only, NOT tokens; unsupported, flag if used.\n\n### Approximate common token scale (feasible with caveats)\n| Target tokens | LFM (max_image_tokens, split off) | SmolVLM2 (longest_edge) | Moondream 0.5B |\n|---|---|---|---|\n| ~64 | 64 | 512 (=64) | \u2014 |\n| ~256-320 | 256 (default cap) | 1024 (<=320) | \u2014 |\n| ~640-729 | not reachable in trained single-tile envelope | 1536 (<=640) | 729 (fixed) |\n| ~1088 | only via splitting (~4 tiles*256+thumb, different regime) | 2048 default (<=1088) | \u2014 |\n\nFeasible as an approximate 2-model scale (LFM<->SmolVLM at ~64 and ~256-320); Moondream is a fixed 729-token anchor comparable only to the ~640-729 row. SmolVLM counts are upper bounds that depend on aspect ratio; LFM counts are near-exact.\n\n**Discrepancy flag:** LFM model card recommends `min_image_tokens=32` while shipped processor_config.json sets 64 (both cited above).",
+    "models": [
+      {
+        "repo_id": "LiquidAI/LFM2.5-VL-450M",
+        "knob_exists": "yes",
+        "parameter_name": "max_image_tokens (companions: min_image_tokens, do_image_splitting, min_tiles, max_tiles, downsample_factor)",
+        "axis_kind": "true image-token budget: smart_resize picks output pixels so tokens = pixels/(encoder_patch_size^2 * downsample_factor^2) falls in [min_image_tokens, max_image_tokens]; with splitting enabled each 512px tile contributes a fixed 256 tokens plus a thumbnail bounded by max_image_tokens",
+        "same_axis_as_lfm": "yes",
+        "valid_range": "positive int, min_image_tokens <= max_image_tokens; shipped/trained envelope 64-256 (model card recommends min 32); values >256 are mechanically accepted (max_num_patches recomputed in Lfm2VlImageProcessor.__init__, image_processing_lfm2_vl.py L242-250) but outside the shipped training config \u2014 flagged as extrapolation",
+        "default_value": "max_image_tokens=256, min_image_tokens=64, downsample_factor=2, encoder_patch_size=16, tile_size=512, do_image_splitting=True, min_tiles=2, max_tiles=10 (processor_config.json and config.json, repo sha fc6221ca597f3315e4f82fc2df606783267b34ba)",
+        "exact_api_call": "processor = AutoProcessor.from_pretrained(\"LiquidAI/LFM2.5-VL-450M\"); inputs = processor.apply_chat_template(conversation, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors=\"pt\", min_image_tokens=T, max_image_tokens=T, do_image_splitting=False)  # kwargs are declared in Lfm2VlImageProcessorKwargs and accepted by Lfm2VlProcessor.__call__(**Unpack[Lfm2VlProcessorKwargs]); requires transformers >= v5.1 per model card",
+        "proposed_sweep_points": [
+          "max_image_tokens=256 (DEFAULT cap / max point)",
+          "max_image_tokens=128 (middle)",
+          "max_image_tokens=64 (low; equals shipped min_image_tokens)",
+          "max_image_tokens=32 (floor; model-card recommended min_image_tokens)"
+        ],
+        "evidence_url_or_path": "https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/processor_config.json ; https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/config.json ; https://huggingface.co/LiquidAI/LFM2.5-VL-450M/raw/main/README.md ; https://raw.githubusercontent.com/huggingface/transformers/main/src/transformers/models/lfm2_vl/image_processing_lfm2_vl.py (Lfm2VlImageProcessorKwargs L166-214, defaults L219-228, smart_resize L331-364, _preprocess splitting L464-479) ; https://raw.githubusercontent.com/huggingface/transformers/main/src/transformers/models/lfm2_vl/processing_lfm2_vl.py (__call__ L78-83, _compute_tokens_per_tile L215, _compute_tokens_for_image L221) ; transformers main commit 9d011e8375ab802f1b9ada2d488af35232f6dd3e via https://api.github.com/repos/huggingface/transformers/commits/main ; HF repo sha via https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M",
+        "common_scale_note": "Reference axis. For clean sweeps set do_image_splitting=False and min=max=T; token count is then near-exact (rounded to multiples of 32px per side). Model card sentence: 'Inference-time flexibility: user-tunable maximum image tokens and tile count for speed/quality tradeoff'. Discrepancy flag: README recommends min_image_tokens=32 vs shipped 64.",
+        "notes": "Confirmed a genuine per-image token budget, not just a resolution setting: the resize target is computed FROM the token bounds (smart_resize min/max pixels = tokens * 16^2 * 2^2). When do_image_splitting=True and image pixels exceed max_image_tokens*1024*max_pixels_tolerance(2.0), the image is instead tiled into 2-10 tiles of 512px, each a FIXED 256 tokens, plus a thumbnail bounded by max_image_tokens \u2014 so with splitting on, max_image_tokens only bounds the thumbnail/single-tile path. Sweep with splitting off for a monotone single-variable axis."
+      },
+      {
+        "repo_id": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "knob_exists": "yes",
+        "parameter_name": "size={\"longest_edge\": N*512} (secondary: do_image_splitting; tile size max_image_size={\"longest_edge\": 512} should NOT be changed \u2014 must match vision encoder)",
+        "axis_kind": "input-resolution -> tile-count dial: image resized (up- or down-sampled) to longest_edge, rounded up to multiples of 512, split into ceil(H/512)*ceil(W/512) tiles plus one global image; every tile/global costs a FIXED image_seq_len=64 tokens (=(512/16)^2 / pixel_shuffle_factor^2, pixel_shuffle_factor=4)",
+        "same_axis_as_lfm": "partial",
+        "valid_range": "any positive int for longest_edge; transformers docs recommend multiples of 512; resulting token count is quantized in 64-token steps and depends on aspect ratio: total = 64 (single tile) or (num_tiles+1)*64; default 2048 gives up to (16+1)*64 = 1088 tokens for large near-square images",
+        "default_value": "size={\"longest_edge\": 2048}, max_image_size={\"longest_edge\": 512}, do_image_splitting=True, image_seq_len=64 (preprocessor_config.json + processor_config.json, repo sha 7b375e1b73b11138ff12fe22c8f2822d8fe03467)",
+        "exact_api_call": "processor = AutoProcessor.from_pretrained(\"HuggingFaceTB/SmolVLM2-500M-Video-Instruct\"); inputs = processor(text=prompt, images=[image], return_tensors=\"pt\", size={\"longest_edge\": N*512})  # size is a valid call-time images kwarg (SmolVLMProcessor.__call__ **Unpack[SmolVLMProcessorKwargs]); docs form: SmolVLMImageProcessor(do_resize=True, size={\"longest_edge\": 2*512}, max_image_size=512)",
+        "proposed_sweep_points": [
+          "size={\"longest_edge\": 2048} (DEFAULT / max; up to 1088 tokens)",
+          "size={\"longest_edge\": 1536} (up to 640 tokens)",
+          "size={\"longest_edge\": 1024} (up to 320 tokens)",
+          "size={\"longest_edge\": 512} (low; single tile = 64 tokens)"
+        ],
+        "evidence_url_or_path": "https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/raw/main/preprocessor_config.json ; https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/raw/main/processor_config.json (image_seq_len=64) ; https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/raw/main/config.json (pixel_shuffle_factor=4, vision image_size=512, patch_size=16) ; https://huggingface.co/docs/transformers/en/model_doc/smolvlm ('the model resizes images so that the longest edge is 4*512 pixels by default... customized by passing a dictionary to the size parameter') ; https://raw.githubusercontent.com/huggingface/transformers/main/src/transformers/models/smolvlm/image_processing_smolvlm.py (defaults size={'longest_edge': 4*364}/max_image_size 364 for base class L195-201; split_image, resize_for_vision_encoder) ; https://raw.githubusercontent.com/huggingface/transformers/main/src/transformers/models/smolvlm/processing_smolvlm.py (_prompt_split_image/_prompt_single_image L55-96: tokens = (rows*cols)*64 + 64 global) ; HF repo sha via https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "common_scale_note": "Maps to LFM approximately: 512->64 tok ~ LFM max_image_tokens=64; 1024-><=320 tok ~ LFM 256. Counts are upper bounds tied to aspect ratio; use source images larger than the swept longest_edge so the resize always binds (docs confirm upsampling when do_resize=True).",
+        "notes": "FLAG: NOT a true image-token budget. It is a DIFFERENT axis from LFM's: input resolution feeding a variable tile count, with tokens-per-tile pinned at 64 (image_seq_len must equal (image_size/patch_size)^2/scale_factor^2 per the processing_smolvlm.py docstring \u2014 changing it would corrupt inputs, it is not a speed knob). Token count moves in coarse 64-token steps and is aspect-ratio dependent, unlike LFM's near-continuous budget. Note: model card README contains no resolution documentation; the authoritative doc is the transformers SmolVLM docs page. Class-level transformers defaults (4*364/364) differ from this checkpoint's shipped config (2048/512) \u2014 always rely on the repo preprocessor_config.json."
+      },
+      {
+        "repo_id": "Moondream 0.5B (weights: vikhyatk/moondream2 rev 9dddae84d54db4ac56fe37817aeaeb502ed083e2 file moondream-0_5b-int8.mf.gz; runtime: github.com/m87-labs/moondream @ 6eccfceaf1aaff804a67cd157193a6f744fa2bdc)",
+        "knob_exists": "no",
+        "parameter_name": "none (internal, non-exposed: VisionConfig.max_crops=12)",
+        "axis_kind": "none \u2014 LM-side image token count is architecturally fixed at 729 tokens per image; the only internal dial (max_crops) changes vision-encoder compute (number of 378x378 overlapping ViT crops), never the LM token count",
+        "same_axis_as_lfm": "no",
+        "valid_range": "n/a \u2014 single operating point. (Off-label: max_crops is an int >=1 settable only by patching the config dict passed to MoondreamConfig.from_dict before weight load; it is not a public API parameter and does not change token count.)",
+        "default_value": "729 image tokens per image, always (+1 BOS = prefix_attn 730). Internal defaults: crop_size=378, enc_patch_size=14 (378/14=27; 27x27=729), max_crops=12, overlap_margin=4 (moondream/config/config_md05.json)",
+        "exact_api_call": "model.query(image, question) / model.caption(image) / model.encode_image(image, settings) \u2014 ImageEncodingSettings TypedDict contains ONLY {\"variant\": str} (moondream/torch/moondream.py L27-31, L296-305); no image-size, crop, or token parameter exists in the public API, and docs.moondream.ai/running-locally lists only stream/local options",
+        "proposed_sweep_points": [
+          "729 tokens (DEFAULT and only point \u2014 model runs at a single fixed operating point)"
+        ],
+        "evidence_url_or_path": "cloned source /private/tmp/claude-501/-Users-jacobnikolau-Desktop-Claude/b427ce91-3feb-4233-90b1-b084100c3c8f/scratchpad/moondream-src (github.com/m87-labs/moondream, commit 6eccfceaf1aaff804a67cd157193a6f744fa2bdc): moondream/torch/vision.py L84-87 (adaptive_avg_pool2d to 27x27 then reconstructed.view(729, enc_dim)); moondream/torch/moondream.py L27-31 + L296-305 (ImageEncodingSettings only 'variant'); moondream/config/config_md05.json (crop_size 378, max_crops 12, prefix_attn 730); moondream/torch/image_crops.py L17-113 (select_tiling/overlap_crop_image use max_crops for encoder crops only). Weights file existence verified via HTTP HEAD 302: https://huggingface.co/vikhyatk/moondream2/resolve/9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int8.mf.gz ; API docs: https://docs.moondream.ai/running-locally ; repo README 0.5B description: moondream-src/README.md L21",
+        "common_scale_note": "Fixed 729-token point. Sits between SmolVLM2 at longest_edge=1536 (<=640 tok) and 2048 (<=1088 tok), and above LFM's trained single-tile cap of 256 \u2014 usable only as a fixed anchor near the ~640-729 row of the common scale.",
+        "notes": "FLAG: no image-token or resolution knob at all in its own runtime \u2014 runs at a single default point. Two corroborating hard-codes: vision_projection reshapes to exactly 729 tokens regardless of input size or crop count, and the text stack's prefix_attn=730 (BOS + 729) bakes the count into the attention mask. max_crops only scales how many 378px crops the SigLIP-style encoder processes before features are reconstructed and pooled back to 27x27, i.e. an encoder-FLOPs/quality axis, not a token budget, and it is not reachable through query/caption/encode_image. Unverified-in-this-run caveat: the moondream.ai technical-specifications page could not be fetched directly (site redirected to docs.moondream.ai); the 0.5B download URL was confirmed to exist via HTTP HEAD instead."
+      }
+    ]
+  },
+  "synthesis": {
+    "discrepancies": [
+      "MOONDREAM 0.5B RUNTIME IDENTITY CONFLICT (agents md05b vs knobs): md05b pins the runtime as PyPI moondream==0.0.6 (onnxruntime OnnxVL loading .mf); knobs analyzed the m87-labs/moondream GitHub torch runtime @ 6eccfceaf1aaff804a67cd157193a6f744fa2bdc (config_md05.json). RESOLVED FACTUALLY THIS RUN: the torch runtime loads only .safetensors/.pt (moondream-src/moondream/torch/weights.py L168-175, local clone) and md05b verified no 0.5B safetensors exists anywhere on HF, so the only publicly runnable 0.5B path is moondream==0.0.6 + the .mf artifacts on vikhyatk/moondream2 branch onnx @ 9dddae84 (re-verified via https://huggingface.co/api/models/vikhyatk/moondream2/refs). The 'no token knob / fixed pooled grid' conclusion holds in BOTH codebases (verified onnx_vl.py encode_image pools crops to one (w,w) grid; torch vision.py views to 729). Human sign-off needed that moondream==0.0.6 is the canonical 'as-shipped' runtime; the exact 729 token count for the .mf runtime is inferred from the torch config (config_md05.json prefix_attn=730) and must be confirmed at load time on Modal.",
+      "MOONDREAM 0.5B EXISTS ONLY QUANTIZED: no fp16/bf16 transformers-loadable 0.5B checkpoint exists; only int8 (621,619,051 B, sha256 355c534d...) and int4 (442,376,060 B, sha256 56cb6c2b...) .mf archives at vikhyatk/moondream2 rev 9dddae84 (HF tree API + HEAD-verified resolve URLs). Deployed-form table must pick one (int8 recommended) and disclose the precision mismatch vs the other five models' fp16/bf16 weights. Human decision.",
+      "MOONDREAM2 (2B) REVISION THREE-WAY DIVERGENCE: model card recommends revision=2025-06-21 -> 9a7d4024050840e001defacec2b00727e89149e6 (re-verified this run via https://huggingface.co/api/models/vikhyatk/moondream2/refs); branch main is 5 commits ahead with changed remote code (6b714b26..., 2025-09-23); VLMEvalKit's Moondream2 adapter defaults to revision=2025-01-09 -> adcbcd1a (vlmeval/vlm/moondream.py:106 at v0.3rc1). Any VLMEvalKit cross-check without a revision override evaluates a DIFFERENT model than the primary harness. Also: vikhyatk/moondream2 is flagged superseded by moondream/moondream3-preview (cardData.new_version; moondream3-preview is BUSL-1.1) \u2014 the id is still correct if the study intends 'moondream2', but Gate A should confirm.",
+      "VLMEVALKIT AT PINNED TAG CANNOT BE PRIMARY: v0.3rc1 (8eb37bb96bc508bd016000318548854fdfa1bd30) has no LFM/liquid adapter at all (repo-wide grep zero hits), no RefCOCO/RefCOCO-M dataset, and no InternVL3_5 registry entry. Current main (0bfa830f, 2026-06-29) adds LFM2VL, InternVL3_5-1B, and RefCOCO (unified TSV, IoU@0.5) but still has NO LiquidAI/LFM2.5-VL-450M alias and NO 'RefCOCO-M'. The discovery recommendation (custom harness primary, VLMEvalKit v0.3rc1 as secondary cross-check for 4 models x POPE/CountBenchQA) needs Gate A sign-off.",
+      "REFCOCO-M METRIC PROVENANCE GAP (internal inconsistency in the calibration anchor): the LFM2.5-VL-450M card states all vision scores were obtained with VLMEvalKit and prints RefCOCO-M = 81.28 (verified at HF card + liquid.ai blog), yet NO VLMEvalKit revision (tag or main) contains a 'RefCOCO-M' dataset. The exact protocol behind 81.28 is unverifiable; the harness must define its own grounding metric (proposal: box IoU@0.5 accuracy over flattened instances) and treat 81.28 as a soft anchor only. Human decision on the metric definition.",
+      "STUDY-INTERNAL TRANSFORMERS PINS PARTIALLY CLOSED THIS RUN: transformers 4.57.1 and 5.12.1 both EXIST on PyPI (verified: https://pypi.org/pypi/transformers/4.57.1/json uploaded 2025-10-14; https://pypi.org/pypi/transformers/5.12.1/json uploaded 2026-06-15) and satisfy every card minimum (LFM >=5.1; SmolVLM2 released-in-4.50.0; llava-ov >=4.45.0; InternVL3_5 >=4.52.1; Qwen2.5-VL released-in-4.49.0). Also verified this run: the LFM sweep kwargs (min_image_tokens/max_image_tokens/do_image_splitting, defaults 64/256/True) exist at the v5.12.1 release tag (raw.githubusercontent.com/huggingface/transformers/v5.12.1/src/transformers/models/lfm2_vl/image_processing_lfm2_vl.py L166-225; processing_lfm2_vl.py L82), closing the 'verified only on main @ 9d011e8' gap. STILL UNVERIFIED: actual load+inference success of each checkpoint on these versions \u2014 Modal smoke tests required.",
+      "INTERNVL3_5-1B FORMAT CHOICE + UNCONFIRMED 5.x FAILURE: the anchor 'InternVL3_5 remote code fails on transformers 5.x' could not be confirmed from any live source (closest: transformers issue #40475, a 4.56.0 trust_remote_code processor bug). It is moot if pinned to the 4.57.1 image, but Gate A must choose between OpenGVLab/InternVL3_5-1B (custom code, sha 2f71cf52542334823e48a46ffba0e2bc9add3446, trust_remote_code=True) and the official native-format twin OpenGVLab/InternVL3_5-1B-HF (sha 9191dbccf312b537016f041b25d61c72e7c5c9f3) \u2014 potentially different preprocessing/results.",
+      "LFM MIN-TOKENS CONFLICT (card vs shipped config): LFM2.5-VL-450M README recommends min_image_tokens=32 while shipped processor_config.json (and the transformers v5.12.1 code defaults verified this run) set 64. The proposed sweep floor T=32 is card-sanctioned but below the shipped default \u2014 flag as mild extrapolation in the writeup.",
+      "REFCOCO-M FLATTENED COUNT UNVERIFIED: 1,190 raw image-level rows re-verified this run (https://datasets-server.huggingface.co/info?dataset=moondream/refcoco-m at main sha 45686f0eb7980ed4b70d3d5480a198775a26b4c1); the '~2,080 flattened instances' figure is an expectation, and the flattening rule is ambiguous (one instance per object vs per (object, sentence) when 'sentences' has multiple entries) \u2014 the choice changes N. Needs a human rule decision + Modal count.",
+      "COUNTBENCH VS COUNTBENCHQA COMPARABILITY: Liquid's published 73.31 is labeled 'CountBench' and was run through VLMEvalKit (whose CountBenchQA TSV row count is unverified), while our pinned dataset vikhyatk/CountBenchQA has 491 of the original 540 items (dead-URL exclusions per dataset card). moondream2's published 86.4 is an internal eval. Calibration comparisons on this column are soft; disclose dataset-version differences.",
+      "PROMPT-PARITY HETEROGENEITY IN THE REFERENCE TOOLKIT: at v0.3rc1 the POPE dataset default is the bare question (no yes/no suffix; image_yorn.py:25-32 \u2014 suffix applies only to AMBER), but adapters diverge (moondream appends 'Answer yes or no.' at moondream.py:186-187; Qwen2.5-VL-7B alias registered with use_custom_prompt=False so gets the bare question; InternVL raw). Additionally the moondream counting prompt is dead code via the 'CountbenchQA' case mismatch (moondream.py:159 vs image_vqa.py:2334). The shared harness must pick ONE uniform prompt policy per dataset for all six models and document where that deviates from VLMEvalKit adapter behavior and from published numbers.",
+      "SMOLVLM2 SWEEP AXIS IS NOT A TOKEN BUDGET + COCO UPSAMPLING ISSUE: size={'longest_edge': N} is a resolution->tile-count dial quantized in 64-token steps and aspect-ratio dependent (processing_smolvlm.py tokens=(rows*cols+1)*64), unlike LFM's near-exact budget. And RefCOCO-M images are COCO photos (typically <=640px long edge), so sweep points 1024/1536/2048 UPSAMPLE the source \u2014 the high end of the axis adds compute, not information. Design decision needed on whether upsampled points are in-scope.",
+      "LFM2.5-VL-450M CHECKPOINT AGE + LICENSE: repo created 2026-04-08 (4 commits, all same day; head fc6221ca is README-only) as the refreshed successor of LiquidAI/LFM2-VL-450M \u2014 if study ids predate 2026-04-08, confirm the intended Liquid checkpoint. License is LFM Open License v1.0 (license_name lfm1.0, re-verified this run: commercial use restricted to <$10M-revenue orgs) \u2014 fine for research, flag for publication/redistribution."
+    ],
+    "cross_part_shared_pins": [
+      "RefCOCO-M dataset: moondream/refcoco-m @ main sha 45686f0eb7980ed4b70d3d5480a198775a26b4c1, config 'default', split 'validation', 1,190 raw image rows (re-verified this run: https://huggingface.co/api/datasets/moondream/refcoco-m/refs + https://datasets-server.huggingface.co/info?dataset=moondream/refcoco-m). One frozen flattening rule shared by both parts.",
+      "LiquidAI/LFM2.5-VL-450M @ revision fc6221ca597f3315e4f82fc2df606783267b34ba (re-verified this run: https://huggingface.co/api/models/LiquidAI/LFM2.5-VL-450M).",
+      "HuggingFaceTB/SmolVLM2-500M-Video-Instruct @ revision 7b375e1b73b11138ff12fe22c8f2822d8fe03467 (source: https://huggingface.co/api/models/HuggingFaceTB/SmolVLM2-500M-Video-Instruct).",
+      "vikhyatk/moondream2 (2B) @ revision '2025-06-21' = commit 9a7d4024050840e001defacec2b00727e89149e6, trust_remote_code=True (card-recommended pin; re-verified this run via https://huggingface.co/api/models/vikhyatk/moondream2/refs). Same revision must be forced in any VLMEvalKit cross-check (adapter default is 2025-01-09).",
+      "Moondream 0.5B ARTIFACT: vikhyatk/moondream2 branch 'onnx' @ commit 9dddae84d54db4ac56fe37817aeaeb502ed083e2, file moondream-0_5b-int8.mf.gz (621,619,051 B, LFS sha256 355c534d5f71fff8524dfeb41ba65f7d07948f910f754de4df242d0037d8be4a), fetched only via the commit-pinned resolve URL. (int4 twin exists; int8 is the recommended deployed form, pending sign-off.)",
+      "Moondream 0.5B RUNTIME: PyPI moondream==0.0.6 (last release with the OnnxVL .mf loader; onnxruntime>=1.19.2; greedy-only decoding; sole knob settings={'max_tokens': int}). Pin is mandatory \u2014 plain 'pip install moondream' installs 1.3.0 which cannot load .mf. Same wheel + same execution provider (CPU vs CUDA EP) in both parts.",
+      "Transformers image pins shared across parts: transformers==5.12.1 image for LFM2.5-VL-450M (PyPI verified; lfm2_vl token kwargs verified at the v5.12.1 tag this run) and transformers==4.57.1 image for SmolVLM2 (PyPI verified) \u2014 Part 1 bench and Part 2 sweep must run each model on the SAME image digest, with identical prompts, parsers, and scoring code (user directive: one shared harness)."
+    ],
+    "gate_a_bench_checklist": [
+      {
+        "item": "All six model checkpoints exist, ungated, revision-pinned (LFM fc6221ca / SmolVLM2 7b375e1b / llava-ov-0.5b 74dd0bf8 / InternVL3_5-1B 2f71cf52 / Qwen2.5-VL-7B cc594898 / moondream2 tag 2025-06-21 = 9a7d4024)",
+        "status": "done",
+        "note": "All via HF API (https://huggingface.co/api/models/<id> and /refs); LFM sha, moondream2 tag re-verified live this run."
+      },
+      {
+        "item": "Renamed/superseded scan for all checkpoints",
+        "status": "done",
+        "note": "Only flags: vikhyatk/moondream2 superseded-by moondream3-preview (id still live/correct); LFM2.5-VL-450M is the 2026-04-08 successor of LFM2-VL-450M \u2014 confirm intent at Gate A. Others clean (cardData.new_version null)."
+      },
+      {
+        "item": "License audit (6 models + moondream3-preview landscape note)",
+        "status": "done",
+        "note": "5x Apache-2.0; LFM2.5-VL-450M = LFM Open License v1.0 (lfm1.0, <$10M commercial restriction); moondream3-preview = BUSL-1.1 (not used, noted). Sources: HF API cardData + raw LICENSE files."
+      },
+      {
+        "item": "Transformers requirement reconciliation per model card vs study pins",
+        "status": "done",
+        "note": "Card minima verified (LFM >=5.1; SmolVLM2 4.50.0-released; llava-ov >=4.45.0; InternVL3_5 >=4.52.1; Qwen 4.49.0-released; moondream2 none-stated/save-time 4.52.4). Study pins 4.57.1 and 5.12.1 verified to exist on PyPI this run."
+      },
+      {
+        "item": "Empirical load + 1-sample inference smoke test of each model on its pinned image",
+        "status": "needs-modal",
+        "note": "No GPU in this environment. Must confirm: LFM on 5.12.1; SmolVLM2/llava-ov/Qwen on 4.57.1; InternVL3_5-1B trust_remote_code on 4.57.1 (the '5.x failure' anchor is unconfirmed but moot on 4.57.1); moondream2 remote code @ 2025-06-21 on 4.57.1 (extra deps like einops/timm/pyvips unverified)."
+      },
+      {
+        "item": "Dataset pins + raw counts: lmms-lab/POPE 9,000 (3k random/3k popular/3k adversarial) @ 4db12766; vikhyatk/CountBenchQA 491 @ 76d60030; moondream/refcoco-m 1,190 @ 45686f0e",
+        "status": "done",
+        "note": "All via datasets-server info/splits + HF refs API; refcoco-m re-verified live this run."
+      },
+      {
+        "item": "RefCOCO-M flattened instance count and frozen flattening rule",
+        "status": "needs-modal",
+        "note": "~2,080 is an expectation only; multi-sentence-per-object rule is a human decision that changes N. Count at load time at pinned sha."
+      },
+      {
+        "item": "CountBenchQA usable-row check (undecodable images / malformed 'number')",
+        "status": "needs-modal",
+        "note": "491 raw rows confirmed; usable count at eval time to be logged on Modal."
+      },
+      {
+        "item": "Harness decision: custom harness primary, VLMEvalKit v0.3rc1 (8eb37bb) secondary cross-check (4 models x POPE+CountBenchQA)",
+        "status": "done",
+        "note": "Coverage matrix complete at pinned tag; VLMEvalKit cannot run LFM, RefCOCO-M, or InternVL3_5 at any tagged release. Recommendation needs user sign-off (open question)."
+      },
+      {
+        "item": "Prompt templates pinned for POPE and CountBenchQA (VLMEvalKit-parity citations)",
+        "status": "done",
+        "note": "POPE: bare TSV question (image_yorn.py:25-32 + image_base.py:186-203); CountBenchQA: image_vqa.py:2346 template. Uniform-suffix policy for POPE across all six models is a pending human decision (adapter heterogeneity documented)."
+      },
+      {
+        "item": "RefCOCO-M grounding prompt + metric definition",
+        "status": "blocked",
+        "note": "No upstream reference implementation exists under the name RefCOCO-M at any VLMEvalKit revision; Liquid's 81.28 protocol unverifiable. Requires a Gate A protocol decision (proposal: box IoU@0.5 accuracy; output format per-model grounding syntax normalized by shared parser)."
+      },
+      {
+        "item": "Calibration table of published numbers with provenance",
+        "status": "done",
+        "note": "LFM 81.28/86.93/73.31 (HF card + liquid.ai blog); InternVL3.5-1B POPE 86.8 + RefCOCO suite (arXiv 2508.18265); Qwen2.5-VL-7B RefCOCO (arXiv 2502.13923 PDF, no POPE/CountBench published); moondream2 CountBenchQA 86.4 (card release notes); SmolVLM2 POPE 82.67/CountBench 61.81 are Liquid-run third-party numbers; llava-ov-0.5b has none. Metric-type and dataset-version caveats recorded."
+      },
+      {
+        "item": "Deployed-form table row: Moondream 0.5B artifact + runtime + API surface + sampler documented",
+        "status": "done",
+        "note": "Artifact (int8 .mf @ 9dddae84, sha256 355c534d), runtime moondream==0.0.6 (greedy-only, max_tokens only knob), API query/caption/detect/point all source-cited. Pending human sign-off: int8 vs int4, and runtime-identity decision (torch runtime verified this run to load only safetensors/.pt \u2014 cannot run 0.5B)."
+      },
+      {
+        "item": "Moondream 0.5B image-token count (expected 729) confirmed in the .mf runtime",
+        "status": "needs-modal",
+        "note": "729 comes from the torch config (config_md05.json prefix_attn=730); onnx client verified this run to pool to one fixed (w,w) grid, but w for the .mf 0.5B must be confirmed at load time (templates/config live inside the archive)."
+      },
+      {
+        "item": "Modal images built and pinned (see environment_plan)",
+        "status": "needs-modal",
+        "note": "Plan is complete and reconciled with all verified requirements; digests and smoke tests are Modal work."
+      }
+    ],
+    "gate_a_sweep_checklist": [
+      {
+        "item": "LFM2.5-VL-450M knob verified as a TRUE per-image token budget with exact API call",
+        "status": "done",
+        "note": "smart_resize computes pixels FROM token bounds; call: apply_chat_template(..., min_image_tokens=T, max_image_tokens=T, do_image_splitting=False). Verified at transformers v5.12.1 release tag THIS RUN (image_processing_lfm2_vl.py L166-225, processing_lfm2_vl.py L82), not just main."
+      },
+      {
+        "item": "LFM sweep points fixed: T = 256 (default cap) / 128 / 64 / 32, splitting off; plus default-pipeline reference point (splitting on, max 256)",
+        "status": "done",
+        "note": "32 is card-recommended min but below shipped default 64 (discrepancy flagged); >256 excluded as outside trained envelope."
+      },
+      {
+        "item": "SmolVLM2 knob identified: size={'longest_edge': N} at 512/1024/1536/2048 (64 / <=320 / <=640 / <=1088 tokens)",
+        "status": "done",
+        "note": "Flagged: resolution->tile-count dial, NOT a token budget; 64-token quantization, aspect-ratio dependent; tokens-per-tile (image_seq_len=64) not tunable. Config from repo preprocessor_config.json @ 7b375e1b."
+      },
+      {
+        "item": "SmolVLM2 high-resolution sweep points on COCO-sized RefCOCO-M images (upsampling regime)",
+        "status": "blocked",
+        "note": "COCO images are typically <=640px; points 1024/1536/2048 upsample (compute-only axis, no added information). Human decision: accept upsampled points, or cap/annotate the SmolVLM2 axis."
+      },
+      {
+        "item": "Moondream 0.5B fixed anchor: no image-token/resolution knob in its runtime",
+        "status": "done",
+        "note": "Confirmed in BOTH candidate codebases this run (onnx_vl.py pools crops to one fixed grid; torch vision.py views to 729 with prefix_attn=730). Single operating point, greedy-only, sole knob max_tokens. Anchor comparable to the ~640-729 row of the common scale."
+      },
+      {
+        "item": "Exact realized image-token counts logged per model per sweep point from processor outputs",
+        "status": "needs-modal",
+        "note": "LFM near-exact but rounding to 32px multiples; SmolVLM2 aspect-ratio dependent upper bounds; Moondream 0.5B expected 729 \u2014 all must be measured, not assumed, at run time."
+      },
+      {
+        "item": "RefCOCO-M pin + flattening rule + exact instance count N (shared with Part 1)",
+        "status": "needs-modal",
+        "note": "Same pin (45686f0e) and same frozen rule as bench; exact N counted on Modal after the human multi-sentence decision."
+      },
+      {
+        "item": "Sweep scoring metric definition (grounding accuracy, proposal IoU@0.5)",
+        "status": "blocked",
+        "note": "Same protocol decision as the bench RefCOCO-M item \u2014 one shared scorer for both parts per user directive."
+      },
+      {
+        "item": "Decoding parity across runtimes: greedy everywhere",
+        "status": "done",
+        "note": "0.5B runtime is hard-coded greedy (np.argmax; no temperature/top_p) \u2014 so the shared policy must be do_sample=False/greedy for all transformers models, matched max_new_tokens. Policy set; enforcement is harness code."
+      },
+      {
+        "item": "Common approximate token scale across LFM/SmolVLM2/Moondream-0.5B",
+        "status": "done",
+        "note": "LFM 64 <-> SmolVLM2 512-edge (64 tok); LFM 256 <-> 1024-edge (<=320 tok); Moondream 729 fixed anchor near 1536-edge (<=640) / 2048-edge (<=1088). Feasible only as approximate 2-model scale + fixed anchor; caveats documented."
+      },
+      {
+        "item": "Cross-part pin identity (same revisions, images, harness, prompts, scorer in both parts)",
+        "status": "done",
+        "note": "Pin list assembled (see cross_part_shared_pins); each model runs on the identical image digest in Part 1 and Part 2."
+      }
+    ],
+    "open_questions_for_user": [
+      "Moondream 0.5B deployed form: pin int8 .mf (recommended, 621.6 MB) or int4 (442.4 MB)? And sign off the runtime pin moondream==0.0.6 (onnxruntime) as the 'as-shipped' runtime \u2014 verified this run that the current torch/Photon stacks cannot load the 0.5B at all.",
+      "moondream2 (2B) revision: confirm the card-recommended tag 2025-06-21 (9a7d4024) for BOTH the primary harness and any VLMEvalKit cross-check (requires overriding VLMEvalKit's adapter default of 2025-01-09) \u2014 or intentionally match VLMEvalKit's 2025-01-09 for comparability with its published leaderboard behavior?",
+      "RefCOCO-M protocol: adopt box IoU@0.5 accuracy over flattened instances? And flattening rule: one eval instance per (object, sentence) pair, or one per object using the first sentence? (Changes N; ~2,080 expectation assumes a specific rule.)",
+      "Sign off harness posture: custom shared harness primary for all six models; VLMEvalKit v0.3rc1 (8eb37bb) used only as a secondary cross-check on POPE+CountBenchQA for the four covered models.",
+      "POPE prompt policy: uniform suffix ('Please answer yes or no.') appended for ALL six models, or bare question for all? (VLMEvalKit adapters disagree among themselves; published numbers were produced under heterogeneous prompts either way.)",
+      "InternVL3_5-1B: pin the custom-code repo OpenGVLab/InternVL3_5-1B (2f71cf52, trust_remote_code) on the 4.57.1 image, or the official native twin OpenGVLab/InternVL3_5-1B-HF (9191dbcc)? Preprocessing may differ; the '5.x remote-code failure' anchor remains unconfirmed but is moot on 4.57.1.",
+      "SmolVLM2 sweep: are upsampled points (1024/1536/2048 longest_edge on <=640px COCO images) in scope as a compute-only axis, or should the SmolVLM2 axis be annotated/capped where upsampling begins?",
+      "LFM sweep floor: include T=32 (card-recommended min, below the shipped processor default of 64)?",
+      "Confirm the intended Liquid checkpoint is LiquidAI/LFM2.5-VL-450M (created 2026-04-08, successor of LFM2-VL-450M) \u2014 and that the LFM Open License v1.0 (<$10M-revenue commercial restriction) is acceptable for the project's intended use and publication.",
+      "Is a 'CountBench 73.31 vs our CountBenchQA-491' dataset-version caveat acceptable in the calibration table, or should we attempt to reproduce VLMEvalKit's exact CountBenchQA TSV for the cross-check lane?"
+    ],
+    "environment_plan": "Three Modal images serve BOTH parts (identical image digests reused across Part 1 and Part 2; one shared harness/parsers/prompts/scorer volume mounted into all three; datasets fetched at pinned shas then HF_HUB_OFFLINE for runs). IMAGE A 'lfm-tfm5121' \u2014 python>=3.10, transformers==5.12.1 (PyPI-verified this run, uploaded 2026-06-15; satisfies the card's '>=5.1'; the sweep kwargs min_image_tokens/max_image_tokens/do_image_splitting verified present at the v5.12.1 tag this run), torch+accelerate+pillow+datasets. Serves ONLY LiquidAI/LFM2.5-VL-450M @ fc6221ca (native lfm2_vl, no trust_remote_code) for the Part 1 row and the Part 2 token sweep. IMAGE B 'main-tfm4571' \u2014 python>=3.10, transformers==4.57.1 (PyPI-verified this run, uploaded 2025-10-14; >= every verified card minimum: SmolVLM2 4.50.0-released, llava-ov >=4.45.0, InternVL3_5 >=4.52.1, Qwen2.5-VL 4.49.0-released, moondream2 save-time 4.52.4 with no stated pin), torch+accelerate, num2words (SmolVLM2 card), qwen-vl-utils[decord]==0.0.8 (Qwen card, video-oriented, harmless for images), einops+timm speculatively for InternVL remote code (requirement unverified \u2014 confirm at smoke test), flash-attn OPTIONAL (SmolVLM2 card mentions it; fall back to sdpa and record the attention implementation in run metadata). Serves: SmolVLM2-500M-Video-Instruct @ 7b375e1b (Parts 1+2), llava-onevision-qwen2-0.5b-ov-hf @ 74dd0bf8, InternVL3_5-1B @ 2f71cf52 (trust_remote_code=True, pending the -HF-twin decision), Qwen2.5-VL-7B-Instruct @ cc594898, and moondream2 2B @ revision 2025-06-21 (trust_remote_code=True). moondream2 gets NO separate image unless the 4.57.1 smoke test fails, in which case spin a minimal Image D pinned near its save-time 4.52.4. Optional overlay B' = Image B + VLMEvalKit @ 8eb37bb (v0.3rc1) for the secondary cross-check lane (4 models x POPE+CountBenchQA), passing revision='2025-06-21' to the Moondream2 adapter to match the primary pin. IMAGE C 'md05-onnx' \u2014 python 3.10-3.12, moondream==0.0.6 EXACT PIN (mandatory: current 'moondream' 1.3.0 cannot load .mf), onnxruntime>=1.19.2,<2.0 (or onnxruntime-gpu for the CUDA execution provider \u2014 choose ONE provider and keep it identical across both parts), numpy>=2.1.2, pillow, tokenizers; bake in moondream-0_5b-int8.mf.gz from the commit-pinned URL https://huggingface.co/vikhyatk/moondream2/resolve/9dddae84d54db4ac56fe37817aeaeb502ed083e2/moondream-0_5b-int8.mf.gz and verify sha256 355c534d... at build time. Serves the Moondream 0.5B deployed-form row (Part 1) and the fixed 729-token anchor (Part 2). Rationale vs the expected plan: matches it exactly \u2014 the only deltas found are (a) transformers 5.12.1 is now source-verified as existing and containing the LFM knob (previously study-internal), (b) moondream2 2B folds into the 4.57.1 image pending its smoke test rather than needing its own image, and (c) the 0.5B 'as-shipped runtime' image must be the legacy onnxruntime client, not Photon/Station, since nothing newer can load the 0.5B artifacts."
+  }
+}

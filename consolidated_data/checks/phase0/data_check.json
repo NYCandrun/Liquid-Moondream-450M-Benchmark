@@ -1,0 +1,58 @@
+{
+  "bbox_convention": {
+    "total_boxes": 2080,
+    "xywh_violations": 0,
+    "xyxy_violations": 1204
+  },
+  "grounding": {
+    "n_items": 2080,
+    "first_item": {
+      "item_id": "458827:424581",
+      "image_ref": "COCO_train2014_000000458827.jpg",
+      "expression": "left guy",
+      "all_sentences": [
+        "left guy",
+        "person on left",
+        "left person"
+      ],
+      "gt": {
+        "box_xyxy": [
+          13.210000038146973,
+          1.1200000047683716,
+          196.87999820709229,
+          262.0900012254715
+        ],
+        "category": "person"
+      },
+      "image_width": 500,
+      "image_height": 294
+    }
+  },
+  "pope": {
+    "n_items": 9000,
+    "first_item": {
+      "item_id": "pope:0",
+      "image_ref": "COCO_val2014_000000310196",
+      "question": "Is there a snowboard in the image?",
+      "gt": {
+        "answer_yes": true,
+        "category": "adversarial"
+      },
+      "image_width": 640,
+      "image_height": 427
+    }
+  },
+  "count": {
+    "n_items": 491,
+    "first_item": {
+      "item_id": "countbench:0",
+      "image_ref": "countbenchqa:test:0",
+      "question": "How many headsets are there in the image?",
+      "gt": {
+        "number": 10
+      },
+      "image_width": 1024,
+      "image_height": 448
+    }
+  }
+}

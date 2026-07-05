@@ -1,0 +1,44 @@
+[
+  {
+    "cell": "deployed_lfm450m_gguf_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 16,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/deployed_lfm450m_gguf_count.sample20s7.md"
+  },
+  {
+    "cell": "deployed_lfm450m_gguf_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 15,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/deployed_lfm450m_gguf_grounding.sample20s7.md"
+  },
+  {
+    "cell": "deployed_lfm450m_gguf_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 13,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/deployed_lfm450m_gguf_pope.sample20s7.md"
+  },
+  {
+    "cell": "deployed_moondream05b_asshipped_count.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 8,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/deployed_moondream05b_asshipped_count.sample20s7.md"
+  },
+  {
+    "cell": "deployed_moondream05b_asshipped_grounding.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 6,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/deployed_moondream05b_asshipped_grounding.sample20s7.md"
+  },
+  {
+    "cell": "deployed_moondream05b_asshipped_pope.sample20s7",
+    "n": 20,
+    "parsed": 20,
+    "correct": 11,
+    "dump": "/Users/jacobnikolau/Desktop/Claude/results/phase2/dumps/deployed_moondream05b_asshipped_pope.sample20s7.md"
+  }
+]

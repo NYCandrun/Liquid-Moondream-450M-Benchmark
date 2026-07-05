@@ -1,0 +1,62 @@
+{
+  "lfm450m": {
+    "model": "lfm450m",
+    "points": [
+      {
+        "budget": 32,
+        "n_input_tokens": 44,
+        "latency_ms": 1310.5,
+        "output": "A red circle and a blue square are shown side by side."
+      },
+      {
+        "budget": 64,
+        "n_input_tokens": 74,
+        "latency_ms": 227.9,
+        "output": "A red circle and a blue square are shown on a white background."
+      },
+      {
+        "budget": 128,
+        "n_input_tokens": 137,
+        "latency_ms": 238.2,
+        "output": "A red circle and a blue rectangle are shown on a white background."
+      },
+      {
+        "budget": 256,
+        "n_input_tokens": 254,
+        "latency_ms": 230.0,
+        "output": "A red circle and a blue rectangle are shown on a white background."
+      }
+    ],
+    "knob_is_live": true
+  },
+  "smolvlm2": {
+    "model": "smolvlm2",
+    "points": [
+      {
+        "budget": 512,
+        "n_input_tokens": 83,
+        "latency_ms": 1336.3,
+        "output": " A red circle and a blue square are placed on a white background."
+      },
+      {
+        "budget": 1024,
+        "n_input_tokens": 349,
+        "latency_ms": 461.9,
+        "output": " A red circle and a blue square are on a white background."
+      },
+      {
+        "budget": 1536,
+        "n_input_tokens": 680,
+        "latency_ms": 451.2,
+        "output": " A red circle and a blue square are on a white background."
+      },
+      {
+        "budget": 2048,
+        "n_input_tokens": 878,
+        "latency_ms": 458.3,
+        "output": " A red circle and a blue square are on a white background."
+      }
+    ],
+    "knob_is_live": true
+  }
+}

@@ -1,0 +1,5 @@
+model,Split,Precision@1,Average_IoU,Samples,source_on_modal_volume
+Moondream2,RefCOCO-M,79.03846153846153,0.7081762604567983,2080,vlmeval2_out/Moondream2/Moondream2_RefCOCO-M_acc.csv
+LFM2.5-VL-450M,RefCOCO-M,70.48076923076924,0.5457310790490192,2080,vlmeval2_out/LFM2.5-VL-450M/LFM2.5-VL-450M_RefCOCO-M_acc.csv
+llava-onevision-qwen2-0.5b-ov-hf,RefCOCO-M,4.038461538461538,0.16145963748781253,2080,vlmeval2_out/llava-onevision-qwen2-0.5b-ov-hf/llava-onevision-qwen2-0.5b-ov-hf_RefCOCO-M_acc.csv
+SmolVLM2-500M,RefCOCO-M,0.0,4.769824066011291e-05,2080,vlmeval2_out/SmolVLM2-500M/SmolVLM2-500M_RefCOCO-M_acc.csv
