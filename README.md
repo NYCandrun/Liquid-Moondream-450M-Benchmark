@@ -41,7 +41,12 @@ results/
   tables/{bench,sweep}/   # generated CSV/JSON + markdown tables
 calibration/       # Part 1: published-vs-ours table, VLMEvalKit lane outputs
 demo_data/         # Part 2: demo-consumable lookup table (schema note below, TBD)
+edge-rush-game/    # EDGE RUSH: a separate browser game that teaches on-device AI (see below)
 ```
+
+## EDGE RUSH game
+
+`edge-rush-game/` holds EDGE RUSH, a small browser game inspired by Liquid AI. You play the AI chip in a phone, laptop or car, and route each request to on-device blocks or the cloud. Six levels teach one idea each: device versus cloud, attention memory, battery cost, losing signal, small specialist models, and why a balanced mix wins. Open `edge-rush-game/index.html` in a browser to play. It is a separate project from the benchmark. It was built in June 2026 in `NYCandrun/ai_game` and moved here with its full commit history.
 
 ## Setup (control plane)
 
