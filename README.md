@@ -1,4 +1,57 @@
-# Edge-VLM Benchmark
+# Edge Vision-Language Model Evaluation
+
+A reproducible benchmark of six small vision-language models on finding objects, yes/no questions about an image, and counting, measuring accuracy, speed, and how often each model's answer can be read at all. A shared harness, parsers, and scoring code run every model the same way, so the differences in the results come from the models, not from prompts, parsing, or the evaluation.
+
+## Key findings
+
+- **The prompt convention matters more than model size for weak instruction-followers.** Adding the standard "Please answer yes or no." to the POPE question lifts SmolVLM2 500M from 55.0% to 85.1% accuracy, on the same 9,000 items with the same parser.
+- **The results match an independent referee.** Yes/no scores agree with VLMEvalKit's to within about half a point for the models checked (for example, SmolVLM2 85.1% vs. 85.6%).
+- **Image detail trades accuracy for compute, but not speed, at 450M.** LFM2.5-VL 450M's object-finding accuracy rises from 39.5% at 32 image tokens to 77.5% at 256, while time per image stays near 500 ms.
+- **A crash was found, traced, and fixed in the open.** Forcing a fixed image-token budget crashed the shipped LFM stack on up to 14% of images and first made accuracy look like it fell at 256 tokens. The root cause was traced to rounding in the model's own resize code. A disclosed workaround recovered every image, and the earlier run is kept as the record of the crash.
+
+Full tables: [RESULTS.md](RESULTS.md). Controls, limitations, and every change: [METHODOLOGY.md](METHODOLOGY.md).
+
+## Engineering highlights
+
+- **Config-driven harness.** One YAML file per model and task. One runner serves both the main benchmark and the image-detail sweep.
+- **Inference and scoring are separate stages.** The GPU stage writes raw per-item answers with full provenance (model revision, library versions, device, prompt). Scoring reads only those files and needs no GPU.
+- **Model-specific output parsers with unit tests**, and a parse rate reported next to every score.
+- **Controlled runs.** Greedy decoding, one GPU type asserted inside the container, everything pinned by hash, and resume-by-item so a lost container never loses finished work.
+- **Failures are reported as findings,** never quietly retried or dropped.
+
+## Check it yourself
+
+Re-score any stored result from the raw answers on a laptop, with the Python standard library only:
+
+```bash
+python3 -m scoring.score results/raw/bench_suffixed/bench_suffixed_smolvlm2_pope.jsonl --out /tmp/rescore
+# -> accuracy 0.8508 over 9,000 items (RESULTS.md: 85.1%)
+```
+
+Rerunning a model needs a [Modal](https://modal.com) account and runs on an A100-40GB:
+
+```bash
+modal run harness/run.py --config configs/bench/lfm450m_grounding.yaml
+```
+
+## How it fits together
+
+```mermaid
+flowchart LR
+  C[configs/*.yaml<br/>model + task + budget] --> H[harness/run.py<br/>Modal, A100-40GB]
+  H --> R[results/raw/*.jsonl<br/>one answer per item]
+  R --> S[scoring/<br/>parsers + metrics, no GPU]
+  S --> T[RESULTS.md tables]
+  R --> V[VLMEvalKit referee<br/>independent cross-check]
+```
+
+## A design decision worth noting
+
+Each model is measured in two separate ways that are never mixed. The main table runs every model at full precision on the same GPU, so the models can be compared fairly. A separate table measures two models in the small form they actually ship in, on a CPU, because that is how they would be deployed. Merging the two would have looked tidier, but it would have mixed differences between models with differences between hardware and precision.
+
+---
+
+## Project overview
 
 One project, two parts, one shared harness. All inference runs on **Modal**; the local
 machine is a control plane only (no GPU, no model loads, no dataset image processing).
@@ -18,9 +71,7 @@ harness divergence.
 
 ## Status
 
-Phase 0 (discovery and functional checks) in progress. No results yet. Every number that
-will appear in RESULTS.md comes from execution in this project; published numbers appear
-only in the calibration table with live source URLs.
+Complete. Results for both parts are in [RESULTS.md](RESULTS.md), with a raw per-item answer file behind every number under `results/raw/`. Published numbers appear only in the calibration table, with live source URLs.
 
 ## Repo map
 
@@ -59,17 +110,23 @@ They were moved here from their own repositories with their full commit history.
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt   # TBD — exported after envs are frozen
+pip install modal pyyaml          # in-container environments are pinned in envs/locks/
 modal token set                    # or use an existing ~/.modal.toml
 ```
 
 ## Reproducing a cell
 
-One command per cell (final form TBD at harness build; indicative):
+One command per cell, run from the repository root:
 
 ```bash
-modal run harness/run.py --part bench --model moondream2 --task pope
-modal run harness/run.py --part sweep --model lfm450m --budget mid
+modal run harness/run.py --config configs/bench/lfm450m_grounding.yaml
+modal run harness/run.py --config configs/bench/lfm450m_grounding.yaml --sample-n 20 --sample-seed 7   # quick sample
+```
+
+Score raw answers without a GPU:
+
+```bash
+python3 -m scoring.score results/raw/bench/<cell>.jsonl --out results/tables/bench/
 ```
 
 ## Provenance rules (non-negotiable)
