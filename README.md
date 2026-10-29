@@ -1,53 +1,59 @@
 # Edge Vision-Language Model Evaluation
 
-A reproducible benchmark of six small vision-language models on finding objects, yes/no questions about an image, and counting, measuring accuracy, speed, and how often each model's answer can be read at all. A shared harness, parsers, and scoring code run every model the same way, so the differences in the results come from the models, not from prompts, parsing, or the evaluation.
+This project tests six small AI models that can look at a picture and answer questions about it. They are the kind of model small enough to run on a phone or a laptop rather than in a data center. Every model gets the same three tasks:
 
-## Key findings
+- **Find an object.** Draw a box around the thing a sentence describes, such as "the dog on the left." 2,080 examples from the RefCOCO-M dataset.
+- **Answer yes or no.** Say whether an object is in the picture, such as "Is there a car in the image?" 9,000 questions from the POPE dataset.
+- **Count.** Say how many of something there are. 491 questions from the CountBenchQA dataset.
 
-- **The prompt convention matters more than model size for weak instruction-followers.** Adding the standard "Please answer yes or no." to the POPE question lifts SmolVLM2 500M from 55.0% to 85.1% accuracy, on the same 9,000 items with the same parser.
-- **The results match an independent referee.** Yes/no scores agree with VLMEvalKit's to within about half a point for the models checked (for example, SmolVLM2 85.1% vs. 85.6%).
-- **Image detail trades accuracy for compute, but not speed, at 450M.** LFM2.5-VL 450M's object-finding accuracy rises from 39.5% at 32 image tokens to 77.5% at 256, while time per image stays near 500 ms.
-- **A crash was found, traced, and fixed in the open.** Forcing a fixed image-token budget crashed the shipped LFM stack on up to 14% of images and first made accuracy look like it fell at 256 tokens. The root cause was traced to rounding in the model's own resize code. A disclosed workaround recovered every image, and the earlier run is kept as the record of the crash.
+For each model, the project records how often it is right, how long it takes per picture, and how often its answer comes back in a form that can be scored at all. Every model runs through the same code with the same settings. So when two models score differently, it is because the models differ, not because one was asked or graded differently.
 
-Full tables: [RESULTS.md](RESULTS.md). Controls, limitations, and every change: [METHODOLOGY.md](METHODOLOGY.md).
+## What it found
 
-## Engineering highlights
+- **How the question is worded can matter more than which model is used.** Asked only "Is there a car in the image?", SmolVLM2 500M was right 55.0% of the time, often because it rambled instead of answering. Adding the standard instruction "Please answer yes or no." raised it to 85.1% on the same 9,000 questions.
+- **The scores match an outside check.** The same models were scored a second time with VLMEvalKit, a widely used independent evaluation tool. The yes/no scores agreed within about half a percentage point (for SmolVLM2, 85.1% here and 85.6% there).
+- **Letting LFM2.5-VL 450M see more detail roughly doubles its accuracy without slowing it down.** The model breaks each picture into small pieces called image tokens before reading it. With 32 tokens it found the right object 39.5% of the time; with 256 tokens, 77.5% of the time. It took about half a second per picture either way.
+- **A crash was found, explained, and fixed in the open.** Fixing LFM's number of image tokens made the model's own software crash on up to 14% of pictures, which at first made the highest setting look worse than it was. The cause: when a small picture had to be enlarged to reach the set number, the model's resizing code rounded both sides up, went over its own limit, and crashed. Enlarging those pictures slightly beforehand sends them through the code's shrinking step instead, which rounds down and is safe. Every picture then completed. The earlier run that crashed is kept as a record.
 
-- **Config-driven harness.** One YAML file per model and task. One runner serves both the main benchmark and the image-detail sweep.
-- **Inference and scoring are separate stages.** The GPU stage writes raw per-item answers with full provenance (model revision, library versions, device, prompt). Scoring reads only those files and needs no GPU.
-- **Model-specific output parsers with unit tests**, and a parse rate reported next to every score.
-- **Controlled runs.** Greedy decoding, one GPU type asserted inside the container, everything pinned by hash, and resume-by-item so a lost container never loses finished work.
-- **Failures are reported as findings,** never quietly retried or dropped.
+Full tables are in [RESULTS.md](RESULTS.md). How each test was controlled, what the limits are, and every change made along the way are in [METHODOLOGY.md](METHODOLOGY.md).
+
+## How it is built
+
+- **One short settings file per test.** Each combination of model and task (and detail level) is a small YAML file, and one program runs them all.
+- **Answering and grading are separate steps.** First, the models answer every question on a rented GPU (the kind of chip AI models run on), and every answer is saved along with exactly which model version, software versions, hardware, and prompt produced it. Grading then reads only those saved answers, so anyone can re-grade them on an ordinary laptop.
+- **A tested answer reader for each model.** Models format their answers differently; a box might come back as four numbers or as a sentence. A small reader for each model turns its answers into something that can be graded, each reader has its own tests, and the share of answers it could read is reported next to every score.
+- **The same conditions every time.** Models always give their single most likely answer, with no randomness. Every run checks that it is on the same kind of GPU (an Nvidia A100 with 40 GB of memory) and refuses to run otherwise. Model and dataset versions are pinned to an exact fingerprint. A run that is interrupted picks up where it left off without losing any answers.
+- **Failures are reported, not hidden.** A wrong or unreadable answer counts as a result. It is never quietly retried or dropped.
 
 ## Check it yourself
 
-Re-score any stored result from the raw answers on a laptop, with the Python standard library only:
+Re-grade a stored result on any computer with Python. No GPU or extra packages are needed:
 
 ```bash
 python3 -m scoring.score results/raw/bench_suffixed/bench_suffixed_smolvlm2_pope.jsonl --out /tmp/rescore
-# -> accuracy 0.8508 over 9,000 items (RESULTS.md: 85.1%)
+# writes a report showing accuracy 0.8508 over 9,000 questions (RESULTS.md: 85.1%)
 ```
 
-Rerunning a model needs a [Modal](https://modal.com) account and runs on an A100-40GB:
+Running a model again needs an account with [Modal](https://modal.com), a service that rents out GPUs by the second:
 
 ```bash
 modal run harness/run.py --config configs/bench/lfm450m_grounding.yaml
 ```
 
-## How it fits together
+## How the pieces connect
 
 ```mermaid
 flowchart LR
-  C[configs/*.yaml<br/>model + task + budget] --> H[harness/run.py<br/>Modal, A100-40GB]
-  H --> R[results/raw/*.jsonl<br/>one answer per item]
-  R --> S[scoring/<br/>parsers + metrics, no GPU]
-  S --> T[RESULTS.md tables]
-  R --> V[VLMEvalKit referee<br/>independent cross-check]
+  C[Settings file<br/>which model, which task] --> H[Run the model<br/>rented A100 GPU on Modal]
+  H --> R[Saved answers<br/>one line per question]
+  R --> S[Grade the answers<br/>no GPU needed]
+  S --> T[Results tables]
+  R --> V[Independent re-check<br/>VLMEvalKit]
 ```
 
 ## A design decision worth noting
 
-Each model is measured in two separate ways that are never mixed. The main table runs every model at full precision on the same GPU, so the models can be compared fairly. A separate table measures two models in the small form they actually ship in, on a CPU, because that is how they would be deployed. Merging the two would have looked tidier, but it would have mixed differences between models with differences between hardware and precision.
+The models are compared in two separate tables that are never combined. The main table runs every model uncompressed, at full quality, on the same GPU, so the comparison is fair. A second table runs two of the models the way they are actually shipped to devices: compressed to a smaller size and running on an ordinary processor. Putting both in one table would look neater, but then a difference in score could come from the model, the hardware, or the compression, with no way to tell which.
 
 ---
 
