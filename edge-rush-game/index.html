@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edge Rush: on-device AI, by example</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    /* Base */
+    --ink-900:#0A0B0D; --ink-800:#121316; --ink-700:#1C1E22;
+    --graphite-500:#8A8F97; --mist-300:#A8ADB5; --white:#FFFFFF;
+
+    /* Liquid gradient + stops */
+    --liquid-gradient:linear-gradient(100deg,#1E3AE0 0%,#2FB6F2 30%,#7C5CFF 58%,#C45CF0 78%,#2FB6F2 100%);
+    --liquid-blue:#1E3AE0; --liquid-cyan:#2FB6F2; --liquid-violet:#7C5CFF; --liquid-magenta:#C45CF0;
+
+    /* Functional */
+    --accent:#2FB6F2; --success:#34C77B; --warning:#F0A93C; --danger:#F0544A;
+
+    /* Block data-series (decomposed gradient) */
+    --conv:#2FB6F2; --attn:#7C5CFF; --nano:#C45CF0; --cloud:#1E3AE0;
+    --good:#34C77B; --bad:#F0544A;
+
+    /* Type */
+    --font-display:"Inter Tight","Aeonik",-apple-system,"Segoe UI",sans-serif;
+    --font-body:"Inter",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:"JetBrains Mono","IBM Plex Mono",ui-monospace,"SF Mono",monospace;
+
+    /* Radius / motion */
+    --radius-sm:8px; --radius-md:12px; --radius-lg:20px; --radius-pill:999px;
+    --ease-fluid:cubic-bezier(.4,0,.2,1); --dur-fast:200ms; --dur:350ms; --dur-slow:800ms;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:
+      radial-gradient(900px 520px at 50% -18%, rgba(124,92,255,.10), transparent 62%),
+      radial-gradient(700px 420px at 85% 8%, rgba(47,182,242,.06), transparent 60%),
+      var(--ink-900);
+    color:var(--white); font-family:var(--font-body);
+    display:flex; align-items:center; justify-content:center; min-height:100%;
+    -webkit-font-smoothing:antialiased; padding:24px;
+  }
+  #app{width:min(960px,100%)}
+
+  /* ---------- card ---------- */
+  .card{position:relative;background:var(--ink-800);border:1px solid var(--ink-700);
+    border-radius:var(--radius-lg);padding:28px 32px 24px;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;
+    background:var(--liquid-gradient);background-size:200% 100%;animation:liquid-shift 9s var(--ease-fluid) infinite}
+
+  /* ---------- header ---------- */
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+  .brandmark{font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:-.01em;margin:0}
+  .brandmark small{display:block;font-weight:500;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--graphite-500);margin-top:3px}
+  .meta-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .tag{font-family:var(--font-mono);font-size:11px;color:var(--mist-300);
+    border:1px solid var(--ink-700);border-radius:var(--radius-pill);padding:3px 11px}
+  .meta-sub{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500)}
+
+  #help{position:absolute;top:14px;right:14px;width:46px;height:46px;padding:0;border-radius:var(--radius-pill);
+    background:rgba(10,11,13,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    border:1px solid var(--ink-700);color:var(--mist-300);font-family:var(--font-mono);
+    font-weight:600;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;z-index:55;
+    cursor:pointer;transition:border-color var(--dur) var(--ease-fluid),color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid)}
+  #help:hover{color:var(--white);border-color:var(--accent);transform:translateY(-1px)}
+
+  /* ---------- eyebrow ---------- */
+  .eyebrow{font-family:var(--font-display);font-size:11px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+
+  /* ---------- meters ---------- */
+  .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:0 0 8px}
+  .meter{background:var(--ink-900);border:1px solid var(--ink-700);border-radius:var(--radius-md);padding:12px 14px}
+  .meter.hide{display:none}
+  .meter .lab{display:flex;justify-content:space-between;align-items:baseline}
+  .meter .lab .k{font-family:var(--font-display);font-size:10.5px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--graphite-500)}
+  .meter .lab .val{font-family:var(--font-mono);font-size:14px;color:var(--white)}
+  .bar{height:6px;border-radius:var(--radius-pill);background:var(--ink-700);margin-top:9px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:50%;border-radius:var(--radius-pill);
+    transition:width var(--dur) var(--ease-fluid)}
+  .meter.pulse{border-color:var(--attn)}
+  .meter{transition:border-color var(--dur-fast) var(--ease-fluid)}
+
+  /* ---------- specialist ---------- */
+  #specialist{font-family:var(--font-mono);font-size:11.5px;text-align:center;margin:14px 0 0;
+    color:var(--mist-300);display:none}
+  #specialist.show{display:block}
+  #specialist b{color:var(--liquid-magenta);font-weight:600}
+
+  /* ---------- stage ---------- */
+  #stage{position:relative;height:500px;background:var(--ink-900);border:1px solid var(--ink-700);
+    border-radius:var(--radius-md);overflow:hidden;margin:16px 0 18px}
+  #queueline{position:absolute;left:0;right:0;top:0;height:100%}
+  .req{position:absolute;left:50%;transform:translateX(-50%);width:82%;border-radius:var(--radius-md);
+    padding:14px 16px;border:1px solid var(--ink-700);background:var(--ink-800);
+    transition:top var(--dur) var(--ease-fluid),opacity var(--dur) var(--ease-fluid)}
+  .req .top{display:flex;justify-content:space-between;align-items:center}
+  .req .type{font-family:var(--font-mono);font-weight:600;font-size:14px;letter-spacing:.02em}
+  .req .id{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500)}
+  .req .tags{display:flex;gap:6px;margin-top:10px}
+  .chip{font-family:var(--font-display);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 9px;border-radius:var(--radius-pill);border:1px solid var(--ink-700);color:var(--graphite-500)}
+  .chip.long{color:var(--warning);border-color:rgba(240,169,60,.4)}
+  .chip.complex{color:var(--danger);border-color:rgba(240,84,74,.4)}
+  .chip.spec{color:var(--liquid-magenta);border-color:rgba(196,92,240,.45)}
+  .timer{height:3px;border-radius:var(--radius-pill);background:var(--ink-700);margin-top:12px;overflow:hidden}
+  .timer > i{display:block;height:100%;background:var(--accent)}
+
+  #floats{position:absolute;inset:0;pointer-events:none}
+  .float{position:absolute;font-family:var(--font-mono);font-weight:600;font-size:13px;
+    animation:rise 1s var(--ease-fluid) forwards}
+  @keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-36px)}}
+
+  .banner{position:absolute;left:50%;top:10px;transform:translateX(-50%);
+    background:rgba(240,84,74,.12);color:var(--danger);border:1px solid rgba(240,84,74,.4);
+    padding:6px 14px;border-radius:var(--radius-pill);font-family:var(--font-display);font-size:11px;
+    font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+  #chiptip{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:80%;z-index:42;
+    font-family:var(--font-body);font-size:11.5px;line-height:1.45;color:var(--mist-300);text-align:center;
+    background:rgba(18,19,22,.9);border:1px solid var(--ink-700);border-radius:var(--radius-md);
+    padding:7px 14px;opacity:0;pointer-events:none;transition:opacity var(--dur) var(--ease-fluid)}
+  #chiptip.show{opacity:1}
+  #chiptip b{color:var(--white);font-weight:600}
+
+  /* ---------- routing blocks ---------- */
+  .blockrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .blk{--c:var(--accent);background:var(--ink-900);border:1px solid var(--ink-700);
+    border-radius:var(--radius-md);padding:13px 18px 12px;min-width:158px;cursor:pointer;
+    display:flex;flex-direction:column;gap:3px;align-items:flex-start;position:relative;overflow:hidden;
+    transition:border-color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid),opacity var(--dur) var(--ease-fluid)}
+  .blk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+  .blk .k{font-family:var(--font-mono);font-size:11px;color:var(--mist-300)}
+  .blk .bn{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--white)}
+  .blk .bs{font-family:var(--font-body);font-size:11px;color:var(--mist-300)}
+  .blk:hover:not(:disabled){border-color:var(--c);transform:translateY(-1px)}
+  .blk:disabled{opacity:.5;cursor:not-allowed;border-style:dashed}
+  .blk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+  .btn:focus-visible,.build:focus-visible,#help:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn-conv{--c:var(--conv)} .btn-attn{--c:var(--attn)} .btn-nano{--c:var(--nano)} .btn-cloud{--c:var(--cloud)}
+  .blk.hide{display:none}
+
+  .keys{font-family:var(--font-mono);font-size:11px;color:var(--graphite-500);
+    margin:12px auto 0;text-align:center;min-height:16px;width:fit-content;max-width:100%;
+    padding:0;background:transparent;border:1px solid transparent;border-radius:var(--radius-pill);
+    transition:font-size var(--dur-slow) var(--ease-fluid),padding var(--dur-slow) var(--ease-fluid),
+      background-color var(--dur-slow) var(--ease-fluid),color var(--dur-slow) var(--ease-fluid),
+      border-color var(--dur-slow) var(--ease-fluid)}
+  .keys .kbd{color:var(--mist-300)}
+  .keys-sub{display:block;margin-top:5px;font-size:.85em;color:var(--graphite-500)}
+  .keys.hero .keys-sub{color:var(--mist-300)}
+  /* prominent first-time prompt, gracefully shrinks to the line above on first move */
+  .keys.hero{font-size:15px;color:var(--white);padding:11px 24px;
+    background:rgba(47,182,242,.12);border-color:rgba(47,182,242,.45);
+    animation:keysGlow 2.6s var(--ease-fluid) infinite}
+  .keys.hero .kbd{color:var(--accent)}
+  @keyframes keysGlow{0%,100%{box-shadow:0 0 0 0 rgba(47,182,242,0)}50%{box-shadow:0 0 0 5px rgba(47,182,242,.10)}}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* ---------- overlay + buttons ---------- */
+  .overlay{position:absolute;inset:0;z-index:60;background:rgba(10,11,13,.94);display:flex;
+    align-items:center;justify-content:flex-start;flex-direction:column;text-align:left;
+    padding:40px 38px 32px;border-radius:var(--radius-md);overflow:auto}
+  .overlay > *{max-width:600px;width:100%;flex-shrink:0;animation:fadeUp 420ms var(--ease-fluid) both}
+  .overlay > *:nth-child(2){animation-delay:40ms}
+  .overlay > *:nth-child(3){animation-delay:80ms}
+  .overlay > *:nth-child(4){animation-delay:120ms}
+  .overlay > *:nth-child(n+5){animation-delay:160ms}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes liquid-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .overlay h2{font-family:var(--font-display);font-weight:600;font-size:24px;letter-spacing:-.015em;
+    line-height:1.15;margin:0 0 14px}
+  .wordmark{font-family:var(--font-display);font-weight:700;font-size:46px;letter-spacing:-.025em;
+    line-height:1.12;padding-bottom:.08em;margin:0 0 6px;background:var(--liquid-gradient);background-size:200% 200%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;animation:liquid-shift 9s var(--ease-fluid) infinite}
+  .tagline{font-family:var(--font-display);font-weight:600;font-size:20px;letter-spacing:-.01em;margin:0 0 16px;color:var(--white)}
+  .body{font-family:var(--font-body);font-size:14px;line-height:1.6;color:var(--mist-300)}
+  .body p{margin:9px 0}
+  .body p:first-child{margin-top:0}
+  .body b{color:var(--white);font-weight:600}
+  .body i{color:var(--white);font-style:italic}
+  .body .lead{font-size:15px;color:var(--white)}
+  .body .mono{font-family:var(--font-mono)}
+  .note{border-left:2px solid var(--ink-700);padding-left:12px;margin-top:14px}
+  .note .eyebrow{color:var(--graphite-500);margin:0 0 3px}
+  .note span.t{display:block;color:var(--mist-300)}
+  .opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .stat{font-family:var(--font-mono);font-size:13px;color:var(--mist-300);margin:2px 0 0}
+  .stat b{color:var(--white)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .btn{font-family:var(--font-display);font-weight:600;font-size:14px;letter-spacing:-.01em;cursor:pointer;
+    border-radius:var(--radius-pill);padding:12px 24px;border:1px solid transparent;
+    transition:transform var(--dur) var(--ease-fluid),opacity var(--dur) var(--ease-fluid),border-color var(--dur) var(--ease-fluid)}
+  .btn-liquid{background:var(--liquid-gradient);background-size:200% 200%;color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.55);animation:liquid-shift 8s var(--ease-fluid) infinite}
+  .btn-liquid:hover{transform:translateY(-1px);opacity:.95}
+  .btn-ghost{background:transparent;color:var(--white);border-color:var(--ink-700)}
+  .btn-ghost:hover{border-color:var(--white);transform:translateY(-1px)}
+
+  /* ---------- title takeaways ---------- */
+  .learn{font-family:var(--font-body);font-size:12.5px;line-height:1.55;margin:14px 0 0;color:var(--mist-300)}
+  .learn b{color:var(--white);font-weight:600}
+
+  /* ---------- payoff mix bar ---------- */
+  .mixbar{display:flex;height:30px;min-height:30px;flex-shrink:0;border-radius:var(--radius-sm);overflow:hidden;margin:14px 0 8px;
+    border:1px solid var(--ink-700);width:100%}
+  .mixbar > span{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
+    font-size:11px;font-weight:600;color:#06101f;min-width:0;overflow:hidden;white-space:nowrap;
+    transition:flex var(--dur-slow) var(--ease-fluid)}
+  .mixleg{display:flex;gap:16px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:4px;
+    font-family:var(--font-mono);font-size:11px;color:var(--graphite-500)}
+  .mixleg b{color:var(--white);font-weight:500}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:var(--radius-pill);margin-right:5px;vertical-align:middle}
+
+  /* ---------- build cards (STAR) ---------- */
+  .builds{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 0;width:100%}
+  .build{background:var(--ink-900);border:1px solid var(--ink-700);border-radius:var(--radius-md);
+    padding:16px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;display:block;
+    transition:border-color var(--dur) var(--ease-fluid),transform var(--dur) var(--ease-fluid)}
+  .build:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .build h3{font-family:var(--font-display);margin:0 0 7px;font-size:14px;font-weight:600;letter-spacing:-.015em}
+  .build p{font-family:var(--font-body);margin:0;font-size:11.5px;color:var(--mist-300);line-height:1.5}
+
+  @media (max-width:640px){
+    body{padding:10px}
+    .card{padding:16px 14px;border-radius:16px}
+    .topbar{margin-bottom:10px}
+    .brandmark{font-size:16px} .brandmark small{font-size:10px;margin-top:2px}
+    .tag{font-size:10px;padding:2px 9px} .meta-sub{font-size:10px}
+
+    .meters{grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+    .meter{padding:8px 9px}
+    .meter .lab{flex-direction:column;align-items:flex-start;gap:1px}
+    .meter .lab .k{font-size:10.5px;letter-spacing:.06em} .meter .lab .k .kv{display:none} .meter .lab .val{font-size:12px}
+    .bar{height:5px;margin-top:6px}
+
+    #specialist{font-size:10.5px;margin:10px 0 0}
+    #stage{height:clamp(240px,40vh,360px);margin:8px 0 10px}
+    .req{width:90%;padding:11px 13px}
+    .req .type{font-size:13px} .req .id{font-size:10px}
+    .chip{font-size:10px;padding:2px 8px}
+    #help{width:44px;height:44px;font-size:19px;top:10px;right:10px}
+    #chiptip{font-size:11px;bottom:10px;padding:6px 12px}
+
+    .blockrow{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+    .blk{min-width:0;flex:1 1 calc(50% - 5px);padding:9px 12px}
+    .blk .bn{font-size:13px} .blk .bs{font-size:10px} .blk .k{font-size:10px}
+
+    .keys{font-size:10.5px;margin-top:10px} .keys.hero{font-size:13px;padding:9px 16px}
+
+    .overlay{padding:24px 18px 22px}
+    .overlay h2{font-size:20px;margin-bottom:11px}
+    .wordmark{font-size:34px} .tagline{font-size:17px}
+    .overlay .body{font-size:12.5px} .overlay .body .lead{font-size:13.5px} .learn{font-size:11.5px}
+    .eyebrow{font-size:10px}
+    .builds{grid-template-columns:1fr}
+    .mixbar{height:26px;min-height:26px} .mixleg{gap:10px;font-size:10px}
+    .btn{padding:13px 20px;font-size:13.5px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="card">
+    <div class="topbar">
+      <h1 class="brandmark">Edge Rush<small>You are the AI chip</small></h1>
+      <div class="meta-right">
+        <div id="device" class="tag">Phone</div>
+        <div id="stageInfo" class="meta-sub"></div>
+      </div>
+    </div>
+
+    <div class="meters">
+      <div class="meter hide" id="batMeter">
+        <div class="lab"><span class="k" id="batLab">Battery</span><span class="val" id="batTxt">100%</span></div>
+        <div class="bar"><i id="batBar" style="background:var(--good)"></i></div>
+      </div>
+      <div class="meter hide" id="ramMeter">
+        <div class="lab"><span class="k" id="ramLab">RAM<span class="kv"> · KV-cache</span></span><span class="val" id="ramTxt">0 tok</span></div>
+        <div class="bar"><i id="ramBar" style="background:var(--attn)"></i></div>
+      </div>
+      <div class="meter" id="accMeter">
+        <div class="lab"><span class="k" id="accLab">Accuracy</span><span class="val" id="accTxt">100%</span></div>
+        <div class="bar"><i id="accBar" style="background:var(--accent)"></i></div>
+      </div>
+    </div>
+
+    <div id="specialist"></div>
+
+    <div id="stage">
+      <div id="queueline"></div>
+      <div id="floats"></div>
+      <div id="chiptip"></div>
+      <button id="help" title="Pause and explain this lesson">?</button>
+      <div class="overlay" id="overlay"></div>
+    </div>
+
+    <div class="blockrow">
+      <button class="blk btn-conv"  id="bConv"><span class="k">1</span><span class="bn">FAST</span><span class="bs">on-device</span></button>
+      <button class="blk btn-attn hide" id="bAttn"><span class="k">2</span><span class="bn">ATTENTION</span><span class="bs">smart, eats RAM</span></button>
+      <button class="blk btn-nano hide" id="bNano"><span class="k">3</span><span class="bn">NANO</span><span class="bs">specialist</span></button>
+      <button class="blk btn-cloud" id="bCloud"><span class="k">4</span><span class="bn">CLOUD</span><span class="bs">needs signal</span></button>
+    </div>
+    <div class="keys" id="keys">Press the number keys or click to route each request.</div>
+    <div id="sr" class="sr-only" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const stageEl = $('queueline'), floats = $('floats'), overlay = $('overlay');
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---- saved progress (survives between sessions via localStorage) ---- */
+const SAVE_KEY = 'edgeRush.v3';
+let PROG = { unlocked:0, best:0, plays:0 };
+function loadProg(){
+  try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); if(s) PROG={unlocked:s.unlocked|0, best:s.best|0, plays:s.plays|0}; }
+  catch(e){ /* storage blocked: game still works, just won't remember */ }
+}
+function saveProg(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(PROG)); }catch(e){} }
+function recordProgress(){
+  PROG.unlocked = Math.max(PROG.unlocked, G.stageIdx);
+  PROG.best = Math.max(PROG.best, G.score);
+  saveProg();
+}
+/* difficulty creeps up a little each full replay (capped), so repeat plays differ */
+function difficultyMul(){ return 1 + Math.min(Math.max((PROG.plays||0)-1,0)*0.07, 0.35); }
+/* start a fresh run from a given lesson; counts a replay only when starting at lesson 1 */
+function beginRun(idx){
+  const b=PROG.best; G=makeState(idx); PROG.best=b;
+  if(idx===0){ PROG.plays=(PROG.plays||0)+1; saveProg(); }
+  intro();
+}
+
+const TYPES = [
+  {name:'CHAT'},{name:'TRANSLATE'},{name:'MATH'},{name:'VISION'},{name:'VOICE'},
+];
+
+/* architecture presets for the STAR capstone (Lesson 6) */
+const ARCHS = {
+  conv: {label:'Mostly FAST',      ramCap:60,  batMul:0.8, decayMul:1.4},
+  bal:  {label:'Balanced (LFM2)',  ramCap:100, batMul:1.0, decayMul:1.0},
+  attn: {label:'Mostly ATTENTION', ramCap:135, batMul:1.7, decayMul:0.65},
+};
+const DEFAULT_ARCH = {label:'', ramCap:100, batMul:1.0, decayMul:1.0};
+
+/* small helpers for branded overlay copy */
+const eyebrow = t => `<p class="eyebrow">${t}</p>`;
+const note    = (label,t) => `<div class="note">${eyebrow(label)}<span class="t">${t}</span></div>`;
+
+/* ================= stages (the curriculum) ================= */
+const STAGES = [
+  {
+    device:'Phone',
+    flags:{conv:true, attn:false, nano:false, cloud:true, ram:false, battery:false, tunnel:false, archChoice:false},
+    goal:6, baseDecay:0.04, pLong:0.22, pComplex:0.18,
+    keys:'<span class="kbd">1</span> FAST (on-device) · <span class="kbd">4</span> CLOUD',
+    intro:`${eyebrow('Lesson 01 · Where AI runs')}<h2>Two places to compute</h2>
+      <div class="body">
+      <p class="lead">Every AI request runs somewhere. There are two options.</p>
+      <p><b>CLOUD</b> is a powerful computer far away. Capable, but slow, and it needs a connection.</p>
+      <p><b>FAST</b> is a small model on the device itself. Instant, and your data never leaves. <span class="mono" style="color:var(--graphite-500)">(Engineers call this block a convolution; the term returns at the end.)</span></p>
+      <p>Most requests are easy: send them to <b>FAST</b>. Some are bigger, tagged <b>LONG</b> or <b>COMPLEX</b>. FAST can't manage those yet, so route them to <b>CLOUD</b>.</p>
+      ${note('Tip','Easy to FAST, hard to CLOUD. You will need both buttons.')}
+      </div>`,
+    done:`${eyebrow('Lesson 01 · Complete')}<h2>On-device handles the everyday</h2>
+      <div class="body"><p>A small block on the device answers routine requests instantly and privately, with no round-trip to the cloud.</p>
+      <p>This is Liquid AI's core bet. Next: the hard requests.</p></div>`
+  },
+  {
+    device:'Phone',
+    flags:{conv:true, attn:true, nano:false, cloud:true, ram:true, battery:false, tunnel:false, archChoice:false},
+    goal:8, baseDecay:0.05, pLong:0.35, pComplex:0.3,
+    keys:'<span class="kbd">1</span> FAST · <span class="kbd">2</span> ATTENTION · <span class="kbd">4</span> CLOUD',
+    intro:`${eyebrow('Lesson 02 · Attention')}<h2>Hard requests, and the memory they cost</h2>
+      <div class="body">
+      <p>The tags are back. <b>LONG</b> means a lot to read, <b>COMPLEX</b> means real reasoning.</p>
+      <p><b>FAST</b> is quick but only handles short, simple requests. On a hard one it answers wrong.</p>
+      <p><b>ATTENTION</b> handles anything. But it must remember every token it reads, and that running memory is the <b>KV-cache</b>.</p>
+      <p>The catch: the more it already holds, the more each new call costs. Lean on it and RAM balloons.</p>
+      <p><b>CLOUD</b> still works, but it is slow: after each call it needs a moment to sync, so you cannot route everything to it.</p>
+      ${note('Why it matters','FAST keeps no such memory. That is why LFM2 is mostly fast blocks, about 10 to every 6 attention.')}
+      </div>`,
+    done:`${eyebrow('Lesson 02 · Complete')}<h2>The KV-cache is the wall</h2>
+      <div class="body"><p>ATTENTION is powerful, but its memory grows with the conversation and gets more expensive over time. Transformer models hit this wall on small devices.</p>
+      <p>The fix: FAST for most requests, ATTENTION only when it is needed.</p></div>`
+  },
+  {
+    device:'Laptop',
+    flags:{conv:true, attn:true, nano:false, cloud:true, ram:true, battery:true, tunnel:false, archChoice:false},
+    goal:11, baseDecay:0.075, pLong:0.45, pComplex:0.4,
+    keys:'<span class="kbd">1</span> FAST · <span class="kbd">2</span> ATTENTION · <span class="kbd">4</span> CLOUD',
+    intro:`${eyebrow('Lesson 03 · Efficiency')}<h2>Power isn't free</h2>
+      <div class="body">
+      <p>Devices run on a battery, and every choice spends energy.</p>
+      <p><b>FAST</b> costs almost nothing. <b>ATTENTION</b> costs a lot. <b>CLOUD</b> costs a lot, because sending data away is expensive.</p>
+      <p>At zero the device dies. Use the cheapest block that still gets it right.</p>
+      ${note('Efficiency by design','The most work for the least power, rather than a giant cloud model squeezed down to fit.')}
+      </div>`,
+    done:`${eyebrow('Lesson 03 · Complete')}<h2>Best answer, least cost</h2>
+      <div class="body"><p>The job of an edge chip: the right answer using the least memory and the least battery.</p>
+      <p>Next: when the cloud isn't reachable at all.</p></div>`
+  },
+  {
+    device:'Car',
+    flags:{conv:true, attn:true, nano:false, cloud:true, ram:true, battery:true, tunnel:true, archChoice:false},
+    goal:13, baseDecay:0.085, pLong:0.5, pComplex:0.45,
+    keys:'<span class="kbd">1</span> FAST · <span class="kbd">2</span> ATTENTION · <span class="kbd">4</span> CLOUD',
+    intro:`${eyebrow('Lesson 04 · Offline')}<h2>You are the AI in a car</h2>
+      <div class="body">
+      <p>The car enters a <b>tunnel</b> and loses signal. <b>CLOUD</b> goes dark and stops responding.</p>
+      <p>A cloud-only assistant would go silent mid-drive. Not acceptable in a car.</p>
+      <p>Your on-device blocks, <b>FAST</b> and <b>ATTENTION</b>, keep working anywhere.</p>
+      ${note('Why it matters','This is why Mercedes-Benz runs Liquid\'s models inside the car. A safety feature cannot depend on the cloud.')}
+      </div>`,
+    done:`${eyebrow('Lesson 04 · Complete')}<h2>On-device never drops</h2>
+      <div class="body"><p>FAST and ATTENTION keep working in the tunnel, the dead zone, the basement.</p>
+      <p>Next: a model that does one thing perfectly.</p></div>`
+  },
+  {
+    device:'Shopify',
+    flags:{conv:true, attn:true, nano:true, cloud:true, ram:true, battery:true, tunnel:false, archChoice:false},
+    goal:12, baseDecay:0.085, pLong:0.45, pComplex:0.4,
+    keys:'<span class="kbd">1</span> FAST · <span class="kbd">2</span> ATTN · <span class="kbd">3</span> NANO · <span class="kbd">4</span> CLOUD',
+    intro:`${eyebrow('Lesson 05 · Specialists')}<h2>Liquid Nanos</h2>
+      <div class="body">
+      <p>Instead of one model that does everything adequately, load a tiny model that does one job perfectly. That is a <b>NANO</b>.</p>
+      <p>Each round, one request type is the loaded specialist, shown above the queue. For that type, NANO is the best choice: cheap, no growing memory, exact.</p>
+      <p>A NANO knows nothing else. Use it on any other type and it fails.</p>
+      ${note('In production','Liquid ships a <span class="mono">~350 MB</span> translation model that matches <span class="mono">GPT-4o</span> on translation. Shopify and Insilico Medicine run specialists like these.')}
+      </div>`,
+    done:`${eyebrow('Lesson 05 · Complete')}<h2>Many specialists beat one generalist</h2>
+      <div class="body"><p>A swarm of small, exact models can outperform a single large one, each fast, cheap, and private.</p>
+      <p>Final lesson: design the chip yourself.</p></div>`
+  },
+  {
+    device:'Custom silicon',
+    flags:{conv:true, attn:true, nano:true, cloud:true, ram:true, battery:true, tunnel:true, archChoice:true},
+    goal:18, baseDecay:0.1, pLong:0.5, pComplex:0.45,
+    keys:'<span class="kbd">1</span> FAST · <span class="kbd">2</span> ATTN · <span class="kbd">3</span> NANO · <span class="kbd">4</span> CLOUD',
+    intro:`${eyebrow('Lesson 06 · Architecture')}<h2>Design your chip</h2>
+      <div class="body">
+      <p>Liquid doesn't hand-pick its architecture. A system called <b>STAR</b> searches thousands of designs on the real target hardware and evolves toward the best speed, memory, and accuracy.</p>
+      <p>Pick a build, then survive the final round. Everything is live: hard requests, ballooning attention, a specialist, tunnels, battery.</p>
+      ${note('Watch closely','STAR converges on the balanced hybrid. So will you.')}
+      </div>`,
+    done:null
+  }
+];
+
+/* ================= state ================= */
+let G;
+let firstActionDone = false;   // session-wide: the big "how to play" prompt only shows until the first move
+function makeState(idx){
+  return { stageIdx:idx||0, score:0, served:0, servedInStage:0, queue:[], running:false,
+    battery:100, ram:0, ctx:0, acc:100, offline:0, offTimer:7, cloudCooldown:0, last:0,
+    nanoType:null, arch:DEFAULT_ARCH, mix:{conv:0, attn:0, nano:0, cloud:0} };
+}
+
+function newReq(){
+  const st = STAGES[G.stageIdx];
+  const ramp = clamp(G.servedInStage/st.goal,0,1);
+  const dm = difficultyMul();
+  // difficulty rises through the stage (easier first), jitters per run, and creeps up on replays
+  const lp = clamp(st.pLong    * (0.55 + 0.7*ramp) * dm + (Math.random()*0.06-0.03), 0, 0.9);
+  const cp = clamp(st.pComplex * (0.55 + 0.7*ramp) * dm + (Math.random()*0.06-0.03), 0, 0.9);
+  let t = TYPES[Math.floor(Math.random()*TYPES.length)];
+  // the loaded specialist shows up more often, so NANO is worth using
+  if(st.flags.nano && G.nanoType && Math.random()<0.35) t = G.nanoType;
+  const isSpec = st.flags.nano && G.nanoType && t.name===G.nanoType.name;
+  let long    = Math.random() < lp;
+  let complex = Math.random() < cp;
+  if(isSpec && Math.random()<0.6) complex = true;   // specialist work is hard enough to want a NANO
+  return { t, long, complex, life:1,
+    decay: (st.baseDecay + ramp*0.035 + Math.random()*0.02) * dm, el:null };
+}
+
+function pushReq(){
+  const r = newReq();
+  const nanoStage = STAGES[G.stageIdx].flags.nano;
+  const isSpec = nanoStage && G.nanoType && r.t.name===G.nanoType.name;
+  const el = document.createElement('div');
+  el.className='req';
+  el.innerHTML = `
+    <div class="top"><span class="type" title="Request type: the kind of task arriving">${r.t.name}</span><span class="id">#${G.served+G.queue.length+1}</span></div>
+    <div class="tags">
+      <span class="chip ${r.long?'long':''}" title="${r.long?'LONG: thousands of tokens to read, which fills the KV-cache':'short: little to read'}">${r.long?'LONG':'short'}</span>
+      <span class="chip ${r.complex?'complex':''}" title="${r.complex?'COMPLEX: needs real reasoning, so FAST gets it wrong':'simple: pattern-matching is enough'}">${r.complex?'COMPLEX':'simple'}</span>
+      ${nanoStage?`<span class="chip spec" title="A NANO specialist is loaded for this exact task" style="${isSpec?'':'display:none'}">specialist</span>`:''}
+    </div>
+    <div class="timer"><i></i></div>`;
+  r.el = el; r.bar = el.querySelector('.timer > i'); r.specEl = el.querySelector('.chip.spec');
+  stageEl.appendChild(el);
+  G.queue.push(r);
+}
+
+function layout(){
+  const base = $('stage').clientHeight - 100;   // keep the active card near the buttons
+  G.queue.forEach((r,i)=>{
+    r.el.style.top = (base - i*72)+'px';
+    r.el.style.opacity = i===0?1:(i<3?0.45-(i-1)*0.12:0);
+    r.el.style.zIndex = 50-i;
+  });
+}
+
+function float(txt,color){
+  const f=document.createElement('div'); f.className='float';
+  f.textContent=txt; f.style.color=color;
+  f.style.left=(30+Math.random()*40)+'%'; f.style.bottom='90px';
+  floats.appendChild(f); setTimeout(()=>f.remove(),1000);
+}
+function srSay(t){ const e=$('sr'); if(e) e.textContent=t; }   // announce to screen readers
+
+/* one-line chip explainers: surface a definition the first couple times a chip type appears, then drop */
+const CHIP_DEFS = {
+  LONG:'<b>LONG</b> = thousands of tokens to read, which fills the KV-cache.',
+  COMPLEX:'<b>COMPLEX</b> = needs real reasoning, so FAST gets it wrong.',
+  SPEC:'<b>Specialist</b> = a NANO is loaded for this exact task. NANO nails it.',
+};
+const chipSeen = {LONG:0, COMPLEX:0, SPEC:0};   // session-wide, so tips drop once learned
+const EXPLAIN_LIMIT = 2;
+let chiptipTimer = 0;
+function explainFront(){
+  const r = G.queue[0]; if(!r) return;
+  const isSpec = STAGES[G.stageIdx].flags.nano && G.nanoType && r.t.name===G.nanoType.name;
+  let key = null;
+  if(isSpec && chipSeen.SPEC<EXPLAIN_LIMIT) key='SPEC';
+  else if(r.long && chipSeen.LONG<EXPLAIN_LIMIT) key='LONG';
+  else if(r.complex && chipSeen.COMPLEX<EXPLAIN_LIMIT) key='COMPLEX';
+  if(!key) return;
+  chipSeen[key]++;
+  const t=$('chiptip'); if(!t) return;
+  t.innerHTML=CHIP_DEFS[key]; t.classList.add('show');
+  clearTimeout(chiptipTimer); chiptipTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function setSpecialistBanner(){
+  const sp=$('specialist');
+  if(STAGES[G.stageIdx].flags.nano && G.nanoType){
+    sp.classList.add('show');
+    sp.innerHTML=`Specialist loaded: <b>${G.nanoType.name}</b>. NANO is exact for these, useless for the rest.`;
+  } else sp.classList.remove('show');
+}
+function updateSpecChips(){
+  G.queue.forEach(r=>{ if(r.specEl) r.specEl.style.display = (G.nanoType && r.t.name===G.nanoType.name)?'':'none'; });
+}
+function rotateSpecialist(){
+  if(!STAGES[G.stageIdx].flags.nano) return;
+  let next=G.nanoType;
+  for(let i=0;i<8 && (!next || (G.nanoType && next.name===G.nanoType.name)); i++) next=TYPES[Math.floor(Math.random()*TYPES.length)];
+  G.nanoType=next;
+  setSpecialistBanner(); updateSpecChips();
+  float('specialist now '+next.name,'var(--nano)'); srSay('Specialist swapped to '+next.name);
+}
+
+function pulseRam(){
+  const m=$('ramMeter'); m.classList.remove('pulse'); void m.offsetWidth; m.classList.add('pulse');
+  setTimeout(()=>m.classList.remove('pulse'),350);
+}
+
+/* ================= routing ================= */
+function route(kind){
+  if(!G.running) return;
+  const st = STAGES[G.stageIdx], f = st.flags, r = G.queue[0];
+  if(!r) return;
+  if(kind==='attn' && !f.attn) return;
+  if(kind==='nano' && !f.nano) return;
+
+  let ok=true, dBat=0, msg='', col='';
+  const cap = G.arch.ramCap;
+
+  if(kind==='conv'){
+    dBat=0.6;
+    ok = (!r.long && !r.complex);
+    if(ok){ G.score+=15; msg='+15 efficient'; col='var(--success)'; }
+    else { msg='too hard for FAST'; col='var(--danger)'; }
+  }
+  else if(kind==='attn'){
+    dBat=2.2;
+    const tokens = r.long?40:15;
+    const kvAdd  = (r.long?14:8) * (1 + G.ram/cap);   // quadratic feel: marginal cost grows with the cache
+    if(f.ram){ G.ram = clamp(G.ram + kvAdd, 0, cap); G.ctx += tokens; pulseRam(); }
+    const wasteful = (!r.long && !r.complex);
+    G.score += wasteful?5:18;
+    msg = wasteful?'+5 overkill':'+18 handled';
+    col = wasteful?'var(--warning)':'var(--success)';
+  }
+  else if(kind==='nano'){
+    dBat=0.7;
+    ok = (G.nanoType && r.t.name===G.nanoType.name);
+    if(ok){ G.score+=22; msg='+22 specialist'; col='var(--success)'; }
+    else { msg='NANO only knows '+(G.nanoType?G.nanoType.name:'one task'); col='var(--danger)'; }
+  }
+  else if(kind==='cloud'){
+    if(f.tunnel && G.offline>0){ float('no signal','var(--danger)'); return; }
+    if(f.attn && G.cloudCooldown>0){ float('cloud busy, syncing','var(--warning)'); return; }
+    dBat=1.4; G.cloudCooldown=1.5;
+    G.score+=8; msg='+8 cloud, slow'; col='var(--accent)';
+  }
+
+  if(f.battery) G.battery = clamp(G.battery - dBat*G.arch.batMul, 0, 100);
+  G.acc = clamp(G.acc + (ok?1.2:-9), 0, 100);
+  G.mix[kind]++;
+  if(!firstActionDone){ firstActionDone=true; $('keys').classList.remove('hero'); }   // shrink the prompt for good
+
+  float(msg,col);
+  r.el.remove(); G.queue.shift(); G.served++; G.servedInStage++;
+  pushReq(); layout();
+  if(f.nano && G.servedInStage < st.goal){ const iv=Math.max(3,Math.floor(st.goal/3)); if(G.servedInStage % iv===0) rotateSpecialist(); }
+  explainFront();
+
+  if(f.ram && G.ram>=cap)
+    end('Out of memory','KV-cache overflow','Attention\'s memory filled the RAM. A pure transformer hits this wall on small hardware, because its memory grows with every token. Lean on the FAST block.');
+  else
+    checkStageDone();
+}
+
+/* ================= loop ================= */
+function tick(now){
+  if(!G.running) return;
+  const dt = Math.min(0.05,(now-G.last)/1000); G.last=now;
+  const st = STAGES[G.stageIdx], f = st.flags;
+
+  if(f.tunnel){
+    G.offTimer -= dt;
+    if(G.offline>0){ G.offline-=dt; if(G.offline<=0){ banner(false); srSay('Cloud available again'); } }
+    else if(G.offTimer<=0){ G.offline=2.4+Math.random()*2; G.offTimer=8+Math.random()*7; banner(true); srSay('Cloud offline, no signal'); }
+  }
+  if(G.cloudCooldown>0) G.cloudCooldown-=dt;
+  if(f.ram){ G.ram = clamp(G.ram - 5.5*G.arch.decayMul*dt, 0, G.arch.ramCap);
+             G.ctx = clamp(G.ctx - 22*G.arch.decayMul*dt, 0, 999999); }
+  if(f.battery) G.battery = clamp(G.battery-0.3*dt,0,100);
+
+  const r = G.queue[0];
+  if(r){
+    r.life -= r.decay*dt;
+    r.bar.style.width = clamp(r.life*100,0,100)+'%';
+    r.bar.style.background = r.life<0.3?'var(--danger)':'var(--accent)';
+    if(r.life<=0){
+      G.acc = clamp(G.acc-12,0,100);
+      float('too slow','var(--danger)');
+      r.el.remove(); G.queue.shift(); G.served++; pushReq(); layout(); explainFront();
+    }
+  }
+
+  if(f.battery && G.battery<=0) return end('Out of power','Battery dead','Cloud trips and heavy attention drain the battery fast. Efficiency on-device is the whole point.');
+  if(G.acc<=0) return end('Quality dropped','Accuracy collapsed','Too many wrong or late answers. Match the block to the request: FAST for easy, ATTENTION for hard, NANO for its specialty.');
+
+  // cloud is unavailable in a tunnel, and briefly after each call (latency) once you have an on-device alternative
+  $('bCloud').disabled = (f.tunnel && G.offline>0) || (f.attn && G.cloudCooldown>0);
+
+  draw();
+  requestAnimationFrame(tick);
+}
+
+function banner(on){
+  let b=$('tunnelBanner');
+  if(on){ if(!b){ b=document.createElement('div'); b.id='tunnelBanner'; b.className='banner';
+    b.textContent='Offline · no cloud'; $('stage').appendChild(b);} }
+  else if(b) b.remove();
+  $('bCloud').disabled = on;
+}
+
+function draw(){
+  const cap=G.arch.ramCap;
+  $('batBar').style.width=G.battery+'%'; $('batTxt').textContent=Math.round(G.battery)+'%';
+  $('ramBar').style.width=(G.ram/cap*100)+'%'; $('ramTxt').textContent=Math.round(G.ctx).toLocaleString()+' tok';
+  $('accBar').style.width=G.acc+'%';     $('accTxt').textContent=Math.round(G.acc)+'%';
+  $('batBar').style.background = G.battery<25?'var(--danger)':'var(--success)';
+  $('ramBar').style.background = G.ram>cap*0.8?'var(--danger)':'var(--attn)';
+  const st=STAGES[G.stageIdx];
+  $('stageInfo').textContent = `Lesson ${G.stageIdx+1}/${STAGES.length} · ${G.servedInStage}/${st.goal}`;
+}
+
+/* ================= stage flow ================= */
+function applyStageUI(){
+  const st=STAGES[G.stageIdx], f=st.flags;
+  $('device').textContent = st.device;
+  $('ramMeter').classList.toggle('hide', !f.ram);
+  $('batMeter').classList.toggle('hide', !f.battery);
+  $('bAttn').classList.toggle('hide', !f.attn);
+  $('bNano').classList.toggle('hide', !f.nano);
+  $('keys').innerHTML = st.keys + '<span class="keys-sub">Press the number keys or click to route each request.</span>';
+  $('keys').classList.toggle('hero', !firstActionDone);
+  $('bCloud').disabled = false;
+  setSpecialistBanner();
+}
+
+function startStage(){
+  const st=STAGES[G.stageIdx];
+  G.battery=100; G.ram=0; G.ctx=0; G.acc=100;
+  G.servedInStage=0; G.queue=[]; G.offline=0; G.offTimer=7+Math.random()*5; G.cloudCooldown=0;
+  if(st.flags.nano) G.nanoType = TYPES[Math.floor(Math.random()*TYPES.length)]; else G.nanoType=null;
+  stageEl.innerHTML=''; floats.innerHTML=''; banner(false);
+  applyStageUI();
+  for(let i=0;i<4;i++) pushReq();
+  layout(); draw();
+  const ct=$('chiptip'); if(ct) ct.classList.remove('show');
+  explainFront();
+  G.running=true; G.last=performance.now();
+  overlay.style.display='none';
+  $('help').style.display='flex';
+  requestAnimationFrame(tick);
+}
+
+function openHelp(){
+  if(!G || !G.running) return;
+  G.running=false;
+  const st=STAGES[G.stageIdx];
+  show(st.intro + `<div class="opts"><button class="btn btn-liquid" id="resume">Resume</button></div>`);
+  $('resume').onclick = ()=>{
+    overlay.style.display='none'; $('help').style.display='flex';
+    G.running=true; G.last=performance.now(); requestAnimationFrame(tick);
+  };
+}
+
+function checkStageDone(){
+  const st=STAGES[G.stageIdx];
+  if(G.servedInStage < st.goal) return;
+  draw();                              // sync the lesson counter before the overlay
+  G.running=false; banner(false);
+  if(G.stageIdx >= STAGES.length-1){ return victory(); }
+  show(st.done + `<div class="opts"><button class="btn btn-liquid" id="next">Next lesson</button></div>`);
+  $('next').onclick = ()=>{ G.stageIdx++; recordProgress(); intro(); };
+}
+
+function end(eyebrowTxt,title,lesson){
+  draw();                              // sync the counter before the overlay
+  G.running=false; banner(false); recordProgress();
+  show(`${eyebrow(eyebrowTxt)}<h2>${title}</h2>
+    <div class="stat">Lesson ${G.stageIdx+1} · ${G.servedInStage} served · score ${G.score}</div>
+    <div class="body"><p>${lesson}</p></div>
+    <div class="opts">
+      <button class="btn btn-liquid" id="retry">Retry lesson</button>
+      <button class="btn btn-ghost" id="restart">Restart from Lesson 1</button>
+    </div>`);
+  $('retry').onclick = ()=> STAGES[G.stageIdx].flags.archChoice ? buildScreen() : startStage();
+  $('restart').onclick = ()=> beginRun(0);
+}
+
+/* ================= architecture-mix payoff ================= */
+function victory(){
+  G.stageIdx = STAGES.length-1; recordProgress();
+  const m=G.mix, total=m.conv+m.attn+m.nano+m.cloud || 1;
+  const pc = k => Math.round(m[k]/total*100);
+  const cP=pc('conv'), aP=pc('attn'), nP=pc('nano'), clP=Math.max(0,100-cP-aP-nP);
+  const attnShare=m.attn/total, cloudShare=m.cloud/total;
+
+  let verdict;
+  if(cloudShare>0.35){
+    verdict=`<p class="lead">You leaned on the cloud.</p>
+      <p>Strong answers, until the tunnel. The cloud isn't there in a car, on a plane, or a dead zone. On-device keeps working.</p>`;
+  } else if(attnShare>0.45){
+    verdict=`<p class="lead">You built a transformer.</p>
+      <p>Powerful, but it burned RAM and battery. The KV-cache grows with every token, which is why large models strain phones.</p>`;
+  } else {
+    verdict=`<p class="lead">This is basically LFM2.</p>
+      <p>Mostly FAST, ATTENTION for the genuinely hard cases, specialists where they fit. Those fast blocks are convolutions. Liquid's models run about <span class="mono">10 to every 6</span> attention, so attention does only <span class="mono">20 to 40%</span> of the work and the model fits in under <span class="mono">900 MB</span>.</p>`;
+  }
+
+  const seg=(p,c,light)=> p>0?`<span style="flex:${p};background:${c};color:${light?'#fff':'#06101f'}">${p>=8?p+'%':''}</span>`:'';
+  show(`${eyebrow('Result')}<h2>You shipped on-device AI</h2>
+    <div class="stat">Score <b>${G.score}</b>${PROG.best>G.score?` · best ${PROG.best}`:''}</div>
+    <p class="eyebrow" style="margin:18px 0 6px;color:var(--graphite-500)">How you routed every request</p>
+    <div class="mixbar">
+      ${seg(cP,'var(--conv)')}${seg(aP,'var(--attn)')}${seg(nP,'var(--nano)')}${seg(clP,'var(--cloud)',true)}
+    </div>
+    <div class="mixleg">
+      <span><i class="dot" style="background:var(--conv)"></i>FAST <b>${cP}%</b></span>
+      <span><i class="dot" style="background:var(--attn)"></i>ATTENTION <b>${aP}%</b></span>
+      <span><i class="dot" style="background:var(--nano)"></i>NANO <b>${nP}%</b></span>
+      <span><i class="dot" style="background:var(--cloud)"></i>CLOUD <b>${clP}%</b></span>
+    </div>
+    <div class="body">
+      <p class="mono" style="color:var(--graphite-500);font-size:12px">Those four colors are the Liquid gradient. Your routing reassembles it.</p>
+      ${verdict}
+      <p>The playbook in one screen: run on-device, keep the KV-cache in check, use the cheapest block that works, and call the cloud only for the rare hard case. That is why the future is many small specialized models, not one large one.</p>
+    </div>
+    <div class="opts"><button class="btn btn-liquid" id="play2">Play again</button></div>`);
+  $('play2').onclick = ()=> beginRun(0);
+}
+
+function show(html){ overlay.innerHTML=html; overlay.style.display='flex'; overlay.scrollTop=0; $('help').style.display='none'; }
+
+/* ================= intro / build flow ================= */
+function intro(){
+  G.running=false; banner(false);
+  const st=STAGES[G.stageIdx];
+  applyStageUI();
+  show(st.intro + `<div class="opts"><button class="btn btn-liquid" id="begin">${st.flags.archChoice?'Choose a build':'Begin lesson'}</button></div>`);
+  $('begin').onclick = ()=> st.flags.archChoice ? buildScreen() : startStage();
+}
+
+function buildScreen(){
+  show(`${eyebrow('STAR · Architecture synthesis')}<h2>Synthesize your architecture</h2>
+    <div class="body"><p>Pick a design, then play the final round. Notice how the trade-offs feel.</p></div>
+    <div class="builds">
+      <button class="build" data-a="conv"><h3 style="color:var(--conv)">Mostly FAST</h3>
+        <p>Lots of fast blocks. Sips battery, clears memory quickly. Little headroom, so heavy attention overflows.</p></button>
+      <button class="build" data-a="bal"><h3>Balanced (LFM2)</h3>
+        <p>About 10 fast blocks to 6 attention. Roomy memory, steady power. The all-rounder.</p></button>
+      <button class="build" data-a="attn"><h3 style="color:var(--attn)">Mostly ATTENTION</h3>
+        <p>Huge cache, handles anything. Drains battery and clears slowly. The transformer way.</p></button>
+    </div>
+    ${note('Hint','STAR usually evolves toward the balanced hybrid.')}`);
+  overlay.querySelectorAll('.build').forEach(b=>{
+    b.onclick=()=>{ G.arch=ARCHS[b.dataset.a]; startStage(); };
+  });
+}
+
+/* ================= boot ================= */
+function boot(){
+  loadProg();
+  G = makeState(0);
+  $('device').textContent='Phone';
+  $('ramMeter').classList.add('hide'); $('batMeter').classList.add('hide');
+  $('specialist').classList.remove('show'); $('stageInfo').textContent='';
+  $('help').style.display='none';
+
+  const canContinue = PROG.unlocked > 0;
+  const startIdx = Math.min(PROG.unlocked,STAGES.length-1);
+  const primaryStart = canContinue
+    ? `<button class="btn btn-liquid" id="continue">Continue · Lesson ${startIdx+1}</button>
+       <button class="btn btn-ghost" id="start">Start over</button>`
+    : `<button class="btn btn-liquid" id="start">Start</button>`;
+  const bestLine = PROG.best > 0
+    ? `<p class="stat">Best score <b>${PROG.best}</b>${canContinue?' · progress saved on this device':''}</p>` : '';
+  const resetLink = canContinue
+    ? `<p class="stat" style="margin-top:10px"><a href="#" id="reset">reset progress</a></p>` : '';
+
+  show(`${eyebrow('Liquid AI · interactive primer')}
+    <h1 class="wordmark">Edge Rush</h1>
+    <p class="tagline">Maximum intelligence. Minimum compute.</p>
+    <div class="body">
+      <p class="lead">You are the AI chip. Route each request to the cheapest block that still gets it right.</p>
+      <p>Liquid AI builds models that run directly on your devices, instead of in a faraway data center. Six short lessons show why that matters.</p>
+      <p class="learn"><b>What you'll learn, lesson by lesson:</b> <b>(1)</b> where AI runs (your device vs. the cloud); <b>(2)</b> why attention is smart but its memory, the KV-cache, keeps growing; <b>(3)</b> how to spend limited power on the cheapest block that works; <b>(4)</b> why on-device AI keeps running with no signal; <b>(5)</b> how tiny specialist models can beat one big generalist; and <b>(6)</b> how a balanced mix of blocks wins, which is how Liquid builds its LFM2 models.</p>
+    </div>
+    ${bestLine}
+    <div class="opts">${primaryStart}</div>
+    ${resetLink}`);
+  $('start').onclick = ()=> beginRun(0);
+  if(canContinue){
+    $('continue').onclick = ()=> beginRun(startIdx);
+    $('reset').onclick = (e)=>{ e.preventDefault(); PROG={unlocked:0,best:0,plays:0}; saveProg(); boot(); };
+  }
+}
+
+$('help').onclick = openHelp;
+$('bConv').onclick = ()=>route('conv');
+$('bAttn').onclick = ()=>route('attn');
+$('bNano').onclick = ()=>route('nano');
+$('bCloud').onclick= ()=>route('cloud');
+addEventListener('keydown',e=>{
+  if(e.key==='1') route('conv');
+  else if(e.key==='2') route('attn');
+  else if(e.key==='3') route('nano');
+  else if(e.key==='4') route('cloud');
+});
+
+boot();
+</script>
+</body>
+</html>
