@@ -89,8 +89,7 @@ machine is a control plane only (no GPU, no model loads, no dataset image proces
   RefCOCO-M, producing an accuracy-vs-budget curve and a demo-consumable lookup table.
 
 Both parts share one config-driven harness, one set of parsers/prompts/scoring, and the
-same Modal Images, so differences in results come from models and settings — not from
-harness divergence.
+same Modal Images, so differences in results come from the models and settings.
 
 ## Status
 
