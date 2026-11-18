@@ -11,13 +11,13 @@ For each model, the project records how often it is right, how long it takes per
 ## What we did
 
 1. **Compared six small models on three tasks** (find, yes/no, count), all at full precision on the same kind of GPU, with the same settings and the same grading code.
-2. **Checked our grading against an independent tool** (VLMEvalKit) on the models it supports. One place used different question wording from the community standard, and we fixed it.
+2. **Compared our grading with a second tool** (VLMEvalKit) on the models it supports. One place used different question wording from the community standard, and we fixed it.
 3. **Turned the image-detail dial** on two models (how many image tokens each picture is broken into) and measured accuracy, speed and electricity at every setting.
 4. **Ran the models the way they ship.** Moondream 0.5B only exists in one compressed form. We ran it next to LFM2.5-VL 450M's vendor-compressed version, both on an ordinary processor, in a separate table.
 
 ## What we found
 
-**The headline: LFM2.5-VL 450M finds objects as accurately as moondream2, a model about four times its size.** moondream2 is faster at it, and LFM uses far less energy than SmolVLM2 on the same questions.
+LFM2.5-VL 450M and moondream2 (about four times larger) score 76.9% and 76.4% on find-object, and moondream2 is faster at it. On the same 100 counting questions, SmolVLM2 at its shipped setting uses 11 to 13 times the energy per answer of LFM at any of its settings.
 
 - **LFM2.5-VL 450M ties moondream2 (1.9B parameters) at finding objects.** The scores are 76.9% and 76.4% on 2,080 examples. Resampling the examples puts the difference between about -1.7 and +2.6 points, so the two scores cannot be told apart. LFM takes about 0.7 s per picture and moondream2 about 0.2 s. LFM's vendor-shipped Q8 version scores exactly the same 76.9%.
 - **More image detail raises LFM's accuracy and does not slow it down.** Going from 32 to 256 image tokens roughly doubles find-object accuracy (39.5% to 77.5%). Time per picture stays at about half a second and energy stays between 3.5 and 4.2 joules per answer. For SmolVLM2, raising the image resolution from 512 to 2048 pixels multiplies energy 5.3 times and changes counting accuracy by about 3 points, which is within the noise of that test. At its shipped defaults SmolVLM2 uses 11 to 13 times the energy of LFM per answer, and about 15 times per correct answer. Those figures come from the same 100 counting questions, so treat the ratio as approximate.
@@ -27,7 +27,7 @@ For each model, the project records how often it is right, how long it takes per
 - **Accuracy and speed rank the models differently.** LFM is the fastest at counting (40 ms per question) and fourth on accuracy. moondream2 is the fastest at finding objects (203 ms) and the best at yes/no. Qwen2.5-VL 7B is the most accurate at finding and counting and takes about 1.2 s per picture to find an object. No model leads all three tasks.
 - **Question wording moved one model by 30 points.** Asked only "Is there a car in the image?", SmolVLM2 500M was right 55.0% of the time, and 22% of its answers could not be read as yes or no. Adding the standard instruction "Please answer yes or no." raised it to 85.1% on the same 9,000 questions.
 - **The scores match an outside check, with one open disagreement.** The yes/no scores agree with VLMEvalKit within about half a percentage point (SmolVLM2 scores 85.1% here and 85.6% there). On counting, our grader credits more answers than the tool does for two models. LLaVA-OV scores 73.1% here and 31.6% there. The question text is identical in both runs, so the gap comes from how each tool extracts the number from the model's reply. We have not traced which extraction is right, so this is unresolved.
-- **LFM loses almost nothing when compressed to 8-bit.** Find-object is unchanged at 76.9%, yes/no is 0.5 points higher and counting is 1.8 points lower than its full-precision scores. Moondream 0.5B only exists in compressed form. On the same processor, LFM 450M Q8 scores 76.9% / 85.3% / 69.7% (find / yes-no / count) and Moondream 0.5B scores 21.3% / 55.1% / 31.6%. These shipped-form scores are not comparable with the main table.
+- **LFM's 8-bit version scores within 2 points of its full-precision version.** Find-object is unchanged at 76.9%, yes/no is 0.5 points higher and counting is 1.8 points lower than its full-precision scores. Moondream 0.5B only exists in compressed form. On the same processor, LFM 450M Q8 scores 76.9% / 85.3% / 69.7% (find / yes-no / count) and Moondream 0.5B scores 21.3% / 55.1% / 31.6%. These shipped-form scores are not comparable with the main table.
 - **A crash in LFM's image-resizing code.** Fixing LFM's number of image tokens made its resizing code crash on up to 14% of pictures. Our first run scored those crashes as misses, which made the highest setting look worse than it was. When a small picture had to be enlarged to reach the set number, the model's resizing code rounded both sides up, went over its own limit and crashed. Enlarging those pictures slightly beforehand sends them through the code's shrinking step, which rounds down and is safe. Every picture then completed. The earlier run that crashed is kept as a record.
 
 The size, category and counting breakdowns, and 95% confidence intervals for every headline score, are generated by `python3 -m scoring.breakdowns` from the saved answers and listed in [RESULTS.md](RESULTS.md).
@@ -53,7 +53,7 @@ The choices below determine what the numbers mean.
 
 - **One short settings file per test.** Each combination of model and task (and detail level) is a small YAML file, and one program runs them all.
 - **Answering and grading are separate steps.** First, the models answer every question on a rented GPU (the kind of chip AI models run on), and every answer is saved along with exactly which model version, software versions, hardware, and prompt produced it. Grading then reads only those saved answers, so anyone can re-grade them on an ordinary laptop.
-- **A tested answer reader for each model.** Models format their answers differently; a box might come back as four numbers or as a sentence. A small reader for each model turns its answers into something that can be graded, each reader has its own tests, and the share of answers it could read is reported next to every score.
+- **An answer reader for each model, with unit tests.** Models format their answers differently; a box might come back as four numbers or as a sentence. A small reader for each model turns its answers into something that can be graded, the share of answers it could read is reported next to every score.
 - **The same conditions every time.** Models always give their single most likely answer, with no randomness. Every run checks that it is on the same kind of GPU (an Nvidia A100 with 40 GB of memory) and refuses to run otherwise. Model and dataset versions are pinned to an exact fingerprint. A run that is interrupted picks up where it left off without losing any answers.
 - **Failures stay in the scores.** A wrong or unreadable answer counts against the model. Any retry or dropped item is recorded in METHODOLOGY.md.
 
@@ -80,12 +80,12 @@ flowchart LR
   H --> R[Saved answers<br/>one line per question]
   R --> S[Grade the answers<br/>no GPU needed]
   S --> T[Results tables]
-  R --> V[Independent re-check<br/>VLMEvalKit]
+  R --> V[Second check<br/>VLMEvalKit]
 ```
 
 ## Why the shipped-form results are in a separate table
 
-The models are compared in two separate tables that are never combined. The main table runs every model uncompressed, at full quality, on the same GPU, so hardware and precision are the same for every model. A second table runs two of the models the way they are actually shipped to devices: compressed to a smaller size and running on an ordinary processor. A combined table would hide whether a score gap came from the model, the hardware or the compression.
+The models are compared in two separate tables that are never combined. The main table runs every model uncompressed, at full precision, on the same GPU, so hardware and precision are the same for every model. A second table runs two of the models the way they are actually shipped to devices: compressed to a smaller size and running on an ordinary processor. A combined table would hide whether a score gap came from the model, the hardware or the compression.
 
 ---
 
