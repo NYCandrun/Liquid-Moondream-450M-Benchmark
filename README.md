@@ -1,4 +1,4 @@
-# Edge Vision-Language Model Evaluation
+# Benchmark of Six Small Vision-Language Models
 
 This project tests six small AI models that can look at a picture and answer questions about it. They are small enough to run on a phone or a laptop. Every model gets the same three tasks:
 
@@ -15,15 +15,15 @@ For each model, the project records how often it is right, how long it takes per
 3. **Turned the image-detail dial** on two models (how many image tokens each picture is broken into) and measured accuracy, speed and electricity at every setting.
 4. **Ran the models the way they ship.** Moondream 0.5B only exists in one compressed form. We ran it next to LFM2.5-VL 450M's vendor-compressed version, both on an ordinary processor, in a separate table.
 
-## What it found
+## What we found
 
 **The headline: LFM2.5-VL 450M finds objects as accurately as moondream2, a model about four times its size.** moondream2 is faster at it, and LFM uses far less energy than SmolVLM2 on the same questions.
 
 - **LFM2.5-VL 450M ties moondream2 (1.9B parameters) at finding objects.** The scores are 76.9% and 76.4% on 2,080 examples. Resampling the examples puts the difference between about -1.7 and +2.6 points, so the two scores cannot be told apart. LFM takes about 0.7 s per picture and moondream2 about 0.2 s. LFM's vendor-shipped Q8 version scores exactly the same 76.9%.
 - **More image detail raises LFM's accuracy and does not slow it down.** Going from 32 to 256 image tokens roughly doubles find-object accuracy (39.5% to 77.5%). Time per picture stays at about half a second and energy stays between 3.5 and 4.2 joules per answer. For SmolVLM2, raising the image resolution from 512 to 2048 pixels multiplies energy 5.3 times and changes counting accuracy by about 3 points, which is within the noise of that test. At its shipped defaults SmolVLM2 uses 11 to 13 times the energy of LFM per answer, and about 15 times per correct answer. Those figures come from the same 100 counting questions, so treat the ratio as approximate.
-- **Small targets are the weak spot.** LFM finds 89% of large targets and 73% of medium ones. It finds only 44% of tiny ones (under 5% of the picture). Only 46 examples are tiny, which is too few for a firm conclusion. Qwen2.5-VL 7B stays at 80% on tiny targets. moondream2 scores 78% on tiny targets and 74% on medium ones.
+- **LFM is weakest on small targets.** LFM finds 89% of large targets and 73% of medium ones. It finds only 44% of tiny ones (under 5% of the picture). Only 46 examples are tiny, which is too few for a firm conclusion. Qwen2.5-VL 7B stays at 80% on tiny targets. moondream2 scores 78% on tiny targets and 74% on medium ones.
 - **Counting gets harder as the number grows.** On the 223 questions whose true answer is 7 or more, Qwen2.5-VL 7B gets 79% right, moondream2 73%, LFM 49%, SmolVLM2 45% and InternVL3.5 1B 32%. InternVL3.5 1B and SmolVLM2 are most often off by exactly one (25% and 23% of answers, against 9% to 16% for the other four models). We have not examined the remaining wrong answers.
-- **"Is it there?" questions get harder when the wrong object is plausible.** POPE has an easy, a medium and a hard version. Every model scores best on random objects and worst on adversarial ones, which often appear alongside what is really in the picture. InternVL3.5 1B falls from 92.8% to 81.1% and answers "yes" 62% of the time on the hard set. Qwen2.5-VL 7B falls least (89.1% to 87.0%) and says "yes" 40 to 42% of the time on all three versions.
+- **Yes/no accuracy falls when the absent object often appears in similar scenes.** POPE has an easy, a medium and a hard version. Every model scores best on random objects and worst on adversarial ones, which often appear alongside what is really in the picture. InternVL3.5 1B falls from 92.8% to 81.1% and answers "yes" 62% of the time on the hard set. Qwen2.5-VL 7B falls least (89.1% to 87.0%) and says "yes" 40 to 42% of the time on all three versions.
 - **Accuracy and speed rank the models differently.** LFM is the fastest at counting (40 ms per question) and fourth on accuracy. moondream2 is the fastest at finding objects (203 ms) and the best at yes/no. Qwen2.5-VL 7B is the most accurate at finding and counting and takes about 1.2 s per picture to find an object. No model leads all three tasks.
 - **Question wording moved one model by 30 points.** Asked only "Is there a car in the image?", SmolVLM2 500M was right 55.0% of the time, and 22% of its answers could not be read as yes or no. Adding the standard instruction "Please answer yes or no." raised it to 85.1% on the same 9,000 questions.
 - **The scores match an outside check, with one open disagreement.** The yes/no scores agree with VLMEvalKit within about half a percentage point (SmolVLM2 scores 85.1% here and 85.6% there). On counting, our grader credits more answers than the tool does for two models. LLaVA-OV scores 73.1% here and 31.6% there. The question text is identical in both runs, so the gap comes from how each tool extracts the number from the model's reply. We have not traced which extraction is right, so this is unresolved.
@@ -49,7 +49,7 @@ The choices below determine what the numbers mean.
 - **The shipped-form comparison is unequal by necessity.** Moondream 0.5B only exists in compressed form. For LFM we picked its vendor-published Q8 version to match Moondream's 8-bit precision. LFM can be compared with its own full-precision score. Moondream 0.5B has no full-precision version to compare with.
 - **Changes are logged.** METHODOLOGY.md has a numbered change log, and the raw files from superseded runs are kept.
 
-## How it is built
+## How the code is organized
 
 - **One short settings file per test.** Each combination of model and task (and detail level) is a small YAML file, and one program runs them all.
 - **Answering and grading are separate steps.** First, the models answer every question on a rented GPU (the kind of chip AI models run on), and every answer is saved along with exactly which model version, software versions, hardware, and prompt produced it. Grading then reads only those saved answers, so anyone can re-grade them on an ordinary laptop.
@@ -57,7 +57,7 @@ The choices below determine what the numbers mean.
 - **The same conditions every time.** Models always give their single most likely answer, with no randomness. Every run checks that it is on the same kind of GPU (an Nvidia A100 with 40 GB of memory) and refuses to run otherwise. Model and dataset versions are pinned to an exact fingerprint. A run that is interrupted picks up where it left off without losing any answers.
 - **Failures stay in the scores.** A wrong or unreadable answer counts against the model. Any retry or dropped item is recorded in METHODOLOGY.md.
 
-## Check it yourself
+## Re-scoring and re-running
 
 Re-grade a stored result on any computer with Python. No GPU or extra packages are needed:
 
@@ -72,7 +72,7 @@ Running a model again needs an account with [Modal](https://modal.com), a servic
 modal run harness/run.py --config configs/bench/lfm450m_grounding.yaml
 ```
 
-## How the pieces connect
+## Data flow
 
 ```mermaid
 flowchart LR
@@ -83,7 +83,7 @@ flowchart LR
   R --> V[Independent re-check<br/>VLMEvalKit]
 ```
 
-## Why the shipped-form table is separate
+## Why the shipped-form results are in a separate table
 
 The models are compared in two separate tables that are never combined. The main table runs every model uncompressed, at full quality, on the same GPU, so hardware and precision are the same for every model. A second table runs two of the models the way they are actually shipped to devices: compressed to a smaller size and running on an ordinary processor. A combined table would hide whether a score gap came from the model, the hardware or the compression.
 
@@ -101,16 +101,16 @@ machine is a control plane only (no GPU, no model loads, no dataset image proces
   shipped small form, on the same items — never merged into the bf16 main table.
 - **Part 2 — Image-token-budget sweep**: grounding accuracy and latency vs. image-token
   budget for three small VLMs (LFM2.5-VL-450M, SmolVLM2-500M, Moondream 0.5B) on
-  RefCOCO-M, producing an accuracy-vs-budget curve. The planned demo lookup table has not been built.
+  RefCOCO-M, producing an accuracy-vs-budget curve and a lookup table in `demo_data/`.
 
 Both parts share one config-driven harness, one set of parsers/prompts/scoring, and the
 same Modal Images, so differences in results come from the models and settings.
 
 ## Status
 
-Complete except the Part 2 lookup table, which has not been built (`demo_data/` is empty). Results for both parts are in [RESULTS.md](RESULTS.md), with a raw per-item answer file behind every number under `results/raw/`. Published numbers appear only in the calibration table, with live source URLs.
+Complete. Results for both parts are in [RESULTS.md](RESULTS.md), with a raw per-item answer file behind every number under `results/raw/`. Published numbers appear only in the calibration table, with live source URLs.
 
-## Repo map
+## Repository layout
 
 ```
 README.md          # this file: setup, repo map, one-command repro per cell
@@ -123,15 +123,15 @@ envs/              # Modal Image definitions + exported lockfiles per env
 harness/           # inference runners (Modal functions) — shared by both parts
 prompts/           # verbatim prompt templates, one file per template id
 parsers/           # per-model output parsers + unit tests
-scoring/           # scoring pass over raw JSONL only, no GPU needed; breakdowns.py makes the CIs and breakdowns
+scoring/           # scoring pass over raw JSONL only, no GPU needed; breakdowns.py makes the confidence intervals and breakdowns; demo_table.py makes the lookup table
 results/
   raw/{bench,sweep}/      # per-item JSONL, one file per cell
   tables/{bench,sweep}/   # generated CSV/JSON + markdown tables
 calibration/       # Part 1: published-vs-ours table, VLMEvalKit lane outputs
-demo_data/         # empty: the planned Part 2 lookup table has not been built
+demo_data/         # Part 2: image-detail lookup table (CSV and JSON) with a column guide
 ```
 
-## Setup (control plane)
+## Setup
 
 ```bash
 python3.12 -m venv .venv
@@ -140,7 +140,7 @@ pip install modal pyyaml          # in-container environments are pinned in envs
 modal token set                    # or use an existing ~/.modal.toml
 ```
 
-## Reproducing a cell
+## Re-running one test
 
 One command per cell, run from the repository root:
 
@@ -155,7 +155,7 @@ Score raw answers without a GPU:
 python3 -m scoring.score results/raw/bench/<cell>.jsonl --out results/tables/bench/
 ```
 
-## Provenance rules (non-negotiable)
+## Rules for reported numbers
 
 - Every reported number comes from execution in this project.
 - Everything pinned by hash: checkpoints, remote code, datasets, VLMEvalKit commit, envs.

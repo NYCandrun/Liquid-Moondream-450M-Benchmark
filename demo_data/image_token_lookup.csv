@@ -1,0 +1,18 @@
+source,model,task,setting_kind,setting,hardware,n_items,accuracy,accuracy_metric,median_ms_per_item,mean_input_tokens,items_upscaled_by_fallback,j_per_answer,j_per_answer_net_of_idle,note
+sweep,LFM2.5-VL 450M,find-object,image tokens (min = max),32,A100-40GB,2080,0.3951923076923077,Acc@0.5,486.6,79.5,0,,,tiling off; mean_input_tokens includes about 46 question tokens
+sweep,LFM2.5-VL 450M,find-object,image tokens (min = max),64,A100-40GB,2080,0.6038461538461538,Acc@0.5,504.4,110.0,2,,,tiling off; mean_input_tokens includes about 46 question tokens
+sweep,LFM2.5-VL 450M,find-object,image tokens (min = max),128,A100-40GB,2080,0.7004807692307692,Acc@0.5,496.1,172.0,10,,,tiling off; mean_input_tokens includes about 46 question tokens
+sweep,LFM2.5-VL 450M,find-object,image tokens (min = max),256,A100-40GB,2080,0.7745192307692308,Acc@0.5,504.4,295.7,289,,,tiling off; mean_input_tokens includes about 46 question tokens
+sweep,SmolVLM2 500M,counting,longest image edge (px),512,A100-40GB,491,0.5804480651731161,exact match,101.2,106.4,0,,,2048 is the shipped default; find-object is unsupported by this model
+sweep,SmolVLM2 500M,counting,longest image edge (px),1024,A100-40GB,491,0.6008146639511202,exact match,111.7,368.6,0,,,2048 is the shipped default; find-object is unsupported by this model
+sweep,SmolVLM2 500M,counting,longest image edge (px),1536,A100-40GB,491,0.6069246435845214,exact match,124.9,649.4,0,,,2048 is the shipped default; find-object is unsupported by this model
+sweep,SmolVLM2 500M,counting,longest image edge (px),2048,A100-40GB,491,0.6089613034623218,exact match,142.4,1036.6,0,,,2048 is the shipped default; find-object is unsupported by this model
+probe,LFM2.5-VL 450M,counting (100-question subset),image tokens (min = max),32,A100-40GB,100,0.59,exact match,38.1,66.8,0,3.507,0.539,"energy from the GPU's NVML counter, model load excluded"
+probe,LFM2.5-VL 450M,counting (100-question subset),image tokens (min = max),64,A100-40GB,100,0.69,exact match,37.1,100.2,0,3.488,0.618,"energy from the GPU's NVML counter, model load excluded"
+probe,LFM2.5-VL 450M,counting (100-question subset),image tokens (min = max),128,A100-40GB,100,0.72,exact match,37.1,159.9,0,3.606,0.707,"energy from the GPU's NVML counter, model load excluded"
+probe,LFM2.5-VL 450M,counting (100-question subset),image tokens (min = max),256,A100-40GB,100,0.68,exact match,38.0,287.8,0,4.196,1.01,"energy from the GPU's NVML counter, model load excluded"
+probe,SmolVLM2 500M,counting (100-question subset),longest image edge (px),512,A100-40GB,100,0.63,exact match,84.0,106.3,0,9.074,1.538,"energy from the GPU's NVML counter, model load excluded"
+probe,SmolVLM2 500M,counting (100-question subset),longest image edge (px),1024,A100-40GB,100,0.61,exact match,96.4,365.6,0,16.187,3.754,"energy from the GPU's NVML counter, model load excluded"
+probe,SmolVLM2 500M,counting (100-question subset),longest image edge (px),1536,A100-40GB,100,0.64,exact match,112.6,635.7,0,24.351,6.163,"energy from the GPU's NVML counter, model load excluded"
+probe,SmolVLM2 500M,counting (100-question subset),longest image edge (px),2048,A100-40GB,100,0.62,exact match,131.4,1023.3,0,47.857,13.986,"energy from the GPU's NVML counter, model load excluded"
+shipped,Moondream 0.5B (int8),find-object,fixed,729,"CPU, 8 cores",2080,0.21298076923076922,Acc@0.5,2210.9,729.0,0,,,"single fixed setting, no dial; speed is CPU time and not comparable with the GPU rows"
