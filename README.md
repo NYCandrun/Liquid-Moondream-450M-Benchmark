@@ -98,18 +98,7 @@ results/
   tables/{bench,sweep}/   # generated CSV/JSON + markdown tables
 calibration/       # Part 1: published-vs-ours table, VLMEvalKit lane outputs
 demo_data/         # Part 2: demo-consumable lookup table (schema note below, TBD)
-liquid-ai-learning/ # Liquid AI study guide, prep course and EDGE RUSH game (see below)
 ```
-
-## Liquid AI learning materials
-
-`liquid-ai-learning/` is separate from the benchmark. It holds three earlier study projects about Liquid AI, each a single HTML file you open in a browser:
-
-- `study-guide/`: a long-form guide to Liquid AI's technology, market, company and competition.
-- `prep-course/`: the same material as 97 short lessons with progress tracking.
-- `edge-rush-game/`: EDGE RUSH, a browser game that teaches how on-device AI works.
-
-They were moved here from their own repositories with their full commit history. See `liquid-ai-learning/README.md`.
 
 ## Setup (control plane)
 
