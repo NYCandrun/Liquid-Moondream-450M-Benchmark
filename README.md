@@ -154,11 +154,3 @@ Score raw answers without a GPU:
 ```bash
 python3 -m scoring.score results/raw/bench/<cell>.jsonl --out results/tables/bench/
 ```
-
-## Rules for reported numbers
-
-- Every reported number comes from execution in this project.
-- Everything pinned by hash: checkpoints, remote code, datasets, VLMEvalKit commit, envs.
-- Freeze before scale; any post-freeze change re-runs affected cells and is logged in
-  METHODOLOGY.md.
-- Failures are reported and documented. None is patched or dropped without a log entry.
