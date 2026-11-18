@@ -6,7 +6,7 @@ This project tests six small AI models that can look at a picture and answer que
 - **Answer yes or no.** Say whether an object is in the picture, such as "Is there a car in the image?" 9,000 questions from the POPE dataset.
 - **Count.** Say how many of something there are. 491 questions from the CountBenchQA dataset.
 
-For each model, the project records how often it is right, how long it takes per picture, and how often its answer comes back in a form that can be scored at all. Every model runs through the same code on the same kind of GPU with the same decoding settings. The one thing that differs per model is the wording of the find-object request, because each model was trained to be asked in its own format (see "How the tests were run").
+For each model, the project records how often it is right, how long it takes per picture, and how often its answer comes back in a form that can be scored at all. Every model runs through the same code on an Nvidia A100 40 GB GPU with the same decoding settings. The one thing that differs per model is the wording of the find-object request, because each model was trained to be asked in its own format (see "How the tests were run").
 
 ## What we did
 
@@ -17,18 +17,18 @@ For each model, the project records how often it is right, how long it takes per
 
 ## What it found
 
-**The headline: LFM2.5-VL 450M finds objects as accurately as moondream2, a model about four times its size.** moondream2 is faster at it, and LFM is more energy-efficient than SmolVLM2 (details below).
+**The headline: LFM2.5-VL 450M finds objects as accurately as moondream2, a model about four times its size.** moondream2 is faster at it, and LFM uses far less energy than SmolVLM2 on the same questions.
 
-- **LFM2.5-VL 450M ties moondream2 (1.9B parameters) at finding objects.** The scores are 76.9% and 76.4% on 2,080 examples. Resampling the examples puts the difference between about -1.7 and +2.6 points, so it is inside the noise. LFM takes about 0.7 s per picture and moondream2 about 0.2 s. LFM's vendor-shipped Q8 version scores exactly the same 76.9%.
-- **Image detail is nearly free for LFM on this task.** Going from 32 to 256 image tokens roughly doubles accuracy (39.5% to 77.5%). Time per picture stays at about half a second and energy stays between 3.5 and 4.2 joules per answer. SmolVLM2 behaves differently. Its detail dial multiplies energy 5.3 times and moves accuracy by an amount within noise. At its shipped defaults SmolVLM2 uses 11 to 13 times the energy of LFM per answer, and about 15 times per correct answer. Those figures come from the same 100 counting questions, so treat the ratio as approximate.
-- **Small targets are the weak spot.** LFM finds 89% of large targets and 73% of medium ones. It finds only 44% of tiny ones (under 5% of the picture). Just 46 examples are tiny, so treat this as a pattern to check. Qwen2.5-VL 7B stays at 80% on tiny targets. moondream2 scores 78% on tiny targets and 74% on medium ones.
-- **Counting gets harder as the number grows.** On the 223 questions whose true answer is 7 or more, Qwen2.5-VL 7B gets 79% right, moondream2 73%, LFM 49%, SmolVLM2 45% and InternVL3.5 1B 32%. InternVL3.5 1B and SmolVLM2 are most often off by exactly one (25% and 23% of answers). Off-by-one is the typical miscounting error. We have not checked the rest of the wrong answers.
+- **LFM2.5-VL 450M ties moondream2 (1.9B parameters) at finding objects.** The scores are 76.9% and 76.4% on 2,080 examples. Resampling the examples puts the difference between about -1.7 and +2.6 points, so the two scores cannot be told apart. LFM takes about 0.7 s per picture and moondream2 about 0.2 s. LFM's vendor-shipped Q8 version scores exactly the same 76.9%.
+- **More image detail raises LFM's accuracy and does not slow it down.** Going from 32 to 256 image tokens roughly doubles find-object accuracy (39.5% to 77.5%). Time per picture stays at about half a second and energy stays between 3.5 and 4.2 joules per answer. For SmolVLM2, raising the image resolution from 512 to 2048 pixels multiplies energy 5.3 times and changes counting accuracy by about 3 points, which is within the noise of that test. At its shipped defaults SmolVLM2 uses 11 to 13 times the energy of LFM per answer, and about 15 times per correct answer. Those figures come from the same 100 counting questions, so treat the ratio as approximate.
+- **Small targets are the weak spot.** LFM finds 89% of large targets and 73% of medium ones. It finds only 44% of tiny ones (under 5% of the picture). Only 46 examples are tiny, which is too few for a firm conclusion. Qwen2.5-VL 7B stays at 80% on tiny targets. moondream2 scores 78% on tiny targets and 74% on medium ones.
+- **Counting gets harder as the number grows.** On the 223 questions whose true answer is 7 or more, Qwen2.5-VL 7B gets 79% right, moondream2 73%, LFM 49%, SmolVLM2 45% and InternVL3.5 1B 32%. InternVL3.5 1B and SmolVLM2 are most often off by exactly one (25% and 23% of answers, against 9% to 16% for the other four models). We have not examined the remaining wrong answers.
 - **"Is it there?" questions get harder when the wrong object is plausible.** POPE has an easy, a medium and a hard version. Every model scores best on random objects and worst on adversarial ones, which often appear alongside what is really in the picture. InternVL3.5 1B falls from 92.8% to 81.1% and answers "yes" 62% of the time on the hard set. Qwen2.5-VL 7B falls least (89.1% to 87.0%) and says "yes" 40 to 42% of the time on all three versions.
 - **Accuracy and speed rank the models differently.** LFM is the fastest at counting (40 ms per question) and fourth on accuracy. moondream2 is the fastest at finding objects (203 ms) and the best at yes/no. Qwen2.5-VL 7B is the most accurate at finding and counting and takes about 1.2 s per picture to find an object. No model leads all three tasks.
-- **Question wording moved one model by 30 points.** Asked only "Is there a car in the image?", SmolVLM2 500M was right 55.0% of the time. It often rambled instead of answering. Adding the standard instruction "Please answer yes or no." raised it to 85.1% on the same 9,000 questions.
-- **The scores match an outside check, with one open disagreement.** The yes/no scores agree with VLMEvalKit within about half a percentage point (SmolVLM2 scores 85.1% here and 85.6% there). On counting, our grader credits more answers than the tool does for two models. LLaVA-OV scores 73.1% here and 31.6% there. The question text is byte-identical in both, so the difference lies in how answers are read. We list it as open.
-- **Compressing LFM costs almost nothing, and Moondream 0.5B has no other form.** In the shipped-form table LFM 450M Q8 scores 76.9% / 85.3% / 69.7% (find / yes-no / count). Moondream 0.5B scores 21.3% / 55.1% / 31.6%. This table is separate from the main one and the two cannot be compared.
-- **A crash in the model's own software.** Fixing LFM's number of image tokens made the model's own software crash on up to 14% of pictures, which at first made the highest setting look worse than it was. When a small picture had to be enlarged to reach the set number, the model's resizing code rounded both sides up, went over its own limit and crashed. Enlarging those pictures slightly beforehand sends them through the code's shrinking step, which rounds down and is safe. Every picture then completed. The earlier run that crashed is kept as a record.
+- **Question wording moved one model by 30 points.** Asked only "Is there a car in the image?", SmolVLM2 500M was right 55.0% of the time, and 22% of its answers could not be read as yes or no. Adding the standard instruction "Please answer yes or no." raised it to 85.1% on the same 9,000 questions.
+- **The scores match an outside check, with one open disagreement.** The yes/no scores agree with VLMEvalKit within about half a percentage point (SmolVLM2 scores 85.1% here and 85.6% there). On counting, our grader credits more answers than the tool does for two models. LLaVA-OV scores 73.1% here and 31.6% there. The question text is identical in both runs, so the gap comes from how each tool extracts the number from the model's reply. We have not traced which extraction is right, so this is unresolved.
+- **LFM loses almost nothing when compressed to 8-bit.** Find-object is unchanged at 76.9%, yes/no is 0.5 points higher and counting is 1.8 points lower than its full-precision scores. Moondream 0.5B only exists in compressed form. On the same processor, LFM 450M Q8 scores 76.9% / 85.3% / 69.7% (find / yes-no / count) and Moondream 0.5B scores 21.3% / 55.1% / 31.6%. These shipped-form scores are not comparable with the main table.
+- **A crash in LFM's image-resizing code.** Fixing LFM's number of image tokens made its resizing code crash on up to 14% of pictures. Our first run scored those crashes as misses, which made the highest setting look worse than it was. When a small picture had to be enlarged to reach the set number, the model's resizing code rounded both sides up, went over its own limit and crashed. Enlarging those pictures slightly beforehand sends them through the code's shrinking step, which rounds down and is safe. Every picture then completed. The earlier run that crashed is kept as a record.
 
 The size, category and counting breakdowns, and 95% confidence intervals for every headline score, are generated by `python3 -m scoring.breakdowns` from the saved answers and listed in [RESULTS.md](RESULTS.md).
 
@@ -55,7 +55,7 @@ The choices below determine what the numbers mean.
 - **Answering and grading are separate steps.** First, the models answer every question on a rented GPU (the kind of chip AI models run on), and every answer is saved along with exactly which model version, software versions, hardware, and prompt produced it. Grading then reads only those saved answers, so anyone can re-grade them on an ordinary laptop.
 - **A tested answer reader for each model.** Models format their answers differently; a box might come back as four numbers or as a sentence. A small reader for each model turns its answers into something that can be graded, each reader has its own tests, and the share of answers it could read is reported next to every score.
 - **The same conditions every time.** Models always give their single most likely answer, with no randomness. Every run checks that it is on the same kind of GPU (an Nvidia A100 with 40 GB of memory) and refuses to run otherwise. Model and dataset versions are pinned to an exact fingerprint. A run that is interrupted picks up where it left off without losing any answers.
-- **Failures stay in the data.** A wrong or unreadable answer counts against the model. Nothing is retried or dropped without a note in METHODOLOGY.md.
+- **Failures stay in the scores.** A wrong or unreadable answer counts against the model. Any retry or dropped item is recorded in METHODOLOGY.md.
 
 ## Check it yourself
 
@@ -85,7 +85,7 @@ flowchart LR
 
 ## Why the shipped-form table is separate
 
-The models are compared in two separate tables that are never combined. The main table runs every model uncompressed, at full quality, on the same GPU, so the comparison is fair. A second table runs two of the models the way they are actually shipped to devices: compressed to a smaller size and running on an ordinary processor. A combined table would hide whether a score gap came from the model, the hardware or the compression.
+The models are compared in two separate tables that are never combined. The main table runs every model uncompressed, at full quality, on the same GPU, so hardware and precision are the same for every model. A second table runs two of the models the way they are actually shipped to devices: compressed to a smaller size and running on an ordinary processor. A combined table would hide whether a score gap came from the model, the hardware or the compression.
 
 ---
 
@@ -101,14 +101,14 @@ machine is a control plane only (no GPU, no model loads, no dataset image proces
   shipped small form, on the same items — never merged into the bf16 main table.
 - **Part 2 — Image-token-budget sweep**: grounding accuracy and latency vs. image-token
   budget for three small VLMs (LFM2.5-VL-450M, SmolVLM2-500M, Moondream 0.5B) on
-  RefCOCO-M, producing an accuracy-vs-budget curve and a demo-consumable lookup table.
+  RefCOCO-M, producing an accuracy-vs-budget curve. The planned demo lookup table has not been built.
 
 Both parts share one config-driven harness, one set of parsers/prompts/scoring, and the
 same Modal Images, so differences in results come from the models and settings.
 
 ## Status
 
-Complete. Results for both parts are in [RESULTS.md](RESULTS.md), with a raw per-item answer file behind every number under `results/raw/`. Published numbers appear only in the calibration table, with live source URLs.
+Complete except the Part 2 lookup table, which has not been built (`demo_data/` is empty). Results for both parts are in [RESULTS.md](RESULTS.md), with a raw per-item answer file behind every number under `results/raw/`. Published numbers appear only in the calibration table, with live source URLs.
 
 ## Repo map
 
@@ -128,7 +128,7 @@ results/
   raw/{bench,sweep}/      # per-item JSONL, one file per cell
   tables/{bench,sweep}/   # generated CSV/JSON + markdown tables
 calibration/       # Part 1: published-vs-ours table, VLMEvalKit lane outputs
-demo_data/         # Part 2: demo-consumable lookup table (schema note below, TBD)
+demo_data/         # empty: the planned Part 2 lookup table has not been built
 ```
 
 ## Setup (control plane)
@@ -161,4 +161,4 @@ python3 -m scoring.score results/raw/bench/<cell>.jsonl --out results/tables/ben
 - Everything pinned by hash: checkpoints, remote code, datasets, VLMEvalKit commit, envs.
 - Freeze before scale; any post-freeze change re-runs affected cells and is logged in
   METHODOLOGY.md.
-- Failures are findings: documented and reported, never silently patched or dropped.
+- Failures are reported and documented. None is patched or dropped without a log entry.
